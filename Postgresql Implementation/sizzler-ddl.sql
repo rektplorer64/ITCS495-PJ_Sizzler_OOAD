@@ -30,6 +30,13 @@ CREATE TABLE IF NOT EXISTS "Branch"
     "status"              "branch_status"                          NOT NULL DEFAULT 'under maintenance'
 );
 
+CREATE TABLE IF NOT EXISTS "Table"
+(
+    "branchId" UUID NOT NULL REFERENCES "Branch" ("branchId"),
+    "tableId"  INT  NOT NULL,
+    PRIMARY KEY ("branchId", "tableId")
+);
+
 CREATE TABLE IF NOT EXISTS "BranchTelephone"
 (
     "branchId"    UUID PRIMARY KEY
@@ -400,3 +407,121 @@ CREATE TABLE IF NOT EXISTS "CashierBillingHandling"
     "billingId"        UUID REFERENCES "BillingOnSite" ("billingId"),
     PRIMARY KEY ("cashierId", "cashierMachineId", "billingId")
 );
+
+/**
+  Customer Instance
+ */
+CREATE TABLE IF NOT EXISTS "CustomerInstance"
+(
+    "customerInstanceId" SERIAL PRIMARY KEY,
+    "timeAdded"          TIMESTAMP NOT NULL DEFAULT now(),
+    "belongingBranchId"  UUID      NOT NULL REFERENCES "Branch" ("branchId")
+);
+
+CREATE TABLE IF NOT EXISTS "CustomerPax"
+(
+    "totalCustomers"  INT  NOT NULL DEFAULT 1,
+    "tableId"         INT  NOT NULL,
+    "tableBranchId"   UUID NOT NULL,
+    "onSiteBillingId" UUID NOT NULL REFERENCES "BillingOnSite" ("billingId"),
+    PRIMARY KEY ("customerInstanceId"),
+    FOREIGN KEY ("belongingBranchId")
+        REFERENCES "Branch" ("branchId"),
+    FOREIGN KEY ("tableId", "tableBranchId")
+        REFERENCES "Table" ("tableId", "branchId"),
+    CHECK ( "belongingBranchId" = "tableBranchId" )
+) INHERITS ("CustomerInstance");
+
+CREATE TABLE IF NOT EXISTS "CustomerDelivery"
+(
+    "telephoneNo"       VARCHAR(15) NOT NULL,
+    "fullAddress"       TEXT        NOT NULL,
+    "provinceId"        INT         NOT NULL REFERENCES "Province" ("provinceId"),
+    "deliveryBillingId" UUID        NOT NULL REFERENCES "BillingDelivery" ("billingId"),
+    PRIMARY KEY ("customerInstanceId"),
+    FOREIGN KEY ("belongingBranchId")
+        REFERENCES "Branch" ("branchId")
+) INHERITS ("CustomerInstance");
+
+/**
+  Order
+ */
+CREATE TABLE IF NOT EXISTS "Order"
+(
+    "orderId"               SERIAL PRIMARY KEY,
+    "timeCreated"           TIMESTAMP NOT NULL DEFAULT now(),
+    "note"                  TEXT,
+    "customerPaxInstanceId" INT REFERENCES "CustomerPax" ("customerInstanceId"),
+    "customerDelivery"      INT REFERENCES "CustomerDelivery" ("customerInstanceId"),
+    "waiterId"              UUID      NOT NULL REFERENCES "Waiter" ("employeeId"),
+    "billingId"             UUID      NOT NULL REFERENCES "Billing" ("billingId"),
+    CHECK ( ("customerPaxInstanceId" IS NOT NULL AND "customerDelivery" IS NULL) OR
+            ("customerPaxInstanceId" IS NULL AND "customerDelivery" IS NOT NULL))
+);
+
+/**
+  Payment Transaction
+ */
+CREATE TABLE IF NOT EXISTS "PaymentTransaction"
+(
+    "paymentTransactionId" UUID PRIMARY KEY,
+    "timestamp"            TIMESTAMP NOT NULL DEFAULT now(),
+    "billingId"            UUID      NOT NULL REFERENCES "PaymentTransaction" ("billingId")
+);
+
+CREATE TABLE IF NOT EXISTS "GiftVoucherRef"
+(
+    "giftVoucherRefId" SERIAL PRIMARY KEY,
+    "name"             VARCHAR(30) NOT NULL,
+    "description"      TEXT        NOT NULL,
+    "timeAdded"        TIMESTAMP   NOT NULL DEFAULT now(),
+    "timeCanceled"     TIMESTAMP,
+    "valueAmount"      INT         NOT NULL,
+    "lifetime"         INTERVAL             DEFAULT '5 years'
+);
+
+CREATE TABLE IF NOT EXISTS "GiftVoucher"
+(
+    "giftVoucherNo"    SERIAL PRIMARY KEY,
+    "timeIssued"       TIMESTAMP NOT NULL DEFAULT now(),
+    "giftVoucherRefId" INT       NOT NULL REFERENCES "GiftVoucherRef" ("giftVoucherRefId")
+);
+
+CREATE TABLE IF NOT EXISTS "CashTransaction"
+(
+    "amount" DECIMAL(12, 2) NOT NULL,
+    PRIMARY KEY ("paymentTransactionId"),
+    FOREIGN KEY ("billingId")
+        REFERENCES "PaymentTransaction" ("billingId")
+) INHERITS ("PaymentTransaction");
+
+CREATE TABLE IF NOT EXISTS "CreditTransaction"
+(
+    "cardNumber" VARCHAR(25)    NOT NULL,
+    "amount"     DECIMAL(12, 2) NOT NULL,
+    PRIMARY KEY ("paymentTransactionId"),
+    FOREIGN KEY ("billingId")
+        REFERENCES "PaymentTransaction" ("billingId")
+) INHERITS ("PaymentTransaction");
+
+CREATE TABLE IF NOT EXISTS "GiftVoucherTransaction"
+(
+    "giftVoucherNo" INT NOT NULL REFERENCES "GiftVoucher" ("giftVoucherNo"),
+    PRIMARY KEY ("paymentTransactionId"),
+    FOREIGN KEY ("billingId")
+        REFERENCES "PaymentTransaction" ("billingId")
+) INHERITS ("PaymentTransaction");
+
+/**
+  Inventory Inbound Order
+ */
+CREATE TABLE IF NOT EXISTS "InventoryInboundOrder"
+(
+    "inboundOrderId"           SERIAL PRIMARY KEY,
+    "timeCreated"              TIMESTAMP NOT NULL DEFAULT now(),
+    "timeCanceled"             TIMESTAMP,
+    "note"                     TEXT,
+    "deliveryIn"               INTERVAL  NOT NULL DEFAULT '12 hours',
+    "managingKitchenManagerId" UUID      NOT NULL REFERENCES "KitchenManager" ("employeeId")
+);
+
