@@ -5,15 +5,24 @@ ROLLBACK;
 CREATE DATABASE "MainSizzlerDb2";
 SET search_path = "MainSizzlerDb2";
 
+/**
+ * SECTION: Declare Additional Libraries for types or functions
+ */
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "citext";
 
+/**
+ * SECTION: Begin Data Definition Language
+ */
 CREATE TABLE IF NOT EXISTS "Province"
 (
     "provinceId"  SERIAL PRIMARY KEY,
     "nameThai"    VARCHAR(50) UNIQUE NOT NULL,
     "nameEnglish" VARCHAR(50) UNIQUE NOT NULL
 );
+
+
+-- SECTION: Branch
 
 CREATE TYPE BRANCH_STATUS AS ENUM ('normally operational', 'under maintenance', 'out-of-business');
 
@@ -95,9 +104,7 @@ CREATE TABLE IF NOT EXISTS "SaladBar"
         REFERENCES "Branch" ("branchId") ON DELETE CASCADE
 );
 
-/**
-  Employee
- */
+-- SECTION: Employee
 CREATE TABLE IF NOT EXISTS "EducationLevelRef"
 (
     "educationLevelId" SERIAL PRIMARY KEY,
@@ -168,9 +175,7 @@ CREATE TABLE IF NOT EXISTS "ClockInClockOut"
     PRIMARY KEY ("computerMachineId", "employeeId", "clockInTimestamp")
 );
 
-/**
-  "Waiter" related relations
- */
+-- SECTION: Employee -> Waiter
 CREATE TABLE IF NOT EXISTS "WorldLanguageRef"
 (
     "worldLanguageRefId" SERIAL PRIMARY KEY,
@@ -197,9 +202,7 @@ CREATE TABLE IF NOT EXISTS "WaiterLanguageFluency"
     "worldLanguageRefId" INT REFERENCES "WorldLanguageRef" ("worldLanguageRefId")
 );
 
-/**
-  Kitchen Porter
- */
+ -- SECTION: Employee -> Kitchen Porter
 CREATE TABLE IF NOT EXISTS "KitchenPorter"
 (
     PRIMARY KEY ("employeeId"),
@@ -213,9 +216,7 @@ CREATE TABLE IF NOT EXISTS "KitchenPorter"
     UNIQUE ("email")
 ) INHERITS ("Employee");
 
-/**
-  Chef
- */
+ -- SECTION: Employee -> Chef
 CREATE TABLE IF NOT EXISTS "CookingRoleRef"
 (
     "cookingRoleRefId" SERIAL PRIMARY KEY,
@@ -245,9 +246,7 @@ CREATE TABLE IF NOT EXISTS "ChefCookingRole"
     "priority"         PRIORITY NOT NULL DEFAULT 'medium'
 );
 
-/**
-  Cashier
- */
+ -- SECTION: Employee -> Cashier
 CREATE TABLE IF NOT EXISTS "Cashier"
 (
     PRIMARY KEY ("employeeId"),
@@ -261,9 +260,7 @@ CREATE TABLE IF NOT EXISTS "Cashier"
     UNIQUE ("email")
 ) INHERITS ("Employee");
 
-/**
-  Kitchen Manager
- */
+ -- SECTION: Employee -> Kitchen Manager
 CREATE TABLE IF NOT EXISTS "KitchenManager"
 (
     PRIMARY KEY ("employeeId"),
@@ -277,9 +274,8 @@ CREATE TABLE IF NOT EXISTS "KitchenManager"
     UNIQUE ("email")
 ) INHERITS ("Employee");
 
-/**
-  Delivery Man
- */
+
+-- SECTION: Employee -> Delivery Man
 CREATE TABLE IF NOT EXISTS "DeliveryMan"
 (
     PRIMARY KEY ("employeeId"),
@@ -293,9 +289,8 @@ CREATE TABLE IF NOT EXISTS "DeliveryMan"
     UNIQUE ("email")
 ) INHERITS ("Employee");
 
-/**
-  Branch Manager
- */
+
+ -- SECTION: Employee -> Branch Manager
 CREATE TABLE IF NOT EXISTS "BranchManager"
 (
     PRIMARY KEY ("employeeId"),
@@ -319,9 +314,8 @@ CREATE TABLE IF NOT EXISTS "EmployeeWagePayment"
     PRIMARY KEY ("employeeId", "branchManagerId", "timestamp")
 );
 
-/**
-  Member Customer
- */
+
+-- SECTION: Member Customer
 CREATE TABLE IF NOT EXISTS "MemberCustomer"
 (
     "memberCustomerId" UUID PRIMARY KEY DEFAULT "uuid_generate_v4"(),
@@ -335,6 +329,7 @@ CREATE TABLE IF NOT EXISTS "MemberCustomer"
     "liveNearBranchId" UUID        NOT NULL REFERENCES "Branch" ("branchId")
 );
 
+-- SECTION: Member Customer -> Redeemable Reward
 CREATE TABLE IF NOT EXISTS "RedeemableRewardRef"
 (
     "redeemableRewardRefId" UUID PRIMARY KEY     DEFAULT "uuid_generate_v4"(),
@@ -353,6 +348,7 @@ CREATE TABLE IF NOT EXISTS "MembershipRewardRedemption"
     PRIMARY KEY ("redeemableRewardRefId", "memberCustomerRef", "timestamp")
 );
 
+-- SECTION: Member Customer -> Membership Level
 CREATE TABLE IF NOT EXISTS "MemberLevelRef"
 (
     "memberLevelRefId" UUID        NOT NULL PRIMARY KEY DEFAULT "uuid_generate_v4"(),
@@ -367,9 +363,7 @@ CREATE TABLE IF NOT EXISTS "MemberLevelRewardOffering"
     "redeemableRewardRefId" UUID NOT NULL REFERENCES "RedeemableRewardRef" ("redeemableRewardRefId")
 );
 
-/**
-  Billing
- */
+-- SECTION: Billing
 CREATE TABLE IF NOT EXISTS "Billing"
 (
     "billingId"                UUID PRIMARY KEY   DEFAULT "uuid_generate_v4"(),
@@ -388,6 +382,7 @@ CREATE TABLE IF NOT EXISTS "Billing"
                 ("pointReceived" IS NULL AND "pointExpirationTime" IS NULL) )
 );
 
+-- SECTION: Billing -> Subclasses of Billing
 CREATE TABLE IF NOT EXISTS "BillingOnSite"
 (
     PRIMARY KEY ("billingId"),
@@ -415,9 +410,7 @@ CREATE TABLE IF NOT EXISTS "CashierBillingHandling"
     PRIMARY KEY ("cashierId", "cashierMachineId", "billingId")
 );
 
-/**
-  Customer Instance
- */
+-- SECTION: Customer Instance
 CREATE TABLE IF NOT EXISTS "CustomerInstance"
 (
     "customerInstanceId" SERIAL PRIMARY KEY,
@@ -450,9 +443,7 @@ CREATE TABLE IF NOT EXISTS "CustomerDelivery"
         REFERENCES "Branch" ("branchId")
 ) INHERITS ("CustomerInstance");
 
-/**
-  Order
- */
+-- SECTION: Customer Instance -> Order
 CREATE TABLE IF NOT EXISTS "Order"
 (
     "orderId"               SERIAL PRIMARY KEY,
@@ -466,9 +457,7 @@ CREATE TABLE IF NOT EXISTS "Order"
             ("customerPaxInstanceId" IS NULL AND "customerDelivery" IS NOT NULL))
 );
 
-/**
-  Payment Transaction
- */
+-- SECTION: Billing -> PaymentTransaction
 CREATE TABLE IF NOT EXISTS "PaymentTransaction"
 (
     "paymentTransactionId" UUID PRIMARY KEY,
@@ -520,9 +509,7 @@ CREATE TABLE IF NOT EXISTS "GiftVoucherTransaction"
 ) INHERITS ("PaymentTransaction");
 
 
-/**
-  Food Ingredient Ref
- */
+-- SECTION: Food Ingredient
 CREATE TYPE FOOD_INGREDIENT_CATEGORY AS ENUM ('meat', 'vegetable', 'spice', 'sauce', 'desert', 'beverage', 'fruit');
 
 CREATE TABLE IF NOT EXISTS "FoodIngredientRef"
@@ -534,9 +521,7 @@ CREATE TABLE IF NOT EXISTS "FoodIngredientRef"
     "category"            FOOD_INGREDIENT_CATEGORY NOT NULL
 );
 
-/**
-  Inventory Inbound Order
- */
+-- SECTION: Food Ingredient -> Inventory Inbound Order
 CREATE TABLE IF NOT EXISTS "InventoryInboundOrder"
 (
     "inboundOrderId"           SERIAL PRIMARY KEY,
@@ -547,9 +532,7 @@ CREATE TABLE IF NOT EXISTS "InventoryInboundOrder"
     "managingKitchenManagerId" UUID      NOT NULL REFERENCES "KitchenManager" ("employeeId")
 );
 
-/**
-  Quantity (weight, volume) Unit Reference
- */
+-- Quantity (weight, volume) Unit Reference
 CREATE TYPE QUANTITY_CATEGORY AS ENUM ('volume', 'weight', 'pack');
 
 CREATE TABLE IF NOT EXISTS "QuantityUnitRef"
