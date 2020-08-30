@@ -8,5 +8,14 @@ services:
       - database.env # configure postgres
     volumes:
       - database-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+  testDatabase:
+    image: "postgres" # use latest official postgres version
+    ports:
+      - "5433:5432"
+    env_file:
+      - database.test.env # configure postgres
+    volumes:
+      - database-data-test:/var/lib/postgresql/data/ # persist data even if container shuts down
 volumes:
   database-data: # named volumes can be managed easier using docker-compose
+  database-data-test:
