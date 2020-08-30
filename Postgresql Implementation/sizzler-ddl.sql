@@ -1,15 +1,11 @@
-BEGIN;
-COMMIT;
-ROLLBACK;
-
-CREATE DATABASE "MainSizzlerDb2";
-SET search_path = "MainSizzlerDb2";
-
 /**
  * SECTION: Declare Additional Libraries for types or functions
  */
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "citext";
+
+-- DROP EXTENSION "citext";
+-- DROP EXTENSION "uuid-ossp";
 
 /**
  * SECTION: Begin Data Definition Language
@@ -28,15 +24,15 @@ CREATE TYPE BRANCH_STATUS AS ENUM ('normally operational', 'under maintenance', 
 
 CREATE TABLE IF NOT EXISTS "Branch"
 (
-    "branchId"            UUID PRIMARY KEY                                  DEFAULT "uuid_generate_v4"(),
-    "name"                VARCHAR(50) UNIQUE                       NOT NULL,
-    "provinceId"          INT REFERENCES "Province" ("provinceId") NOT NULL,
-    "fullAddress"         TEXT                                     NOT NULL,
-    "coordinateLatitude"  FLOAT                                    NOT NULL,
-    "coordinateLongitude" FLOAT                                    NOT NULL,
-    "email"               CITEXT                                   NOT NULL UNIQUE,
-    "establishingDate"    DATE                                     NOT NULL DEFAULT now(),
-    "status"              "branch_status"                          NOT NULL DEFAULT 'under maintenance'
+    "branchId"            UUID PRIMARY KEY            DEFAULT "uuid_generate_v4"(),
+    "name"                VARCHAR(50) UNIQUE NOT NULL,
+    "provinceId"          INT                NOT NULL REFERENCES "Province" ("provinceId"),
+    "fullAddress"         TEXT               NOT NULL,
+    "coordinateLatitude"  FLOAT              NOT NULL,
+    "coordinateLongitude" FLOAT              NOT NULL,
+    "email"               CITEXT             NOT NULL UNIQUE,
+    "establishingDate"    DATE               NOT NULL DEFAULT now(),
+    "status"              BRANCH_STATUS      NOT NULL DEFAULT 'under maintenance'
 );
 
 CREATE TABLE IF NOT EXISTS "Table"
@@ -198,8 +194,9 @@ CREATE TABLE IF NOT EXISTS "Waiter"
 
 CREATE TABLE IF NOT EXISTS "WaiterLanguageFluency"
 (
-    "employeeId"         UUID REFERENCES "Employee" ("employeeId"),
-    "worldLanguageRefId" INT REFERENCES "WorldLanguageRef" ("worldLanguageRefId")
+    "employeeId"         UUID NOT NULL REFERENCES "Employee" ("employeeId"),
+    "worldLanguageRefId" INT  NOT NULL REFERENCES "WorldLanguageRef" ("worldLanguageRefId"),
+    PRIMARY KEY ("employeeId", "worldLanguageRefId")
 );
 
 -- SECTION: Employee -> Kitchen Porter
@@ -237,7 +234,7 @@ CREATE TABLE IF NOT EXISTS "Chef"
     UNIQUE ("email")
 ) INHERITS ("Employee");
 
-CREATE TYPE PRIORITY AS ENUM ('high', 'medium', 'role');
+CREATE TYPE PRIORITY AS ENUM ('high', 'medium', 'low');
 
 CREATE TABLE IF NOT EXISTS "ChefCookingRole"
 (
@@ -414,8 +411,7 @@ CREATE TABLE IF NOT EXISTS "CashierBillingHandling"
 CREATE TABLE IF NOT EXISTS "CustomerInstance"
 (
     "customerInstanceId" SERIAL PRIMARY KEY,
-    "timeAdded"          TIMESTAMP NOT NULL DEFAULT now(),
-    "belongingBranchId"  UUID      NOT NULL REFERENCES "Branch" ("branchId")
+    "timeAdded"          TIMESTAMP NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS "CustomerPax"
@@ -425,11 +421,8 @@ CREATE TABLE IF NOT EXISTS "CustomerPax"
     "tableBranchId"   UUID NOT NULL,
     "onSiteBillingId" UUID NOT NULL REFERENCES "BillingOnSite" ("billingId"),
     PRIMARY KEY ("customerInstanceId"),
-    FOREIGN KEY ("belongingBranchId")
-        REFERENCES "Branch" ("branchId"),
     FOREIGN KEY ("tableId", "tableBranchId")
-        REFERENCES "Table" ("tableId", "branchId"),
-    CONSTRAINT "Check_SameBranchForCustomerPaxAndTable" CHECK ( "belongingBranchId" = "tableBranchId" )
+        REFERENCES "Table" ("tableId", "branchId")
 ) INHERITS ("CustomerInstance");
 
 CREATE TABLE IF NOT EXISTS "CustomerDelivery"
@@ -438,9 +431,8 @@ CREATE TABLE IF NOT EXISTS "CustomerDelivery"
     "fullAddress"       TEXT        NOT NULL,
     "provinceId"        INT         NOT NULL REFERENCES "Province" ("provinceId"),
     "deliveryBillingId" UUID        NOT NULL REFERENCES "BillingDelivery" ("billingId"),
-    PRIMARY KEY ("customerInstanceId"),
-    FOREIGN KEY ("belongingBranchId")
-        REFERENCES "Branch" ("branchId")
+    "handlingBranchId"  UUID        NOT NULL REFERENCES "Branch" ("branchId"),
+    PRIMARY KEY ("customerInstanceId")
 ) INHERITS ("CustomerInstance");
 
 -- SECTION: Customer Instance -> Order
@@ -463,7 +455,7 @@ CREATE TABLE IF NOT EXISTS "PaymentTransaction"
 (
     "paymentTransactionId" UUID PRIMARY KEY,
     "timestamp"            TIMESTAMP NOT NULL DEFAULT now(),
-    "billingId"            UUID      NOT NULL REFERENCES "PaymentTransaction" ("billingId")
+    "billingId"            UUID      NOT NULL REFERENCES "Billing" ("billingId")
 );
 
 CREATE TABLE IF NOT EXISTS "GiftVoucherRef"
@@ -489,7 +481,7 @@ CREATE TABLE IF NOT EXISTS "CashTransaction"
     "amount" DECIMAL(12, 2) NOT NULL,
     PRIMARY KEY ("paymentTransactionId"),
     FOREIGN KEY ("billingId")
-        REFERENCES "PaymentTransaction" ("billingId")
+        REFERENCES "Billing" ("billingId")
 ) INHERITS ("PaymentTransaction");
 
 CREATE TABLE IF NOT EXISTS "CreditTransaction"
@@ -498,7 +490,7 @@ CREATE TABLE IF NOT EXISTS "CreditTransaction"
     "amount"     DECIMAL(12, 2) NOT NULL,
     PRIMARY KEY ("paymentTransactionId"),
     FOREIGN KEY ("billingId")
-        REFERENCES "PaymentTransaction" ("billingId")
+        REFERENCES "Billing" ("billingId")
 ) INHERITS ("PaymentTransaction");
 
 CREATE TABLE IF NOT EXISTS "GiftVoucherTransaction"
@@ -506,7 +498,7 @@ CREATE TABLE IF NOT EXISTS "GiftVoucherTransaction"
     "giftVoucherNo" INT NOT NULL REFERENCES "GiftVoucher" ("giftVoucherNo"),
     PRIMARY KEY ("paymentTransactionId"),
     FOREIGN KEY ("billingId")
-        REFERENCES "PaymentTransaction" ("billingId")
+        REFERENCES "Billing" ("billingId")
 ) INHERITS ("PaymentTransaction");
 
 
@@ -570,8 +562,8 @@ CREATE TABLE IF NOT EXISTS "FoodItemRef"
 -- Many-to-many relationship between FoodItemRef and FoodIngredientRef
 CREATE TABLE IF NOT EXISTS "FoodItemIngredientRef"
 (
-    "foodItemRefId"     INT REFERENCES "FoodItemRef" ("foodItemRefId"),
-    "foodIngredientRef" INT REFERENCES "FoodIngredientRef" ("foodIngredientRefId"),
+    "foodItemRefId"     INT   NOT NULL REFERENCES "FoodItemRef" ("foodItemRefId"),
+    "foodIngredientRef" INT   NOT NULL REFERENCES "FoodIngredientRef" ("foodIngredientRefId"),
     "quantity"          FLOAT NOT NULL,
     "quantityUnitRefId" INT   NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
     PRIMARY KEY ("foodItemRefId", "foodIngredientRef")
@@ -597,11 +589,11 @@ CREATE TABLE IF NOT EXISTS "ServingRef"
 CREATE TABLE IF NOT EXISTS "ServingFoodItemRef"
 (
     "servingRefId"      INT   NOT NULL,
-    "foodItemRef"       INT   NOT NULL,
+    "foodItemRefId"     INT   NOT NULL,
     "quantity"          FLOAT NOT NULL,
     "quantityUnitRefId" INT   NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
     "isCustomization"   BOOL  NOT NULL DEFAULT FALSE,
-    PRIMARY KEY ("servingRefId", "foodItemRef")
+    PRIMARY KEY ("servingRefId", "foodItemRefId")
 );
 
 -- SECTION: Serving Reference -> Subclasses
@@ -626,3 +618,99 @@ CREATE TABLE IF NOT EXISTS "Beverage"
     "isRefillable" BOOL  NOT NULL DEFAULT FALSE,
     PRIMARY KEY ("servingRefId")
 ) INHERITS ("ServingRef");
+
+-- SECTION: Menu Reference
+CREATE TABLE IF NOT EXISTS "MenuRef"
+(
+    "menuRefId"      SERIAL PRIMARY KEY,
+    "nameEng"        VARCHAR(30) NOT NULL,
+    "nameTha"        VARCHAR(30) NOT NULL,
+    "descriptionTha" TEXT,
+    "descriptionEng" TEXT,
+    "dateAdded"      DATE        NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS "MenuServingRef"
+(
+    "menuRefId"        INT            NOT NULL REFERENCES "MenuRef" ("menuRefId"),
+    "servingRefId"     INT            NOT NULL REFERENCES "ServingRef" ("servingRefId"),
+    "realPrice"        DECIMAL(12, 2) NOT NULL,
+    "pricingTimestamp" TIMESTAMP      NOT NULL DEFAULT now(),
+    PRIMARY KEY ("menuRefId", "servingRefId")
+);
+
+-- SECTION: Order -> Order Item
+CREATE TABLE IF NOT EXISTS "OrderItem"
+(
+    "orderItemId"        SERIAL         NOT NULL PRIMARY KEY,
+    "orderId"            UUID           NOT NULL REFERENCES "Billing" ("billingId"),
+    "menuRefId"          INT            NOT NULL REFERENCES "MenuRef" ("menuRefId"),
+    "quantity"           INT            NOT NULL DEFAULT 1,
+    "timeStarted"        TIMESTAMP      NOT NULL DEFAULT now(),
+    "timeServed"         TIMESTAMP      NOT NULL
+        CONSTRAINT "Check_ServeTimeLaterStartingTime" CHECK ( "timeServed" > "timeStarted" ),
+    "perUnitPrice"       DECIMAL(12, 2) NOT NULL,
+    "perUnitDiscount"    DECIMAL(12, 2) NOT NULL,
+    "perUnitTakeHomeFee" DECIMAL(12, 2) NOT NULL,
+    "isRefunded"         BOOL           NOT NULL DEFAULT FALSE,
+    "price"              DECIMAL(12, 2) GENERATED ALWAYS AS ( ("perUnitPrice" + "perUnitTakeHomeFee" - "perUnitDiscount") * "quantity") STORED
+);
+
+-- SECTION 3-ary relationship "MenuServingCustomization"
+CREATE TABLE IF NOT EXISTS "MenuServingCustomization"
+(
+    "orderItemId"              INT NOT NULL REFERENCES "OrderItem" ("orderItemId"),
+    "replacedServingRefId"     INT NOT NULL,
+    "replacedFoodItemRefId"    INT NOT NULL,
+    "replacementFoodItemRefId" INT NOT NULL REFERENCES "FoodItemRef" ("foodItemRefId"),
+    FOREIGN KEY ("replacedServingRefId", "replacedFoodItemRefId")
+        REFERENCES "ServingFoodItemRef" ("servingRefId", "foodItemRefId"),
+    PRIMARY KEY ("orderItemId", "replacedServingRefId", "replacedFoodItemRefId", "replacementFoodItemRefId")
+);
+
+-- SECTION: Menu Season & Availability
+CREATE TABLE IF NOT EXISTS "SeasonRef"
+(
+    "seasonRefId" INT         NOT NULL PRIMARY KEY,
+    "name"        VARCHAR(30) NOT NULL,
+    "dateStart"   TIMESTAMP   NOT NULL,
+    "dateEnd"     TIMESTAMP   NOT NULL,
+    CONSTRAINT "Check_DateEndComeAfterDateStart" CHECK ( "dateStart" > "dateEnd" )
+);
+
+CREATE TABLE IF NOT EXISTS "MenuSeasonRef"
+(
+    "seasonRefId" INT NOT NULL REFERENCES "SeasonRef" ("seasonRefId"),
+    "menuRefId"   INT NOT NULL REFERENCES "MenuRef" ("menuRefId"),
+    PRIMARY KEY ("seasonRefId", "menuRefId")
+);
+
+CREATE TABLE IF NOT EXISTS "MenuAvailability"
+(
+    "menuAvailabilityNum" INT         NOT NULL PRIMARY KEY,
+    "dayOfWeek"           DAY_OF_WEEK NOT NULL,
+    "timeRangeStart"      TIME        NOT NULL,
+    "timeRangeEnd"        TIME        NOT NULL,
+    "menuRefId"           INT         NOT NULL REFERENCES "MenuRef" ("menuRefId")
+        CONSTRAINT "Check_TimeEndComeAfterTimeStart" CHECK ( "timeRangeStart" > "timeRangeEnd" )
+);
+
+CREATE TABLE IF NOT EXISTS "SaladBarServing"
+(
+    "saladBarId"      UUID  NOT NULL REFERENCES "SaladBar" ("saladBarId"),
+    "foodItemRefId"   INT   NOT NULL REFERENCES "FoodItemRef" ("foodItemRefId"),
+    "maxQuantity"     FLOAT NOT NULL,
+    "maxQuantityUnit" INT   NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
+    PRIMARY KEY ("saladBarId", "foodItemRefId")
+);
+
+CREATE TABLE IF NOT EXISTS "SaladBarRefill"
+(
+    "employeeId"    UUID  NOT NULL REFERENCES "Employee" ("employeeId"),
+    "saladBarId"    UUID  NOT NULL,
+    "foodItemRefId" INT   NOT NULL,
+    "quantity"      FLOAT NOT NULL,
+    "quantityUnit"  INT REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
+    FOREIGN KEY ("saladBarId", "foodItemRefId")
+        REFERENCES "SaladBarServing" ("saladBarId", "foodItemRefId")
+);
