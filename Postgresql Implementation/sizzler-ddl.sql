@@ -76,22 +76,14 @@ CREATE TABLE IF NOT EXISTS "ComputerMachine"
 
 CREATE TABLE IF NOT EXISTS "TimeAttendanceMachine"
 (
-    "isSupportFingerprintBiometric" BOOL NOT NULL DEFAULT FALSE,
-    PRIMARY KEY ("computerMachineId"),
-    UNIQUE ("serialNumber"),
-    UNIQUE ("macAddress"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId")
-) INHERITS ("ComputerMachine");
+    "computerMachineId"             UUID PRIMARY KEY REFERENCES "ComputerMachine" ("computerMachineId"),
+    "isSupportFingerprintBiometric" BOOL NOT NULL DEFAULT FALSE
+);
 
 CREATE TABLE IF NOT EXISTS "CashierMachine"
 (
-    PRIMARY KEY ("computerMachineId"),
-    UNIQUE ("serialNumber"),
-    UNIQUE ("macAddress"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId")
-) INHERITS ("ComputerMachine");
+    "computerMachineId" UUID PRIMARY KEY REFERENCES "ComputerMachine" ("computerMachineId")
+);
 
 CREATE TABLE IF NOT EXISTS "SaladBar"
 (
@@ -181,20 +173,12 @@ CREATE TABLE IF NOT EXISTS "WorldLanguageRef"
 
 CREATE TABLE IF NOT EXISTS "Waiter"
 (
-    PRIMARY KEY ("employeeId"),
-    FOREIGN KEY ("educationLevelId")
-        REFERENCES "EducationLevelRef" ("educationLevelId"),
-    FOREIGN KEY ("provinceId")
-        REFERENCES "Province" ("provinceId"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId"),
-    UNIQUE ("citizenId"),
-    UNIQUE ("email")
-) INHERITS ("Employee");
+    "employeeId" UUID PRIMARY KEY REFERENCES "Employee" ("employeeId")
+);
 
 CREATE TABLE IF NOT EXISTS "WaiterLanguageFluency"
 (
-    "employeeId"         UUID NOT NULL REFERENCES "Employee" ("employeeId"),
+    "employeeId"         UUID NOT NULL REFERENCES "Waiter" ("employeeId"),
     "worldLanguageRefId" INT  NOT NULL REFERENCES "WorldLanguageRef" ("worldLanguageRefId"),
     PRIMARY KEY ("employeeId", "worldLanguageRefId")
 );
@@ -202,16 +186,8 @@ CREATE TABLE IF NOT EXISTS "WaiterLanguageFluency"
 -- SECTION: Employee -> Kitchen Porter
 CREATE TABLE IF NOT EXISTS "KitchenPorter"
 (
-    PRIMARY KEY ("employeeId"),
-    FOREIGN KEY ("educationLevelId")
-        REFERENCES "EducationLevelRef" ("educationLevelId"),
-    FOREIGN KEY ("provinceId")
-        REFERENCES "Province" ("provinceId"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId"),
-    UNIQUE ("citizenId"),
-    UNIQUE ("email")
-) INHERITS ("Employee");
+    "employeeId" UUID PRIMARY KEY REFERENCES "Employee" ("employeeId")
+);
 
 -- SECTION: Employee -> Chef
 CREATE TABLE IF NOT EXISTS "CookingRoleRef"
@@ -223,16 +199,8 @@ CREATE TABLE IF NOT EXISTS "CookingRoleRef"
 
 CREATE TABLE IF NOT EXISTS "Chef"
 (
-    PRIMARY KEY ("employeeId"),
-    FOREIGN KEY ("educationLevelId")
-        REFERENCES "EducationLevelRef" ("educationLevelId"),
-    FOREIGN KEY ("provinceId")
-        REFERENCES "Province" ("provinceId"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId"),
-    UNIQUE ("citizenId"),
-    UNIQUE ("email")
-) INHERITS ("Employee");
+    "employeeId" UUID PRIMARY KEY REFERENCES "Employee" ("employeeId")
+);
 
 CREATE TYPE PRIORITY AS ENUM ('high', 'medium', 'low');
 
@@ -246,60 +214,28 @@ CREATE TABLE IF NOT EXISTS "ChefCookingRole"
 -- SECTION: Employee -> Cashier
 CREATE TABLE IF NOT EXISTS "Cashier"
 (
-    PRIMARY KEY ("employeeId"),
-    FOREIGN KEY ("educationLevelId")
-        REFERENCES "EducationLevelRef" ("educationLevelId"),
-    FOREIGN KEY ("provinceId")
-        REFERENCES "Province" ("provinceId"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId"),
-    UNIQUE ("citizenId"),
-    UNIQUE ("email")
-) INHERITS ("Employee");
+    "employeeId" UUID PRIMARY KEY REFERENCES "Employee" ("employeeId")
+);
 
 -- SECTION: Employee -> Kitchen Manager
 CREATE TABLE IF NOT EXISTS "KitchenManager"
 (
-    PRIMARY KEY ("employeeId"),
-    FOREIGN KEY ("educationLevelId")
-        REFERENCES "EducationLevelRef" ("educationLevelId"),
-    FOREIGN KEY ("provinceId")
-        REFERENCES "Province" ("provinceId"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId"),
-    UNIQUE ("citizenId"),
-    UNIQUE ("email")
-) INHERITS ("Employee");
+    "employeeId" UUID PRIMARY KEY REFERENCES "Employee" ("employeeId")
+);
 
 
 -- SECTION: Employee -> Delivery Man
 CREATE TABLE IF NOT EXISTS "DeliveryMan"
 (
-    PRIMARY KEY ("employeeId"),
-    FOREIGN KEY ("educationLevelId")
-        REFERENCES "EducationLevelRef" ("educationLevelId"),
-    FOREIGN KEY ("provinceId")
-        REFERENCES "Province" ("provinceId"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId"),
-    UNIQUE ("citizenId"),
-    UNIQUE ("email")
-) INHERITS ("Employee");
+    "employeeId" UUID PRIMARY KEY REFERENCES "Employee" ("employeeId")
+);
 
 
 -- SECTION: Employee -> Branch Manager
 CREATE TABLE IF NOT EXISTS "BranchManager"
 (
-    PRIMARY KEY ("employeeId"),
-    FOREIGN KEY ("educationLevelId")
-        REFERENCES "EducationLevelRef" ("educationLevelId"),
-    FOREIGN KEY ("provinceId")
-        REFERENCES "Province" ("provinceId"),
-    FOREIGN KEY ("branchId")
-        REFERENCES "Branch" ("branchId"),
-    UNIQUE ("citizenId"),
-    UNIQUE ("email")
-) INHERITS ("Employee");
+    "employeeId" UUID PRIMARY KEY REFERENCES "Employee" ("employeeId")
+);
 
 CREATE TABLE IF NOT EXISTS "EmployeeWagePayment"
 (
@@ -382,22 +318,18 @@ CREATE TABLE IF NOT EXISTS "Billing"
 -- SECTION: Billing -> Subclasses of Billing
 CREATE TABLE IF NOT EXISTS "BillingOnSite"
 (
-    PRIMARY KEY ("billingId"),
-    FOREIGN KEY ("involvedMemberCustomerId")
-        REFERENCES "MemberCustomer" ("memberCustomerId")
-) INHERITS ("Billing");
+    "billingId" UUID PRIMARY KEY REFERENCES "Billing"("billingId")
+);
 
 CREATE TABLE IF NOT EXISTS "BillingDelivery"
 (
+    "billingId" UUID PRIMARY KEY REFERENCES "Billing"("billingId"),
     "deliveryManId" UUID NOT NULL REFERENCES "DeliveryMan" ("employeeId"),
     "timeUsed"      INTERVAL,
     "distanceKM"    FLOAT
         CONSTRAINT "Check_IffThereAreDistanceAndTime" CHECK ( ("timeUsed" IS NULL AND "distanceKM" IS NULL) OR
-                                                              ("timeUsed" IS NOT NULL AND "distanceKM" IS NOT NULL) ),
-    PRIMARY KEY ("billingId"),
-    FOREIGN KEY ("involvedMemberCustomerId")
-        REFERENCES "MemberCustomer" ("memberCustomerId")
-) INHERITS ("Billing");
+                                                              ("timeUsed" IS NOT NULL AND "distanceKM" IS NOT NULL) )
+);
 
 CREATE TABLE IF NOT EXISTS "CashierBillingHandling"
 (
@@ -478,28 +410,22 @@ CREATE TABLE IF NOT EXISTS "GiftVoucher"
 
 CREATE TABLE IF NOT EXISTS "CashTransaction"
 (
-    "amount" DECIMAL(12, 2) NOT NULL,
-    PRIMARY KEY ("paymentTransactionId"),
-    FOREIGN KEY ("billingId")
-        REFERENCES "Billing" ("billingId")
-) INHERITS ("PaymentTransaction");
+    "paymentTransactionId" UUID PRIMARY KEY REFERENCES "PaymentTransaction" ("paymentTransactionId"),
+    "amount"               DECIMAL(12, 2) NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS "CreditTransaction"
 (
-    "cardNumber" VARCHAR(25)    NOT NULL,
-    "amount"     DECIMAL(12, 2) NOT NULL,
-    PRIMARY KEY ("paymentTransactionId"),
-    FOREIGN KEY ("billingId")
-        REFERENCES "Billing" ("billingId")
-) INHERITS ("PaymentTransaction");
+    "paymentTransactionId" UUID PRIMARY KEY REFERENCES "PaymentTransaction" ("paymentTransactionId"),
+    "cardNumber"           VARCHAR(25)    NOT NULL,
+    "amount"               DECIMAL(12, 2) NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS "GiftVoucherTransaction"
 (
-    "giftVoucherNo" INT NOT NULL REFERENCES "GiftVoucher" ("giftVoucherNo"),
-    PRIMARY KEY ("paymentTransactionId"),
-    FOREIGN KEY ("billingId")
-        REFERENCES "Billing" ("billingId")
-) INHERITS ("PaymentTransaction");
+    "paymentTransactionId" UUID PRIMARY KEY REFERENCES "PaymentTransaction" ("paymentTransactionId"),
+    "giftVoucherNo"        INT NOT NULL REFERENCES "GiftVoucher" ("giftVoucherNo")
+);
 
 
 -- SECTION: Food Ingredient Reference
@@ -601,23 +527,19 @@ CREATE TYPE FOOD_TYPE AS ENUM ('steak', 'double steaks', 'burger', 'salad', 'ric
 
 CREATE TABLE IF NOT EXISTS "Food"
 (
+    "servingRefId"    INT PRIMARY KEY REFERENCES "ServingRef"("servingRefId"),
     "cookingDescription" TEXT,
     "type"               FOOD_TYPE NOT NULL,
     "isForChildren"      BOOL      NOT NULL DEFAULT FALSE,
-    PRIMARY KEY ("servingRefId")
-) INHERITS ("ServingRef");
-
-CREATE TABLE IF NOT EXISTS "Appetizer"
-(
-    PRIMARY KEY ("servingRefId")
-) INHERITS ("Food");
+    isAppetizer bool NOT NULL DEFAULT FALSE
+);
 
 CREATE TABLE IF NOT EXISTS "Beverage"
 (
+    "servingRefId" INT PRIMARY KEY REFERENCES "ServingRef" ("servingRefId"),
     "volumeOz"     FLOAT NOT NULL,
-    "isRefillable" BOOL  NOT NULL DEFAULT FALSE,
-    PRIMARY KEY ("servingRefId")
-) INHERITS ("ServingRef");
+    "isRefillable" BOOL  NOT NULL DEFAULT FALSE
+);
 
 -- SECTION: Menu Reference
 CREATE TABLE IF NOT EXISTS "MenuRef"
