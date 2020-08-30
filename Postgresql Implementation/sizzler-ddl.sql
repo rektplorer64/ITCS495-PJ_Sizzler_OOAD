@@ -202,7 +202,7 @@ CREATE TABLE IF NOT EXISTS "WaiterLanguageFluency"
     "worldLanguageRefId" INT REFERENCES "WorldLanguageRef" ("worldLanguageRefId")
 );
 
- -- SECTION: Employee -> Kitchen Porter
+-- SECTION: Employee -> Kitchen Porter
 CREATE TABLE IF NOT EXISTS "KitchenPorter"
 (
     PRIMARY KEY ("employeeId"),
@@ -216,7 +216,7 @@ CREATE TABLE IF NOT EXISTS "KitchenPorter"
     UNIQUE ("email")
 ) INHERITS ("Employee");
 
- -- SECTION: Employee -> Chef
+-- SECTION: Employee -> Chef
 CREATE TABLE IF NOT EXISTS "CookingRoleRef"
 (
     "cookingRoleRefId" SERIAL PRIMARY KEY,
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS "ChefCookingRole"
     "priority"         PRIORITY NOT NULL DEFAULT 'medium'
 );
 
- -- SECTION: Employee -> Cashier
+-- SECTION: Employee -> Cashier
 CREATE TABLE IF NOT EXISTS "Cashier"
 (
     PRIMARY KEY ("employeeId"),
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS "Cashier"
     UNIQUE ("email")
 ) INHERITS ("Employee");
 
- -- SECTION: Employee -> Kitchen Manager
+-- SECTION: Employee -> Kitchen Manager
 CREATE TABLE IF NOT EXISTS "KitchenManager"
 (
     PRIMARY KEY ("employeeId"),
@@ -290,7 +290,7 @@ CREATE TABLE IF NOT EXISTS "DeliveryMan"
 ) INHERITS ("Employee");
 
 
- -- SECTION: Employee -> Branch Manager
+-- SECTION: Employee -> Branch Manager
 CREATE TABLE IF NOT EXISTS "BranchManager"
 (
     PRIMARY KEY ("employeeId"),
@@ -453,7 +453,8 @@ CREATE TABLE IF NOT EXISTS "Order"
     "customerDelivery"      INT REFERENCES "CustomerDelivery" ("customerInstanceId"),
     "waiterId"              UUID      NOT NULL REFERENCES "Waiter" ("employeeId"),
     "billingId"             UUID      NOT NULL REFERENCES "Billing" ("billingId"),
-    CONSTRAINT "Check_EitherCustomerPaxOrCustomerDelivery" CHECK ( ("customerPaxInstanceId" IS NOT NULL AND "customerDelivery" IS NULL) OR
+    CONSTRAINT "Check_EitherCustomerPaxOrCustomerDelivery" CHECK (
+            ("customerPaxInstanceId" IS NOT NULL AND "customerDelivery" IS NULL) OR
             ("customerPaxInstanceId" IS NULL AND "customerDelivery" IS NOT NULL))
 );
 
@@ -509,7 +510,7 @@ CREATE TABLE IF NOT EXISTS "GiftVoucherTransaction"
 ) INHERITS ("PaymentTransaction");
 
 
--- SECTION: Food Ingredient
+-- SECTION: Food Ingredient Reference
 CREATE TYPE FOOD_INGREDIENT_CATEGORY AS ENUM ('meat', 'vegetable', 'spice', 'sauce', 'desert', 'beverage', 'fruit');
 
 CREATE TABLE IF NOT EXISTS "FoodIngredientRef"
@@ -550,9 +551,78 @@ CREATE TABLE IF NOT EXISTS "InventoryInboundOrderItem"
     "inboundOrderId"      INT            NOT NULL,
     "branchId"            UUID           NOT NULL REFERENCES "Branch" ("branchId"),
     "foodIngredientRefId" INT            NOT NULL REFERENCES "FoodIngredientRef" ("foodIngredientRefId"),
-    "quantity"            INT            NOT NULL DEFAULT 0,
+    "quantity"            FLOAT          NOT NULL DEFAULT 0,
     "quantityUnitRefId"   INT            NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
     "pricePerUnit"        DECIMAL(12, 2) NOT NULL,
     PRIMARY KEY ("inboundOrderId", "inboundOrderItemId")
 );
 
+-- SECTION: Food Item Reference
+CREATE TABLE IF NOT EXISTS "FoodItemRef"
+(
+    "foodItemRefId"  SERIAL PRIMARY KEY,
+    "nameEng"        VARCHAR(30) NOT NULL,
+    "nameTha"        VARCHAR(30) NOT NULL,
+    "descriptionTha" TEXT,
+    "descriptionEng" TEXT
+);
+
+-- Many-to-many relationship between FoodItemRef and FoodIngredientRef
+CREATE TABLE IF NOT EXISTS "FoodItemIngredientRef"
+(
+    "foodItemRefId"     INT REFERENCES "FoodItemRef" ("foodItemRefId"),
+    "foodIngredientRef" INT REFERENCES "FoodIngredientRef" ("foodIngredientRefId"),
+    "quantity"          FLOAT NOT NULL,
+    "quantityUnitRefId" INT   NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
+    PRIMARY KEY ("foodItemRefId", "foodIngredientRef")
+);
+
+-- SECTION: Serving Reference
+CREATE TYPE SERVING_GENRE AS ENUM ('australia', 'asian', 'western');
+
+CREATE TABLE IF NOT EXISTS "ServingRef"
+(
+    "servingRefId"    SERIAL PRIMARY KEY,
+    "nameEng"         VARCHAR(30)    NOT NULL,
+    "nameTha"         VARCHAR(30)    NOT NULL,
+    "descriptionTha"  TEXT,
+    "descriptionEng"  TEXT,
+    "genre"           SERVING_GENRE,
+    "basePrice"       DECIMAL(12, 2) NOT NULL,
+    "dateAdded"       DATE           NOT NULL DEFAULT now(),
+    "hasFreeSaladBar" BOOL           NOT NULL
+);
+
+-- Many-to-many relationship between FoodItemRef and ServingRef
+CREATE TABLE IF NOT EXISTS "ServingFoodItemRef"
+(
+    "servingRefId"      INT   NOT NULL,
+    "foodItemRef"       INT   NOT NULL,
+    "quantity"          FLOAT NOT NULL,
+    "quantityUnitRefId" INT   NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
+    "isCustomization"   BOOL  NOT NULL DEFAULT FALSE,
+    PRIMARY KEY ("servingRefId", "foodItemRef")
+);
+
+-- SECTION: Serving Reference -> Subclasses
+CREATE TYPE FOOD_TYPE AS ENUM ('steak', 'double steaks', 'burger', 'salad', 'rice', 'spaghetti', 'wrap', 'sandwich');
+
+CREATE TABLE IF NOT EXISTS "Food"
+(
+    "cookingDescription" TEXT,
+    "type"               FOOD_TYPE NOT NULL,
+    "isForChildren"      BOOL      NOT NULL DEFAULT FALSE,
+    PRIMARY KEY ("servingRefId")
+) INHERITS ("ServingRef");
+
+CREATE TABLE IF NOT EXISTS "Appetizer"
+(
+    PRIMARY KEY ("servingRefId")
+) INHERITS ("Food");
+
+CREATE TABLE IF NOT EXISTS "Beverage"
+(
+    "volumeOz"     FLOAT NOT NULL,
+    "isRefillable" BOOL  NOT NULL DEFAULT FALSE,
+    PRIMARY KEY ("servingRefId")
+) INHERITS ("ServingRef");
