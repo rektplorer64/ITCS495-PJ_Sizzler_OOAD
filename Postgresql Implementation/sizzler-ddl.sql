@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS "BranchOpenTime"
     "dayOfWeek"   DAY_OF_WEEK NOT NULL,
     "timeOpening" TIME        NOT NULL,
     "timeClosing" TIME        NOT NULL,
-    CHECK ( "timeClosing" > "timeOpening"),
+    CONSTRAINT "Check_ClosingTimeIsGreaterThanOpeningTime" CHECK ( "timeClosing" > "timeOpening"),
     PRIMARY KEY ("branchId", "dayOfWeek")
 );
 
@@ -133,8 +133,10 @@ CREATE TABLE IF NOT EXISTS "Employee"
     "gender"           GENDER                                                  NOT NULL,
     "citizenId"        VARCHAR(13) UNIQUE                                      NOT NULL,
     "joinDate"         DATE                                                    NOT NULL DEFAULT now(),
-    "birthdate"        DATE                                                    NOT NULL CHECK ( "birthdate" < "joinDate" ),
-    "wage"             DECIMAL(12, 2)                                          NOT NULL CHECK ( "wage" > 300 ),
+    "birthdate"        DATE                                                    NOT NULL
+        CONSTRAINT "Check_JoinDateGreaterThanBirthdate" CHECK ( "birthdate" < "joinDate" ),
+    "wage"             DECIMAL(12, 2)                                          NOT NULL
+        CONSTRAINT "Check_ThaiMinimumWagePerDay" CHECK ( "wage" > 300 ),
     "branchId"         UUID                                                    NOT NULL REFERENCES "Branch" ("branchId"),
     "age"              INT GENERATED ALWAYS AS ("calculatePersonAge"("birthdate")) STORED
 );
@@ -376,10 +378,14 @@ CREATE TABLE IF NOT EXISTS "Billing"
     "timePaid"                 TIMESTAMP,
     "timeCanceled"             TIMESTAMP,
     "involvedMemberCustomerId" UUID REFERENCES "MemberCustomer" ("memberCustomerId"),
-    "pointReceived"            INT CHECK ( ("involvedMemberCustomerId" IS NOT NULL AND "pointReceived" IS NOT NULL) OR
-                                           ("involvedMemberCustomerId" IS NULL AND "pointReceived" IS NULL) ),
-    "pointExpirationTime"      INTERVAL CHECK ( ("pointReceived" IS NOT NULL AND "pointExpirationTime" IS NOT NULL) OR
-                                                ("pointReceived" IS NULL AND "pointExpirationTime" IS NULL) )
+    "pointReceived"            INT
+        CONSTRAINT "Check_IffIsMemberAndReceivePoints" CHECK (
+                ("involvedMemberCustomerId" IS NOT NULL AND "pointReceived" IS NOT NULL) OR
+                ("involvedMemberCustomerId" IS NULL AND "pointReceived" IS NULL) ),
+    "pointExpirationTime"      INTERVAL
+        CONSTRAINT "Check_IfReceivePointsThenHasPointExpiration" CHECK (
+                ("pointReceived" IS NOT NULL AND "pointExpirationTime" IS NOT NULL) OR
+                ("pointReceived" IS NULL AND "pointExpirationTime" IS NULL) )
 );
 
 CREATE TABLE IF NOT EXISTS "BillingOnSite"
@@ -393,8 +399,9 @@ CREATE TABLE IF NOT EXISTS "BillingDelivery"
 (
     "deliveryManId" UUID NOT NULL REFERENCES "DeliveryMan" ("employeeId"),
     "timeUsed"      INTERVAL,
-    "distanceKM"    FLOAT CHECK ( ("timeUsed" IS NULL AND "distanceKM" IS NULL) OR
-                                  ("timeUsed" IS NOT NULL AND "distanceKM" IS NOT NULL) ),
+    "distanceKM"    FLOAT
+        CONSTRAINT "Check_IffThereAreDistanceAndTime" CHECK ( ("timeUsed" IS NULL AND "distanceKM" IS NULL) OR
+                                                              ("timeUsed" IS NOT NULL AND "distanceKM" IS NOT NULL) ),
     PRIMARY KEY ("billingId"),
     FOREIGN KEY ("involvedMemberCustomerId")
         REFERENCES "MemberCustomer" ("memberCustomerId")
@@ -429,7 +436,7 @@ CREATE TABLE IF NOT EXISTS "CustomerPax"
         REFERENCES "Branch" ("branchId"),
     FOREIGN KEY ("tableId", "tableBranchId")
         REFERENCES "Table" ("tableId", "branchId"),
-    CHECK ( "belongingBranchId" = "tableBranchId" )
+    CONSTRAINT "Check_SameBranchForCustomerPaxAndTable" CHECK ( "belongingBranchId" = "tableBranchId" )
 ) INHERITS ("CustomerInstance");
 
 CREATE TABLE IF NOT EXISTS "CustomerDelivery"
@@ -455,7 +462,7 @@ CREATE TABLE IF NOT EXISTS "Order"
     "customerDelivery"      INT REFERENCES "CustomerDelivery" ("customerInstanceId"),
     "waiterId"              UUID      NOT NULL REFERENCES "Waiter" ("employeeId"),
     "billingId"             UUID      NOT NULL REFERENCES "Billing" ("billingId"),
-    CHECK ( ("customerPaxInstanceId" IS NOT NULL AND "customerDelivery" IS NULL) OR
+    CONSTRAINT "Check_EitherCustomerPaxOrCustomerDelivery" CHECK ( ("customerPaxInstanceId" IS NOT NULL AND "customerDelivery" IS NULL) OR
             ("customerPaxInstanceId" IS NULL AND "customerDelivery" IS NOT NULL))
 );
 
@@ -512,6 +519,21 @@ CREATE TABLE IF NOT EXISTS "GiftVoucherTransaction"
         REFERENCES "PaymentTransaction" ("billingId")
 ) INHERITS ("PaymentTransaction");
 
+
+/**
+  Food Ingredient Ref
+ */
+CREATE TYPE FOOD_INGREDIENT_CATEGORY AS ENUM ('meat', 'vegetable', 'spice', 'sauce', 'desert', 'beverage', 'fruit');
+
+CREATE TABLE IF NOT EXISTS "FoodIngredientRef"
+(
+    "foodIngredientRefId" SERIAL PRIMARY KEY,
+    "nameEng"             VARCHAR(20)              NOT NULL,
+    "nameTha"             VARCHAR(20)              NOT NULL,
+    "description"         TEXT,
+    "category"            FOOD_INGREDIENT_CATEGORY NOT NULL
+);
+
 /**
   Inventory Inbound Order
  */
@@ -523,5 +545,31 @@ CREATE TABLE IF NOT EXISTS "InventoryInboundOrder"
     "note"                     TEXT,
     "deliveryIn"               INTERVAL  NOT NULL DEFAULT '12 hours',
     "managingKitchenManagerId" UUID      NOT NULL REFERENCES "KitchenManager" ("employeeId")
+);
+
+/**
+  Quantity (weight, volume) Unit Reference
+ */
+CREATE TYPE QUANTITY_CATEGORY AS ENUM ('volume', 'weight', 'pack');
+
+CREATE TABLE IF NOT EXISTS "QuantityUnitRef"
+(
+    "quantityUnitRefId" SERIAL PRIMARY KEY,
+    "name"              VARCHAR(20)       NOT NULL UNIQUE,
+    "abbreviation"      VARCHAR(20)       NOT NULL UNIQUE,
+    "category"          QUANTITY_CATEGORY NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "InventoryInboundOrderItem"
+(
+    "inboundOrderItemId"  SERIAL         NOT NULL,
+    "verificationTime"    TIMESTAMP,
+    "inboundOrderId"      INT            NOT NULL,
+    "branchId"            UUID           NOT NULL REFERENCES "Branch" ("branchId"),
+    "foodIngredientRefId" INT            NOT NULL REFERENCES "FoodIngredientRef" ("foodIngredientRefId"),
+    "quantity"            INT            NOT NULL DEFAULT 0,
+    "quantityUnitRefId"   INT            NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
+    "pricePerUnit"        DECIMAL(12, 2) NOT NULL,
+    PRIMARY KEY ("inboundOrderId", "inboundOrderItemId")
 );
 
