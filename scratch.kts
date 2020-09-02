@@ -321,4 +321,16 @@ interface PaymentTransaction{
     relationship    Billing     involvedBy      inverse     Billing::involves;
 
     void verifyValidity() raises(InvalidPaymentTransactionException);
-}
+};
+
+class CashTransaction : PaymentTransaction(extent cashTransactions key paymentTransactionId){
+    attribute       float           amount;
+};
+
+class CreditTransaction : PaymentTransaction(extent creditTransactions key paymentTransactionId){
+    attribute       string          cardNumber;
+    attribute       float           amount;
+};
+
+class GiftVoucherTransaction : PaymentTransaction(extent giftVoucherTransactions key paymentTransactionId){
+};
