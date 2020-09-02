@@ -213,9 +213,30 @@ class MemberCustomer(extent memberCustomers key memberCustomerId){
     attribute   string          salt;
     attribute   string          email;
 
-    relationship    Branch      livesNear   inverse     Branch::locatedNear;
+    relationship    Branch                              livesNear   inverse     Branch::locatedNear;
+    relationship    set<CustomerRewardRedemption>       creates     inverse     CustomerRewardRedemption::createdBy;
 
     boolean updatePassword(in string password) raises(MalformedPasswordException,
                         TooShortPasswordException, TooLongPasswordException,
                         WeakPasswordException);
+};
+
+class CustomerRewardRedemption(extent customerRewardRedemptions){
+    attribute   timestamp       timestamp;
+    attribute   short           pointSpent;
+
+    relationship    MemberCustomer          createdBy       inverse     MemberCustomer::creates;
+    relationship    RedeemableRewardRef     isBasedOn       inverse     RedeemableRewardRef::leadsTo;
+};
+
+class RedeemableRewardRef(extent redeemableRewards key redeemableRewardRefId){
+    attribute   string          redeemableRewardRefId;
+    attribute   string          name;
+    attribute   string          description;
+    attribute   short           basePointRequired;
+    attribute   boolean         isInUse;
+
+    relationship    set<CustomerRewardRedemption>   leadsTo     inverse     CustomerRewardRedemption::isBasedOn;
+
+    void summarizeUsage();
 };
