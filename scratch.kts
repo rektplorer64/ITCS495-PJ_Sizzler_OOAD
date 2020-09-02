@@ -26,11 +26,12 @@ class Branch(extent branches key branchId){
     attribute   set<BranchOpenTime>     openTime;
     attribute   set<Table>              tables;     // FIXME: Investigate whether this works.
 
-    relationship set<Employee>          operatedBy                  inverse     Employee::worksAt;
-    relationship SaladBar               offersSaladBar              inverse     SaladBar::offeredBy;
-    relationship set<ComputerMachine>   deploysComputerMachine      inverse     ComputerMachine::deployedBy;
-    relationship set<CustomerDelivery>  handlesCustomerDelivery     inverse     CustomerDelivery::handledBy;
-    relationship set<MemberCustomer>    locatedNear                 inverse     MemberCustomer::livesNear;
+    relationship set<Employee>                      operatedBy                  inverse     Employee::worksAt;
+    relationship SaladBar                           offersSaladBar              inverse     SaladBar::offeredBy;
+    relationship set<ComputerMachine>               deploysComputerMachine      inverse     ComputerMachine::deployedBy;
+    relationship set<CustomerDelivery>              handlesCustomerDelivery     inverse     CustomerDelivery::handledBy;
+    relationship set<MemberCustomer>                locatedNear                 inverse     MemberCustomer::livesNear;
+    relationship set<InventoryInboundOrderItem>     manages                     inverse     InventoryInboundOrderItem::managedBy;
 
     void updateStatus(in BranchStatus status);
     void printBranchSummary();
@@ -184,7 +185,7 @@ class CustomerDelivery : CustomerInstance(extent customerDeliveries key custInst
     relationship BillingDelivery    responsibleFor  inverse     BillingDelivery::responsibleBy;
 };
 
-class Table{
+class Table(key tableId){
     attribute   short          tableId;
 
     relationship set<CustomerPax> isUsedBy inverse CustomerPax::uses;
@@ -312,6 +313,13 @@ class InventoryInboundOrder(extent inventoryInboundOrders key inboundOrderId){
 
     void cancel();
     boolean markAsDelivered();
+};
+
+class InventoryInboundOrderItem(key inboundOrderItemId){
+    attribute       string          inboundOrderItemId;
+    attribute       timestamp       verificationTime;
+
+    relationship Branch managedBy   inverse     Branch::managesTable;
 };
 
 interface PaymentTransaction{
