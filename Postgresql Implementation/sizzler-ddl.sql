@@ -275,10 +275,10 @@ CREATE TABLE IF NOT EXISTS "RedeemableRewardRef"
 CREATE TABLE IF NOT EXISTS "MembershipRewardRedemption"
 (
     "redeemableRewardRefId" UUID      NOT NULL REFERENCES "RedeemableRewardRef" ("redeemableRewardRefId"),
-    "memberCustomerRef"     UUID      NOT NULL REFERENCES "MemberCustomer" ("memberCustomerId"),
+    "memberCustomerRefId"   UUID      NOT NULL REFERENCES "MemberCustomer" ("memberCustomerId"),
     "timestamp"             TIMESTAMP NOT NULL DEFAULT now(),
     "pointSpent"            INT       NOT NULL,
-    PRIMARY KEY ("redeemableRewardRefId", "memberCustomerRef", "timestamp")
+    PRIMARY KEY ("redeemableRewardRefId", "memberCustomerRefId", "timestamp")
 );
 
 -- SECTION: Member Customer -> Membership Level
@@ -318,12 +318,12 @@ CREATE TABLE IF NOT EXISTS "Billing"
 -- SECTION: Billing -> Subclasses of Billing
 CREATE TABLE IF NOT EXISTS "BillingOnSite"
 (
-    "billingId" UUID PRIMARY KEY REFERENCES "Billing"("billingId")
+    "billingId" UUID PRIMARY KEY REFERENCES "Billing" ("billingId")
 );
 
 CREATE TABLE IF NOT EXISTS "BillingDelivery"
 (
-    "billingId" UUID PRIMARY KEY REFERENCES "Billing"("billingId"),
+    "billingId"     UUID PRIMARY KEY REFERENCES "Billing" ("billingId"),
     "deliveryManId" UUID NOT NULL REFERENCES "DeliveryMan" ("employeeId"),
     "timeUsed"      INTERVAL,
     "distanceKM"    FLOAT
@@ -370,16 +370,16 @@ CREATE TABLE IF NOT EXISTS "CustomerDelivery"
 -- SECTION: Customer Instance -> Order
 CREATE TABLE IF NOT EXISTS "Order"
 (
-    "orderId"               SERIAL PRIMARY KEY,
-    "timeCreated"           TIMESTAMP NOT NULL DEFAULT now(),
-    "note"                  TEXT,
-    "customerPaxInstanceId" INT REFERENCES "CustomerPax" ("customerInstanceId"),
-    "customerDelivery"      INT REFERENCES "CustomerDelivery" ("customerInstanceId"),
-    "waiterId"              UUID      NOT NULL REFERENCES "Waiter" ("employeeId"),
-    "billingId"             UUID      NOT NULL REFERENCES "Billing" ("billingId"),
+    "orderId"                    SERIAL PRIMARY KEY,
+    "timeCreated"                TIMESTAMP NOT NULL DEFAULT now(),
+    "note"                       TEXT,
+    "customerPaxInstanceId"      INT REFERENCES "CustomerPax" ("customerInstanceId"),
+    "customerDeliveryInstanceId" INT REFERENCES "CustomerDelivery" ("customerInstanceId"),
+    "waiterId"                   UUID      NOT NULL REFERENCES "Waiter" ("employeeId"),
+    "billingId"                  UUID      NOT NULL REFERENCES "Billing" ("billingId"),
     CONSTRAINT "Check_EitherCustomerPaxOrCustomerDelivery" CHECK (
-            ("customerPaxInstanceId" IS NOT NULL AND "customerDelivery" IS NULL) OR
-            ("customerPaxInstanceId" IS NULL AND "customerDelivery" IS NOT NULL))
+            ("customerPaxInstanceId" IS NOT NULL AND "customerDeliveryInstanceId" IS NULL) OR
+            ("customerPaxInstanceId" IS NULL AND "customerDeliveryInstanceId" IS NOT NULL))
 );
 
 -- SECTION: Billing -> PaymentTransaction
@@ -527,11 +527,11 @@ CREATE TYPE FOOD_TYPE AS ENUM ('steak', 'double steaks', 'burger', 'salad', 'ric
 
 CREATE TABLE IF NOT EXISTS "Food"
 (
-    "servingRefId"    INT PRIMARY KEY REFERENCES "ServingRef"("servingRefId"),
+    "servingRefId"       INT PRIMARY KEY REFERENCES "ServingRef" ("servingRefId"),
     "cookingDescription" TEXT,
     "type"               FOOD_TYPE NOT NULL,
     "isForChildren"      BOOL      NOT NULL DEFAULT FALSE,
-    isAppetizer bool NOT NULL DEFAULT FALSE
+    "isAppetizer"        BOOL      NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS "Beverage"
