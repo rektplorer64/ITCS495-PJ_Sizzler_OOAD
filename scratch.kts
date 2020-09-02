@@ -32,6 +32,7 @@ class Branch(extent branches key branchId){
     relationship set<CustomerDelivery>              handlesCustomerDelivery     inverse     CustomerDelivery::handledBy;
     relationship set<MemberCustomer>                locatedNear                 inverse     MemberCustomer::livesNear;
     relationship set<InventoryInboundOrderItem>     manages                     inverse     InventoryInboundOrderItem::managedBy;
+    relationship set<MenuRef>                       menuOffers                  inverse     MenuRef::menuOfferedBy;
 
     void updateStatus(in BranchStatus status);
     void printBranchSummary();
@@ -199,6 +200,7 @@ class Order (extent orders key orderId){
     relationship CustomerPax        createdByOnSite     inverse     CustomerPax::creates;
     relationship CustomerDelivery   createdByDelivery   inverse     CustomerDelivery::creates;
     relationship Waiter             handledBy           inverse     Waiter::handlesOrder;
+    relationship set<OrderItem>     includes            inverse     OrderItem::includedIn;
 
     void summarizeOrder();
     void addFoodOrder(in OrderItem orderItem);
@@ -365,4 +367,38 @@ class GiftVoucher(extent giftVouchers key giftVoucherId){
 
     relationship    GiftVoucherRef          refersTo    inverse GiftVoucherRef::referredBy;
     relationship    GiftVoucherTransaction  leadsTo     inverse GiftVoucherTransaction::consequenceOf;
+};
+
+class OrderItem(extent orderItems key orderItemId){
+    attribute       long            orderItemId;
+    attribute       short           quantity;
+    attribute       timestamp       timeStarted;
+    attribute       timestamp       timeServed;
+    attribute       float           perUnitPrice;
+    attribute       float           perUnitDiscount;
+    attribute       float           perUnitTakeHomeFee;
+    attribute       boolean         isRefunded;
+
+    relationship    MenuRef     refersTo    inverse MenuRef::referredBy;
+    relationship    Order       includedIn inverse Order::includes;
+
+    void markAsServed() raises(OrderItemAlreadyServedException, OutOfTimeWindowException);
+    void markAsRefunded() raises(OrderItemAlreadyRefundedException, OutOfTimeWindowException);
+    boolean customizeServing(in MenuServingCustomization customization) raises(IllegalMenuCustomizationException);
+};
+
+class MenuRef(extent menuRefs key menuRefId){
+    attribute       long            menuRefId;
+    attribute       string          nameEng;
+    attribute       string          nameTha;
+    attribute       string          descriptionEng;
+    attribute       string          descriptionTha;
+    attribute       date            dateAdded;
+    attribute       boolean         isActive;
+
+    relationship set<Branch>    menuOfferedBy   inverse  Branch::menuOffers;
+    relationship set<OrderItem> referredBy      inverse  OrderItem::refersTo;
+
+    void toggleIsActive();
+    string calculatePopularity();
 };
