@@ -177,8 +177,9 @@ class CustomerDelivery : CustomerInstance(extent customerDeliveries key custInst
     attribute   string          fullAddress;
     attribute   string          province;
 
-    relationship Branch     handledBy       inverse     Branch::handlesCustomerDelivery;
-    relationship Order      creates         inverse     Order::createdByDelivery;
+    relationship Branch             handledBy       inverse     Branch::handlesCustomerDelivery;
+    relationship Order              creates         inverse     Order::createdByDelivery;
+    relationship BillingDelivery    responsibleFor  inverse     BillingDelivery::responsibleBy;
 };
 
 class Table{
@@ -285,6 +286,7 @@ class BillingOnSite extends Billing(extent billingOnSite){
 
 class BillingDelivery extends Billing(extent billingDelivery){
     relationship    DeliveryMan     deliveredBy     inverse     DeliveryMan::deliverItemsFor;
+    relationship    CustomerPax     responsibleBy   inverse     CustomerPax::responsibleFor;
 };
 
 class CashierBillingHandling(extent cashierBillingHandlings){
