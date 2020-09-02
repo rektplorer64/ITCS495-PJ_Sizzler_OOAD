@@ -167,8 +167,9 @@ interface CustomerInstance{
 class CustomerPax : CustomerInstance (extent customerPaxes key custInstanceId){
     attribute   short           totalCustomers;
 
-    relationship Table      uses        inverse     Table::isUsedBy;
-    relationship set<Order> creates     inverse     Order::createdByOnSite;
+    relationship Table              uses        inverse     Table::isUsedBy;
+    relationship set<Order>         creates     inverse     Order::createdByOnSite;
+    relationship BillingOnSite      owns        inverse     BillingOnSite::ownedBy;
 };
 
 class CustomerDelivery : CustomerInstance(extent customerDeliveries key custInstanceId){
@@ -278,7 +279,8 @@ class Billing(extent billings key billingId){
 };
 
 class BillingOnSite extends Billing(extent billingOnSite){
-    relationship    CashierBillingHandling   needs     inverse     CashierBillingHandling::needed;
+    relationship    CashierBillingHandling   needs      inverse     CashierBillingHandling::needed;
+    relationship    CustomerPax              ownedBy    inverse     CustomerPax::owns;
 };
 
 class BillingDelivery extends Billing(extent billingDelivery){
