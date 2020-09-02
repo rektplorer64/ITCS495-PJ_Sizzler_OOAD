@@ -387,6 +387,15 @@ class OrderItem(extent orderItems key orderItemId){
     boolean customizeServing(in MenuServingCustomization customization) raises(IllegalMenuCustomizationException);
 };
 
+class SeasonRef(extent seasonRefs key seasonRefId){
+    attribute       long            seasonRefId;
+    attribute       string          name;
+    attribute       date            dateStart;
+    attribute       date            dateEnd;
+
+    relationship    set<MenuRef>    dependedBy  inverse     MenuRef::dependsOn;
+};
+
 class MenuRef(extent menuRefs key menuRefId){
     attribute       long            menuRefId;
     attribute       string          nameEng;
@@ -398,6 +407,7 @@ class MenuRef(extent menuRefs key menuRefId){
 
     relationship set<Branch>    menuOfferedBy   inverse  Branch::menuOffers;
     relationship set<OrderItem> referredBy      inverse  OrderItem::refersTo;
+    relationship set<SeasonRef> dependsOn       inverse  SeasonRef::dependedBy;
 
     void toggleIsActive();
     string calculatePopularity();

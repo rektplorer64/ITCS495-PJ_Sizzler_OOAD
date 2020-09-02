@@ -593,7 +593,7 @@ CREATE TABLE IF NOT EXISTS "MenuServingCustomization"
 -- SECTION: Menu Season & Availability
 CREATE TABLE IF NOT EXISTS "SeasonRef"
 (
-    "seasonRefId" INT         NOT NULL PRIMARY KEY,
+    "seasonRefId" SERIAL      NOT NULL PRIMARY KEY,
     "name"        VARCHAR(30) NOT NULL,
     "dateStart"   TIMESTAMP   NOT NULL,
     "dateEnd"     TIMESTAMP   NOT NULL,
