@@ -114,6 +114,9 @@ class Chef extends Employee(extent chefs){
 };
 
 class Cashier extends Employee(extent cashiers){
+
+    relationship    set<CashierBillingHandling>     participates    inverse     CashierBillingHandling::participatedBy;
+
     boolean loginToCashierSystem();
     boolean logoutFromCashierSystem();
 };
@@ -152,7 +155,9 @@ class ClockInOut(extent clockInOuts key clockInTimestamp){
     relationship WorkTime              involvedWith     inverse     WorkTime::involves;
 };
 
-class CashierMachine extends ComputerMachine(extent cashierMachines){}
+class CashierMachine extends ComputerMachine(extent cashierMachines){
+    relationship    set<CashierBillingHandling>     involvedIn  inverse     CashierBillingHandling::involves;
+};
 
 interface CustomerInstance{
     attribute   string          custInstanceId;
@@ -272,8 +277,16 @@ class Billing(extent billings key billingId){
     boolean bindToMemberCustomer(in MemberCustomer memberCustomer) raises(NoSuchMemberCustomerException);
 };
 
-class BillingOnSite extends Billing(extent billingOnSite){};
+class BillingOnSite extends Billing(extent billingOnSite){
+    relationship    CashierBillingHandling   needs     inverse     CashierBillingHandling::needed;
+};
 
 class BillingDelivery extends Billing(extent billingDelivery){
     relationship    DeliveryMan     deliveredBy     inverse     DeliveryMan::deliverItemsFor;
+};
+
+class CashierBillingHandling(extent cashierBillingHandlings){
+    relationship    Cashier         participatedBy  inverse     Cashier::participates;
+    relationship    CashierMachine  involves        inverse     CashierMachine::involvedIn;
+    relationship    BillingOnSite   needed          inverse     BillingOnSite::needs;
 };
