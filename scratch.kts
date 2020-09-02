@@ -333,4 +333,27 @@ class CreditTransaction : PaymentTransaction(extent creditTransactions key payme
 };
 
 class GiftVoucherTransaction : PaymentTransaction(extent giftVoucherTransactions key paymentTransactionId){
+    relationship    GiftVoucher     consequenceOf   inverse     GiftVoucher::leadsTo;
+};
+
+class GiftVoucherRef(extent giftVoucherRefs key giftVoucherRefId){
+    attribute       long            giftVoucherRefId;
+    attribute       string          name;
+    attribute       string          description;
+    attribute       timestamp       timeAdded;
+    attribute       timestamp       timeCanceled;
+    attribute       short           valueAmount;
+    attribute       string          lifetime;
+
+    relationship    set<GiftVoucher>     giftVoucherNo   inverse     GiftVoucher::refersTo;
+
+    void cancelVoucherUsage()
+};
+
+class GiftVoucher(extent giftVouchers key giftVoucherId){
+    attribute       long            giftVoucherNo;
+    attribute       timestamp       timeIssued;
+
+    relationship    GiftVoucherRef          refersTo    inverse GiftVoucherRef::referredBy;
+    relationship    GiftVoucherTransaction  leadsTo     inverse GiftVoucherTransaction::consequenceOf;
 };
