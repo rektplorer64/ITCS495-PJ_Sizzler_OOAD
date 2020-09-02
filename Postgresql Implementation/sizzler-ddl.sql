@@ -565,7 +565,7 @@ CREATE TABLE IF NOT EXISTS "MenuServingRef"
 CREATE TABLE IF NOT EXISTS "OrderItem"
 (
     "orderItemId"        SERIAL         NOT NULL PRIMARY KEY,
-    "orderId"            UUID           NOT NULL REFERENCES "Billing" ("billingId"),
+    "orderId"            INT            NOT NULL REFERENCES "Order" ("orderId"),
     "menuRefId"          INT            NOT NULL REFERENCES "MenuRef" ("menuRefId"),
     "quantity"           INT            NOT NULL DEFAULT 1,
     "timeStarted"        TIMESTAMP      NOT NULL DEFAULT now(),
