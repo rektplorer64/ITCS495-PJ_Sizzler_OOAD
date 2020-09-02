@@ -122,6 +122,8 @@ class Cashier extends Employee(extent cashiers){
 };
 
 class KitchenManager extends Employee(extent kitchenManagers){
+    relationship    set<InventoryInboundOrder>      manages     inverse     InventoryInboundOrder::managedBy;
+
     void summarizeInvolvedIngredientTx();
 };
 
@@ -271,6 +273,7 @@ class Billing(extent billings key billingId){
     attribute   timestamp       timeCanceled;
     attribute   short           pointReceived;
     attribute   timestamp       pointExpirationTime;
+    attribute   set<Order>      orders;
 
     void summarize();
     boolean cancelBilling() raises(CannotCancelBillException);
@@ -293,4 +296,18 @@ class CashierBillingHandling(extent cashierBillingHandlings){
     relationship    Cashier         participatedBy  inverse     Cashier::participates;
     relationship    CashierMachine  involves        inverse     CashierMachine::involvedIn;
     relationship    BillingOnSite   needed          inverse     BillingOnSite::needs;
+};
+
+class InventoryInboundOrder(extent inventoryInboundOrders key inboundOrderId){
+    attribute       long            inboundOrderId;
+    attribute       timestamp       timeCreated;
+    attribute       timestamp       timeDelivered;
+    attribute       timestamp       timeCanceled;
+    attribute       string          note;
+    attribute       string          deliverIn;
+
+    relationship    KitchenManager  managedBy   inverse     KitchenManager::manages;
+
+    void cancel();
+    boolean markAsDelivered();
 };
