@@ -275,6 +275,8 @@ class Billing(extent billings key billingId){
     attribute   timestamp       pointExpirationTime;
     attribute   set<Order>      orders;
 
+    relationship    PaymentTransaction     involves      inverse     PaymentTransaction::involvedBy;
+
     void summarize();
     boolean cancelBilling() raises(CannotCancelBillException);
     void verifyRelatedTransactions() raises(NoVerifiableTransactionException);
@@ -311,3 +313,12 @@ class InventoryInboundOrder(extent inventoryInboundOrders key inboundOrderId){
     void cancel();
     boolean markAsDelivered();
 };
+
+interface PaymentTransaction{
+    attribute       string          paymentTransactionId;
+    attribute       timestamp       timestamp;
+
+    relationship    Billing     involvedBy      inverse     Billing::involves;
+
+    void verifyValidity() raises(InvalidPaymentTransactionException);
+}
