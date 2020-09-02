@@ -123,6 +123,11 @@ class KitchenManager extends Employee(extent kitchenManagers){
 };
 
 class DeliveryMan extends Employee(extent deliveryMen){
+    attribute   string      timeUsed;
+    attribute   float       distanceKM;
+
+    relationship    set<BillingDelivery>    deliverItemsFor     inverse     BillingDelivery::deliveredBy;
+
     boolean acceptDeliveryJob(in BillingDelivery billingDelivery)
 };
 
@@ -269,4 +274,6 @@ class Billing(extent billings key billingId){
 
 class BillingOnSite extends Billing(extent billingOnSite){};
 
-class BillingDelivery extends Billing(extent billingDelivery){};
+class BillingDelivery extends Billing(extent billingDelivery){
+    relationship    DeliveryMan     deliveredBy     inverse     DeliveryMan::deliverItemsFor;
+};
