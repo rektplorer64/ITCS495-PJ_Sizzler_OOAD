@@ -229,6 +229,15 @@ class CustomerRewardRedemption(extent customerRewardRedemptions){
     relationship    RedeemableRewardRef     isBasedOn       inverse     RedeemableRewardRef::leadsTo;
 };
 
+class MemberLevelRef(extent memberLevelRefs key memberLevelRefId){
+    attribute   string          memberLevelRefId;
+    attribute   string          name;
+    attribute   string          description;
+    attribute   short           pointThreshold;
+
+    relationship    set<RedeemableRewardRef>    offers      inverse     RedeemableRewardRef::offeredBy;
+}
+
 class RedeemableRewardRef(extent redeemableRewards key redeemableRewardRefId){
     attribute   string          redeemableRewardRefId;
     attribute   string          name;
@@ -237,6 +246,7 @@ class RedeemableRewardRef(extent redeemableRewards key redeemableRewardRefId){
     attribute   boolean         isInUse;
 
     relationship    set<CustomerRewardRedemption>   leadsTo     inverse     CustomerRewardRedemption::isBasedOn;
+    relationship    set<MemberLevelRef>             offeredBy   inverse     MemberLevelRef::offers;
 
     void summarizeUsage();
 };
