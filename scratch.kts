@@ -250,3 +250,23 @@ class RedeemableRewardRef(extent redeemableRewards key redeemableRewardRefId){
 
     void summarizeUsage();
 };
+
+class Billing(extent billings key billingId){
+    attribute   string          billingId;
+    attribute   string          taxInvoiceId;
+    attribute   timestamp       timeCreated;
+    attribute   timestamp       timePaid;
+    attribute   timestamp       timeCanceled;
+    attribute   short           pointReceived;
+    attribute   timestamp       pointExpirationTime;
+
+    void summarize();
+    boolean cancelBilling() raises(CannotCancelBillException);
+    void verifyRelatedTransactions() raises(NoVerifiableTransactionException);
+    boolean addPaymentTransaction(in PaymentTransaction tx) raises(InvalidTransactionException);
+    boolean bindToMemberCustomer(in MemberCustomer memberCustomer) raises(NoSuchMemberCustomerException);
+};
+
+class BillingOnSite extends Billing(extent billingOnSite){};
+
+class BillingDelivery extends Billing(extent billingDelivery){};
