@@ -347,6 +347,7 @@ class GiftVoucherRef(extent giftVoucherRefs key giftVoucherRefId){
 
     relationship    set<GiftVoucher>     giftVoucherNo   inverse     GiftVoucher::refersTo;
 
+    void summarizeOverVoucherLevelUsage()
     void cancelVoucherUsage()
 };
 
