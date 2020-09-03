@@ -383,8 +383,9 @@ class OrderItem(extent orderItems key orderItemId){
     attribute       float           perUnitTakeHomeFee;
     attribute       boolean         isRefunded;
 
-    relationship    MenuRef     refersTo    inverse MenuRef::referredBy;
-    relationship    Order       includedIn inverse Order::includes;
+    relationship    MenuRef                         refersTo     inverse MenuRef::referredBy;
+    relationship    Order                           includedIn   inverse Order::includes;
+    relationship    set<MenuServingCustomization>   tiedWith     inverse MenuServingCustomization::tiesTo;
 
     void markAsServed() raises(OrderItemAlreadyServedException, OutOfTimeWindowException);
     void markAsRefunded() raises(OrderItemAlreadyRefundedException, OutOfTimeWindowException);
@@ -479,8 +480,9 @@ class FoodItemRef(extent foodItemRefs key foodItemRefId){
     attribute       string          descriptionTha;
     attribute       string          descriptionEng;
 
-    relationship    set<ServingFoodItemRef>     involvedIn      inverse     ServingFoodItemRef::involves;
-    relationship    set<FoodItemIngredientRef>  consistsOf      inverse     FoodItemIngredientRef::consistedOf;
+    relationship    set<ServingFoodItemRef>         involvedIn      inverse     ServingFoodItemRef::involves;
+    relationship    set<FoodItemIngredientRef>      consistsOf      inverse     FoodItemIngredientRef::consistedOf;
+    relationship    set<MenuServingCustomization>   replacedBy      inverse     MenuServingCustomization::replacesWith;
 
     string inferConsumption(in set<Branch> branches) raises(IllegalArgumentException, NoSuchBranchException);
 };
@@ -490,8 +492,9 @@ class ServingFoodItemRef(extent servingFoodItemRef){
     attribute       string          quantityUnit;
     attribute       boolean         isCustomizable;
 
-    relationship    ServingRef      involvedWith        inverse         ServingRef::involves;
-    relationship    FoodItemRef     involves            inverse         FoodItemRef::involvedIn;
+    relationship    ServingRef                       involvedWith    inverse     ServingRef::involves;
+    relationship    FoodItemRef                      involves        inverse     FoodItemRef::involvedIn;
+    relationship    set<MenuServingCustomization>    relates         inverse     MenuServingCustomization::relatesTo;
 };
 
 class FoodItemIngredientRef(extent foodIngredientRefs){
@@ -518,4 +521,10 @@ class FoodIngredientRef(extent foodIngredientRefs key foodIngredientRefId){
     relationship    set<InventoryInboundOrderItem>      involvedWith    inverse     InventoryInboundOrderItem::involves;
 
     string inferConsumption(in set<Branch> branches) raises(IllegalArgumentException, NoSuchBranchException);
+};
+
+class MenuServingCustomization(extent menuServingCustomizations){
+    relationship    OrderItem                   tiesTo          inverse      OrderItem::tiedWith;
+    relationship    ServingFoodItemRef          relatesTo       inverse      ServingFoodItemRef::relates;
+    relationship    FoodItemRef                 replacesWith    inverse      FoodItemRef::replacedBy;
 };
