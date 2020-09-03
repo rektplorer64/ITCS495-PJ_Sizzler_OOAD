@@ -393,7 +393,19 @@ class SeasonRef(extent seasonRefs key seasonRefId){
     attribute       date            dateStart;
     attribute       date            dateEnd;
 
-    relationship    set<MenuRef>    dependedBy  inverse     MenuRef::dependsOn;
+    relationship    set<MenuRef>    dependedBy  inverse     MenuRef::dependsOnSeason;
+};
+
+class MenuAvailability(extent menuAvailability key menuAvailabilityId){
+    attribute       long            menuAvailabilityId;
+    attribute       enum DayOfWeek {
+        'monday', 'tuesday', 'wednesday',
+        'thursday', 'friday', 'saturday',
+        'sunday'}                   dayOfWeek;
+    attribute       time            timeRangeStart;
+    attribute       time            timeRangeEnd;
+
+    relationship MenuRef    dependedBy      inverse     MenuRef::dependsOnAvailability;
 };
 
 class MenuRef(extent menuRefs key menuRefId){
@@ -405,9 +417,10 @@ class MenuRef(extent menuRefs key menuRefId){
     attribute       date            dateAdded;
     attribute       boolean         isActive;
 
-    relationship set<Branch>    menuOfferedBy   inverse  Branch::menuOffers;
-    relationship set<OrderItem> referredBy      inverse  OrderItem::refersTo;
-    relationship set<SeasonRef> dependsOn       inverse  SeasonRef::dependedBy;
+    relationship set<Branch>            menuOfferedBy               inverse     Branch::menuOffers;
+    relationship set<OrderItem>         referredBy                  inverse     OrderItem::refersTo;
+    relationship set<SeasonRef>         dependsOnSeason             inverse     SeasonRef::dependedBy;
+    relationship set<MenuAvailability>  dependsOnAvailability       inverse     MenuAvailability::dependedBy;
 
     void toggleIsActive();
     string calculatePopularity();
