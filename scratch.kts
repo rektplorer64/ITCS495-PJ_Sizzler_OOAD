@@ -41,7 +41,8 @@ class Branch(extent branches key branchId){
 class SaladBar(extent saladBars key saladBarId){
     attribute   string          saladBarId;
 
-    relationship Branch offeredBy inverse Branch::offersSaladBar
+    relationship Branch                 offeredBy   inverse     Branch::offersSaladBar;
+    relationship set<SaladBarServing>   leadsTo     inverse     SaladBarServing::causedBy;
 
     void summarizeIngredientUsage()
 };
@@ -84,9 +85,10 @@ class Employee(extent employees key employeeId){
     attribute   float               wage;
     attribute   set<WorkTime>       workTimes;
 
-    relationship    Branch                       worksAt        inverse     Branch::operatedBy;
-    relationship    set<ClockInOut>              performs       inverse     ClockInOut::performedBy;
-    relationship    set<EmployeeWagePayment>     getsPaidVia    inverse     EmployeeWagePayment::paysTo;
+    relationship    Branch                      worksAt         inverse     Branch::operatedBy;
+    relationship    set<ClockInOut>             performs        inverse     ClockInOut::performedBy;
+    relationship    set<EmployeeWagePayment>    getsPaidVia     inverse     EmployeeWagePayment::paysTo;
+    relationship    set<SaladBarRefill>         carriesOut      inverse     SaladBarRefill::carriedOutBy;
 
     float summarizeWageToPay();
     void summarizeWorkAttendance();
@@ -483,6 +485,7 @@ class FoodItemRef(extent foodItemRefs key foodItemRefId){
     relationship    set<ServingFoodItemRef>         involvedIn      inverse     ServingFoodItemRef::involves;
     relationship    set<FoodItemIngredientRef>      consistsOf      inverse     FoodItemIngredientRef::consistedOf;
     relationship    set<MenuServingCustomization>   replacedBy      inverse     MenuServingCustomization::replacesWith;
+    relationship    set<SaladBarServing>            requiredFor     inverse     SaladBarServing::needs;
 
     string inferConsumption(in set<Branch> branches) raises(IllegalArgumentException, NoSuchBranchException);
 };
@@ -527,4 +530,22 @@ class MenuServingCustomization(extent menuServingCustomizations){
     relationship    OrderItem                   tiesTo          inverse      OrderItem::tiedWith;
     relationship    ServingFoodItemRef          relatesTo       inverse      ServingFoodItemRef::relates;
     relationship    FoodItemRef                 replacesWith    inverse      FoodItemRef::replacedBy;
+};
+
+class SaladBarServing(extent saladBarServings){
+    attribute       short       maxQuantity;
+    attribute       string      maxQuantityUnit;
+
+    relationship    SaladBar                causedBy        inverse     SaladBar::leadsTo;
+    relationship    FoodItemRef             needs           inverse     FoodItemRef::requiredFor;
+    relationship    set<SaladBarRefill>     referredBy      inverse     SaladBarRefill::refersTo;
+};
+
+class SaladBarRefill(extent saladBarRefills){
+    attribute       short       quantity;
+    attribute       string      quantityUnit;
+    attribute       timestamp   timeRefilled;
+
+    relationship    Employee            carriedOutBy    inverse     Employee::carriesOut;
+    relationship    SaladBarServing     refersTo        inverse     SaladBarServing::referredBy;
 };
