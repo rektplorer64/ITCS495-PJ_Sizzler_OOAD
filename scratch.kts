@@ -440,7 +440,8 @@ class ServingRef(extent servingRefs key servingRefId){
     attribute       date            dateAdded;
     attribute       boolean         hasFreeSaladBar;
 
-    relationship    set<MenuServingRef> tiedIn      inverse     MenuServingRef::tiesTo;
+    relationship    set<MenuServingRef>         tiedIn      inverse     MenuServingRef::tiesTo;
+    relationship    set<ServingFoodItemRef>     involves    inverse     ServingFoodItemRef::involvedIn;
 };
 
 class MenuServingRef(extent menuServingRefs){
@@ -465,4 +466,51 @@ class Appetizer extends Food{
 class Beverage extends ServingRef{
     attribute       float           volumeOz;
     attribute       boolean         isRefillable;
+};
+
+class FoodItemRef(extent foodItemRefs key foodItemRefId){
+    attribute       long            foodItemRefId;
+    attribute       string          nameEng;
+    attribute       string          nameTha;
+    attribute       string          descriptionTha;
+    attribute       string          descriptionEng;
+
+    relationship    set<ServingFoodItemRef>     involvedIn      inverse     ServingFoodItemRef::involves;
+    relationship    set<FoodItemIngredientRef>  consistsOf      inverse     FoodItemIngredientRef::consistedOf;
+
+    string inferConsumption(in set<Branch> branches) raises(IllegalArgumentException, NoSuchBranchException);
+};
+
+class ServingFoodItemRef(extent servingFoodItemRef){
+    attribute       short           quantity;
+    attribute       string          quantityUnit;
+    attribute       boolean         isCustomizable;
+
+    relationship    ServingRef      involvedWith        inverse         ServingRef::involves;
+    relationship    FoodItemRef     involves            inverse         FoodItemRef::involvedIn;
+};
+
+class FoodItemIngredientRef(extent foodIngredientRefs){
+    attribute       float           quantity;
+    attribute       string          quantityUnit
+
+    relationship    FoodItemRef             consistedOf      inverse        FoodItemRef::consistsOf;
+    relationship    FoodIngredientRef       madeOf           inverse        FoodIngredientRef::make;
+
+};
+
+class FoodIngredientRef(extent foodIngredientRefs key foodIngredientRefId){
+    attribute       long            foodIngredientRefId;
+    attribute       string          nameEng;
+    attribute       string          nameTha;
+    attribute       string          description;
+    attribute       enum Category{
+        'meat', 'vegetable',
+        'spice', 'sauce',
+        'desert', 'beverage',
+        'fruit'}                    category;
+
+    relationship    set<FoodItemIngredientRef>  make  inverse     FoodItemIngredientRef::madeOf;
+
+    string inferConsumption(in set<Branch> branches) raises(IllegalArgumentException, NoSuchBranchException);
 };
