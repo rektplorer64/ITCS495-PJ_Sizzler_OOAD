@@ -320,8 +320,12 @@ class InventoryInboundOrder(extent inventoryInboundOrders key inboundOrderId){
 class InventoryInboundOrderItem(key inboundOrderItemId){
     attribute       string          inboundOrderItemId;
     attribute       timestamp       verificationTime;
+    attribute       short           quantity;
+    attribute       string          quantityUnit;
+    attribute       short           pricePerUnit;
 
-    relationship Branch managedBy   inverse     Branch::managesTable;
+    relationship Branch                     managedBy       inverse     Branch::managesTable;
+    relationship FoodItemIngredientRef      involves        inverse     FoodItemIngredientRef::involvedWith;
 };
 
 interface PaymentTransaction{
@@ -510,7 +514,8 @@ class FoodIngredientRef(extent foodIngredientRefs key foodIngredientRefId){
         'desert', 'beverage',
         'fruit'}                    category;
 
-    relationship    set<FoodItemIngredientRef>  make  inverse     FoodItemIngredientRef::madeOf;
+    relationship    set<FoodItemIngredientRef>          make            inverse     FoodItemIngredientRef::madeOf;
+    relationship    set<InventoryInboundOrderItem>      involvedWith    inverse     InventoryInboundOrderItem::involves;
 
     string inferConsumption(in set<Branch> branches) raises(IllegalArgumentException, NoSuchBranchException);
 };
