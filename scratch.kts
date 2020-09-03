@@ -421,7 +421,48 @@ class MenuRef(extent menuRefs key menuRefId){
     relationship set<OrderItem>         referredBy                  inverse     OrderItem::refersTo;
     relationship set<SeasonRef>         dependsOnSeason             inverse     SeasonRef::dependedBy;
     relationship set<MenuAvailability>  dependsOnAvailability       inverse     MenuAvailability::dependedBy;
+    relationship set<MenuServingRef>    includes                    inverse     MenuServingRef::includedIn;
 
     void toggleIsActive();
     string calculatePopularity();
+};
+
+class ServingRef(extent servingRefs key servingRefId){
+    attribute       long            servingRefId;
+    attribute       string          nameEng;
+    attribute       string          nameTha;
+    attribute       string          descriptionEng;
+    attribute       string          descriptionTha;
+    attribute       enum Genre {
+        'australia', 'asian', 'western'
+    }                               genre;
+    attribute       float           basePrice;
+    attribute       date            dateAdded;
+    attribute       boolean         hasFreeSaladBar;
+
+    relationship    set<MenuServingRef> tiedIn      inverse     MenuServingRef::tiesTo;
+};
+
+class MenuServingRef(extent menuServingRefs){
+    attribute       float           realPrice;
+    attribute       timestamp       pricingTimestamp;
+
+    relationship    MenuRef         includedIn      inverse     MenuRef::includes;
+    relationship    ServingRef      tiesTo          inverse     ServingRef::tiedIn;
+};
+
+class Food extends ServingRef{
+    attribute       string          cookingDescription;
+    attribute       enum FoodType {
+        'steak', 'double steaks', 'burger', 'salad', 'rice', 'spaghetti', 'wrap', 'sandwich'
+    }                               type;
+    attribute       boolean         isForChildren;
+};
+
+class Appetizer extends Food{
+};
+
+class Beverage extends ServingRef{
+    attribute       float           volumeOz;
+    attribute       boolean         isRefillable;
 };
