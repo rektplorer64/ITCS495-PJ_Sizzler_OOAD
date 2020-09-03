@@ -609,7 +609,7 @@ CREATE TABLE IF NOT EXISTS "MenuSeasonRef"
 
 CREATE TABLE IF NOT EXISTS "MenuAvailability"
 (
-    "menuAvailabilityNum" INT         NOT NULL PRIMARY KEY,
+    "menuAvailabilityId" INT         NOT NULL PRIMARY KEY,
     "dayOfWeek"           DAY_OF_WEEK NOT NULL,
     "timeRangeStart"      TIME        NOT NULL,
     "timeRangeEnd"        TIME        NOT NULL,
