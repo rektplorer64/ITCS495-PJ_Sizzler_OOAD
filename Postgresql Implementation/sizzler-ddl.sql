@@ -393,7 +393,7 @@ CREATE TABLE IF NOT EXISTS "PaymentTransaction"
 CREATE TABLE IF NOT EXISTS "GiftVoucherRef"
 (
     "giftVoucherRefId" SERIAL PRIMARY KEY,
-    "name"             VARCHAR(30) NOT NULL,
+    "name"             VARCHAR(60) NOT NULL,
     "description"      TEXT        NOT NULL,
     "timeAdded"        TIMESTAMP   NOT NULL DEFAULT now(),
     "timeCanceled"     TIMESTAMP,
@@ -434,8 +434,8 @@ CREATE TYPE FOOD_INGREDIENT_CATEGORY AS ENUM ('meat', 'vegetable', 'spice', 'sau
 CREATE TABLE IF NOT EXISTS "FoodIngredientRef"
 (
     "foodIngredientRefId" SERIAL PRIMARY KEY,
-    "nameEng"             VARCHAR(20)              NOT NULL,
-    "nameTha"             VARCHAR(20)              NOT NULL,
+    "nameEng"             VARCHAR(50)              NOT NULL,
+    "nameTha"             VARCHAR(50)              NOT NULL,
     "description"         TEXT,
     "category"            FOOD_INGREDIENT_CATEGORY NOT NULL
 );
@@ -457,8 +457,8 @@ CREATE TYPE QUANTITY_CATEGORY AS ENUM ('volume', 'weight', 'pack');
 CREATE TABLE IF NOT EXISTS "QuantityUnitRef"
 (
     "quantityUnitRefId" SERIAL PRIMARY KEY,
-    "name"              VARCHAR(20)       NOT NULL UNIQUE,
-    "abbreviation"      VARCHAR(20)       NOT NULL UNIQUE,
+    "name"              VARCHAR(30)       NOT NULL UNIQUE,
+    "abbreviation"      VARCHAR(30)       NOT NULL UNIQUE,
     "category"          QUANTITY_CATEGORY NOT NULL
 );
 
@@ -479,8 +479,8 @@ CREATE TABLE IF NOT EXISTS "InventoryInboundOrderItem"
 CREATE TABLE IF NOT EXISTS "FoodItemRef"
 (
     "foodItemRefId"  SERIAL PRIMARY KEY,
-    "nameEng"        VARCHAR(30) NOT NULL,
-    "nameTha"        VARCHAR(30) NOT NULL,
+    "nameEng"        VARCHAR(50) NOT NULL,
+    "nameTha"        VARCHAR(50) NOT NULL,
     "descriptionTha" TEXT,
     "descriptionEng" TEXT
 );
@@ -501,8 +501,8 @@ CREATE TYPE SERVING_GENRE AS ENUM ('australia', 'asian', 'western');
 CREATE TABLE IF NOT EXISTS "ServingRef"
 (
     "servingRefId"    SERIAL PRIMARY KEY,
-    "nameEng"         VARCHAR(30)    NOT NULL,
-    "nameTha"         VARCHAR(30)    NOT NULL,
+    "nameEng"         VARCHAR(50)    NOT NULL,
+    "nameTha"         VARCHAR(50)    NOT NULL,
     "descriptionTha"  TEXT,
     "descriptionEng"  TEXT,
     "genre"           SERVING_GENRE,
