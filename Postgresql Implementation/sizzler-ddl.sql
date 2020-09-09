@@ -429,7 +429,7 @@ CREATE TABLE IF NOT EXISTS "GiftVoucherTransaction"
 
 
 -- SECTION: Food Ingredient Reference
-CREATE TYPE FOOD_INGREDIENT_CATEGORY AS ENUM ('meat', 'vegetable', 'spice', 'sauce', 'desert', 'beverage', 'fruit');
+CREATE TYPE FOOD_INGREDIENT_CATEGORY AS ENUM ('meat', 'vegetable', 'spice', 'sauce', 'desert', 'beverage', 'fruit', 'snack');
 
 CREATE TABLE IF NOT EXISTS "FoodIngredientRef"
 (
