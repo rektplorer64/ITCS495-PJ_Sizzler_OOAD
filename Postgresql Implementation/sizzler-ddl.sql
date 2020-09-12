@@ -549,7 +549,8 @@ CREATE TABLE IF NOT EXISTS "MenuRef"
     "nameTha"        VARCHAR(30) NOT NULL,
     "descriptionTha" TEXT,
     "descriptionEng" TEXT,
-    "dateAdded"      DATE        NOT NULL DEFAULT now()
+    "dateAdded"      DATE        NOT NULL DEFAULT now(),
+    "isActive"       BOOLEAN     NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS "MenuServingRef"
