@@ -597,7 +597,7 @@ CREATE TABLE IF NOT EXISTS "SeasonRef"
     "name"        VARCHAR(30) NOT NULL,
     "dateStart"   TIMESTAMP   NOT NULL,
     "dateEnd"     TIMESTAMP   NOT NULL,
-    CONSTRAINT "Check_DateEndComeAfterDateStart" CHECK ( "dateStart" > "dateEnd" )
+    CONSTRAINT "Check_DateEndComeAfterDateStart" CHECK ( "dateStart" < "dateEnd" )
 );
 
 CREATE TABLE IF NOT EXISTS "MenuSeasonRef"
@@ -614,7 +614,7 @@ CREATE TABLE IF NOT EXISTS "MenuAvailability"
     "timeRangeStart"      TIME        NOT NULL,
     "timeRangeEnd"        TIME        NOT NULL,
     "menuRefId"           INT         NOT NULL REFERENCES "MenuRef" ("menuRefId")
-        CONSTRAINT "Check_TimeEndComeAfterTimeStart" CHECK ( "timeRangeStart" > "timeRangeEnd" )
+        CONSTRAINT "Check_TimeEndComeAfterTimeStart" CHECK ( "timeRangeStart" < "timeRangeEnd" )
 );
 
 CREATE TABLE IF NOT EXISTS "SaladBarServing"
