@@ -44,9 +44,10 @@ CREATE TABLE IF NOT EXISTS "Table"
 
 CREATE TABLE IF NOT EXISTS "BranchTelephone"
 (
-    "branchId"    UUID PRIMARY KEY
+    "branchId"    UUID NOT NULL
         REFERENCES "Branch" ("branchId") ON DELETE CASCADE,
-    "telephoneNo" VARCHAR(15) NOT NULL UNIQUE
+    "telephoneNo" VARCHAR(15) UNIQUE,
+    PRIMARY KEY ("branchId", "telephoneNo")
 );
 
 CREATE TYPE DAY_OF_WEEK AS ENUM ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');
