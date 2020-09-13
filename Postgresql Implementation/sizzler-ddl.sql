@@ -386,7 +386,7 @@ CREATE TABLE IF NOT EXISTS "Order"
 -- SECTION: Billing -> PaymentTransaction
 CREATE TABLE IF NOT EXISTS "PaymentTransaction"
 (
-    "paymentTransactionId" UUID PRIMARY KEY,
+    "paymentTransactionId" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "timestamp"            TIMESTAMP NOT NULL DEFAULT now(),
     "billingId"            UUID      NOT NULL REFERENCES "Billing" ("billingId")
 );
