@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS "Employee"
     "birthdate"        DATE                                                    NOT NULL
         CONSTRAINT "Check_JoinDateGreaterThanBirthdate" CHECK ( "birthdate" < "joinDate" ),
     "wage"             DECIMAL(12, 2)                                          NOT NULL
-        CONSTRAINT "Check_ThaiMinimumWagePerDay" CHECK ( "wage" > 300 ),
+        CONSTRAINT "Check_ThaiMinimumWagePerDay" CHECK ( "wage" >= 300 ),
     "branchId"         UUID                                                    NOT NULL REFERENCES "Branch" ("branchId"),
     "age"              INT GENERATED ALWAYS AS ("calculatePersonAge"("birthdate")) STORED
 );
