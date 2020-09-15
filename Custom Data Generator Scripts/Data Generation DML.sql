@@ -361,10 +361,49 @@ BEGIN
 END;
 $$ language 'plpgsql' STRICT;
 
+-- Randomize joinDate from birthdate
 UPDATE "Employee"
 SET "joinDate" = (
-    SELECT "birthdate" + (random_between(15, 17) || ' year ' || random_between(1, 12) || ' month ' || random_between(1, 30) ||
-           ' day ' || random_between(0, 24) || ' hour ' || random_between(0, 60) || ' min ' || random_between(0, 60) ||
-           ' seconds')::interval
-) WHERE "joinDate" = '2020-09-15'
+    SELECT "birthdate" +
+           (random_between(15, 17) || ' year ' || random_between(1, 12) || ' month ' || random_between(1, 30) ||
+            ' day ' || random_between(0, 24) || ' hour ' || random_between(0, 60) || ' min ' || random_between(0, 60) ||
+            ' seconds')::interval
+)
+WHERE "joinDate" = '2020-09-15';
 
+
+-- Randomly populate Branch to each Employee
+UPDATE "Employee" E
+SET "branchId" = (
+    SELECT case
+               when exists(SELECT "branchId" FROM "Branch" WHERE "provinceId" = E."provinceId")
+                   THEN
+                   (
+                       SELECT "branchId"
+                       FROM "Branch" X
+                       WHERE X."provinceId" = E."provinceId"
+                       ORDER BY (SELECT (
+                                            SELECT random()
+                                            WHERE g = g
+                                              AND X."branchId" = X."branchId"
+                                        )
+                                 FROM generate_series(1, 10) g
+                                 limit 1)
+                       LIMIT 1
+                   )
+               else
+                   (
+                       SELECT "branchId"
+                       FROM "Branch" X
+                            WHERE E."employeeId" = E."employeeId"
+                       ORDER BY (SELECT (
+                                            SELECT random()
+                                            WHERE g = g
+                                              AND X."provinceId" = X."provinceId"
+                                        )
+                                 FROM generate_series(1, 10) g
+                                 limit 1)
+                       LIMIT 1
+                   )
+               end
+);
