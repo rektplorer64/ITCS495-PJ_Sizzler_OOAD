@@ -407,3 +407,13 @@ SET "branchId" = (
                    )
                end
 );
+
+--Random time range between 15 - 100 minutes
+UPDATE "InventoryInboundOrder" SET "deliveryIn" = (
+    SELECT (random_between(15,100) || ' min')::interval
+    WHERE "inboundOrderId" = "inboundOrderId"
+) WHERE 1 = 1;
+
+SELECT 'asdsad ' || 'sadsad';
+SELECT concat('asdsad ', 'sadsad');
+SELECT random_between(1, 100)
