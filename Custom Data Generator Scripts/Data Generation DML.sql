@@ -22,18 +22,19 @@ WHERE "memberCustomerId" NOT IN (
 
 
 UPDATE "Billing" A
-SET "pointExpirationTime" = '1 year'::interval,
-"pointReceived" = floor(random()* (1000-100 + 1) + 100),
+SET "pointExpirationTime"      = '1 year'::interval,
+    "pointReceived"            = floor(random() * (1000 - 100 + 1) + 100),
     "involvedMemberCustomerId" = (
         SELECT "memberCustomerId"
         FROM "MemberCustomer"
         WHERE A."billingId" = A."billingId"
         ORDER BY (SELECT (SELECT random() WHERE g = g AND A."billingId" = A."billingId")
-                                       FROM generate_series(1, 10) g
-                                       limit 1)
+                  FROM generate_series(1, 10) g
+                  limit 1)
         LIMIT 1
-        )
-    WHERE "timePaid" IS NOT NULL AND random() < 0.2;
+    )
+WHERE "timePaid" IS NOT NULL
+  AND random() < 0.2;
 
 
 /**
@@ -45,25 +46,85 @@ WHERE "involvedMemberCustomerId" IS NOT NULL;
 
 -- Update involvedMemberCustomerId with random MemberCustomerId
 UPDATE "Billing" A
-SET
-    "involvedMemberCustomerId" = (
-        SELECT "memberCustomerId"
-        FROM "MemberCustomer"
-        WHERE A."billingId" = A."billingId"
-        ORDER BY (SELECT (SELECT random() WHERE g = g AND "memberCustomerId" = "memberCustomerId")
-                                       FROM generate_series(1, 10) g
-                                       limit 1)
-        LIMIT 1
-        )
-     WHERE "involvedMemberCustomerId" IS NOT NULL;
+SET "involvedMemberCustomerId" = (
+    SELECT "memberCustomerId"
+    FROM "MemberCustomer"
+    WHERE A."billingId" = A."billingId"
+    ORDER BY (SELECT (SELECT random() WHERE g = g AND "memberCustomerId" = "memberCustomerId")
+              FROM generate_series(1, 10) g
+              limit 1)
+    LIMIT 1
+)
+WHERE "involvedMemberCustomerId" IS NOT NULL;
 
 -- This WILL NOT WORK. ALL ROWS WILL HAVE a randomly identical "involvedMemberCustomerId" value!!
 UPDATE "Billing" A
-SET
-    "involvedMemberCustomerId" = (
-        SELECT "memberCustomerId"
-        FROM "MemberCustomer"
-        ORDER BY random()
+SET "involvedMemberCustomerId" = (
+    SELECT "memberCustomerId"
+    FROM "MemberCustomer"
+    ORDER BY random()
+    LIMIT 1
+)
+WHERE "involvedMemberCustomerId" IS NOT NULL;
+
+SELECT substr('abcde', 1, 3);
+
+BEGIN TRANSACTION;
+ROLLBACK;
+
+
+SELECT case
+           when "rowNo" = 1 then concat(email, '@sizzler.co.th')
+           else concat(concat(email, "rowNo", '@sizzler.co.th')) end,
+       "employeeId"
+FROM (
+         SELECT concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3)) "email",
+                row_number() over (partition by concat(replace(lower("firstname"), ' ', '_'), '.',
+                                                       substr(lower("surname"), 1, 3)))            "rowNo",
+                "employeeId"
+
+         FROM "Employee"
+     ) X;
+
+
+SELECT DISTINCT concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3), '@sizzler.co.th'),
+                count(*)
+FROM "Employee"
+group by concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3), '@sizzler.co.th');
+
+
+-- Update EMPLOYEE data such as email, educationLevelId, provinceId
+UPDATE "Employee" A
+SET "email"            = (
+    SELECT case
+               when "rowNo" = 1 then concat(email, '@sizzler.co.th')
+               else concat(concat(email, "rowNo", '@sizzler.co.th')) end
+    FROM (
+             SELECT concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3)) "email",
+                    row_number() over (partition by concat(replace(lower("firstname"), ' ', '_'), '.',
+                                                           substr(lower("surname"), 1, 3)))            "rowNo",
+                    "employeeId"
+
+             FROM "Employee"
+            WHERE concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3)) = concat(replace(lower(A."firstname"), ' ', '_'), '.', substr(lower(A."surname"), 1, 3))
+         ) X
+    WHERE A."employeeId" = X."employeeId"
+),
+    "educationLevelId" = (
+        SELECT "educationLevelId"
+        FROM "EducationLevelRef"
+        WHERE A."employeeId" = A."employeeId"
+        ORDER BY (SELECT (SELECT random() WHERE g = g AND "educationLevelId" = "educationLevelId")
+                  FROM generate_series(1, 10) g
+                  limit 1)
         LIMIT 1
-        )
-     WHERE "involvedMemberCustomerId" IS NOT NULL;
+    ),
+    "provinceId"       = (
+        SELECT "Province"."provinceId"
+        FROM "Province"
+        WHERE A."employeeId" = A."employeeId"
+        ORDER BY (SELECT (SELECT random() WHERE g = g AND "provinceId" = "provinceId")
+                  FROM generate_series(1, 10) g
+                  limit 1)
+        LIMIT 1
+    )
