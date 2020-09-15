@@ -386,7 +386,7 @@ CREATE TABLE IF NOT EXISTS "Order"
 -- SECTION: Billing -> PaymentTransaction
 CREATE TABLE IF NOT EXISTS "PaymentTransaction"
 (
-    "paymentTransactionId" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "paymentTransactionId" UUID PRIMARY KEY   DEFAULT uuid_generate_v4(),
     "timestamp"            TIMESTAMP NOT NULL DEFAULT now(),
     "billingId"            UUID      NOT NULL REFERENCES "Billing" ("billingId")
 );
@@ -612,19 +612,20 @@ CREATE TABLE IF NOT EXISTS "MenuSeasonRef"
 CREATE TABLE IF NOT EXISTS "MenuAvailability"
 (
     "menuAvailabilityId" INT         NOT NULL PRIMARY KEY,
-    "dayOfWeek"           DAY_OF_WEEK NOT NULL,
-    "timeRangeStart"      TIME        NOT NULL,
-    "timeRangeEnd"        TIME        NOT NULL,
-    "menuRefId"           INT         NOT NULL REFERENCES "MenuRef" ("menuRefId")
+    "dayOfWeek"          DAY_OF_WEEK NOT NULL,
+    "timeRangeStart"     TIME        NOT NULL,
+    "timeRangeEnd"       TIME        NOT NULL,
+    "menuRefId"          INT         NOT NULL REFERENCES "MenuRef" ("menuRefId")
         CONSTRAINT "Check_TimeEndComeAfterTimeStart" CHECK ( "timeRangeStart" < "timeRangeEnd" )
 );
 
 CREATE TABLE IF NOT EXISTS "SaladBarServing"
 (
-    "saladBarId"      UUID  NOT NULL REFERENCES "SaladBar" ("saladBarId"),
-    "foodItemRefId"   INT   NOT NULL REFERENCES "FoodItemRef" ("foodItemRefId"),
-    "maxQuantity"     FLOAT NOT NULL,
-    "maxQuantityUnit" INT   NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
+    "saladBarId"      UUID      NOT NULL REFERENCES "SaladBar" ("saladBarId"),
+    "foodItemRefId"   INT       NOT NULL REFERENCES "FoodItemRef" ("foodItemRefId"),
+    "maxQuantity"     FLOAT     NOT NULL,
+    "maxQuantityUnit" INT       NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
+    "timeRefilled"    timestamp NOT NULL DEFAULT now(),
     PRIMARY KEY ("saladBarId", "foodItemRefId")
 );
 
