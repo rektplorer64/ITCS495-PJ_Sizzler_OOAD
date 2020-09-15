@@ -353,6 +353,18 @@ SET "gender" = (
                end
 );
 
+CREATE OR REPLACE FUNCTION random_between(low INT, high INT)
+    RETURNS INT AS
+$$
+BEGIN
+    RETURN floor(random() * (high - low + 1) + low);
+END;
+$$ language 'plpgsql' STRICT;
 
-
+UPDATE "Employee"
+SET "joinDate" = (
+    SELECT "birthdate" + (random_between(15, 17) || ' year ' || random_between(1, 12) || ' month ' || random_between(1, 30) ||
+           ' day ' || random_between(0, 24) || ' hour ' || random_between(0, 60) || ' min ' || random_between(0, 60) ||
+           ' seconds')::interval
+) WHERE "joinDate" = '2020-09-15'
 
