@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="baa524ee-a230-4bb2-8b43-c12d0d5e96ab" name="Default Changelist" comment="" />
+    <list default="true" id="baa524ee-a230-4bb2-8b43-c12d0d5e96ab" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/scratch.kts" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -25,6 +45,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$" />
     <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/sizzler-OODL.kts" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -46,7 +67,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added Project Metadata &amp; VCS files" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Project Metadata &amp; VCS files" />
+    <MESSAGE value="Upload fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Upload fix" />
   </component>
   <component name="WindowStateProjectService">
     <state x="560" y="192" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1600150303472">
@@ -54,10 +76,14 @@
     </state>
     <state x="560" y="192" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.1006@0.23.1920.1006" timestamp="1600150303472" />
     <state x="560" y="192" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.1007@0.23.1920.1007" timestamp="1599971793227" />
-    <state x="470" y="110" key="CommitChangelistDialog2" timestamp="1600161759020">
+    <state x="470" y="110" key="CommitChangelistDialog2" timestamp="1600162017804">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
-    <state x="470" y="110" key="CommitChangelistDialog2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600161759020" />
+    <state x="470" y="110" key="CommitChangelistDialog2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162017804" />
+    <state x="100" y="123" width="1720" height="806" key="DiffContextDialog" timestamp="1600162225938">
+      <screen x="0" y="23" width="1920" height="1006" />
+    </state>
+    <state x="100" y="123" width="1720" height="806" key="DiffContextDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162225938" />
     <state width="636" height="300" key="GridCell.Tab.0.bottom" timestamp="1600161770384">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
@@ -82,16 +108,24 @@
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state width="232" height="471" key="HiddenNamespacesPopup/0.23.1920.1006@0.23.1920.1006" timestamp="1600150324439" />
+    <state x="192" y="113" key="MergeDialog" timestamp="1600162124010">
+      <screen x="0" y="23" width="1920" height="1006" />
+    </state>
+    <state x="192" y="113" key="MergeDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162124010" />
+    <state x="601" y="294" key="MultipleFileMergeDialog" timestamp="1600162124069">
+      <screen x="0" y="23" width="1920" height="1006" />
+    </state>
+    <state x="601" y="294" key="MultipleFileMergeDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162124069" />
     <state x="469" y="165" key="SettingsEditor" timestamp="1600160382319">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="469" y="165" key="SettingsEditor/0.23.1920.1006@0.23.1920.1006" timestamp="1600150564952" />
     <state x="469" y="165" key="SettingsEditor/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600150964801" />
     <state x="469" y="165" key="SettingsEditor/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600160382319" />
-    <state x="560" y="266" key="Vcs.Push.Dialog.v2" timestamp="1600161822195">
+    <state x="560" y="266" key="Vcs.Push.Dialog.v2" timestamp="1600162139975">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
-    <state x="560" y="266" key="Vcs.Push.Dialog.v2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600161822195" />
+    <state x="560" y="266" key="Vcs.Push.Dialog.v2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162139974" />
     <state x="809" y="306" width="754" height="594" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog" timestamp="1600152982132">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
@@ -108,9 +142,10 @@
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="782" y="427" key="git4idea.remote.GitConfigureRemotesDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600161681759" />
-    <state x="625" y="245" width="670" height="676" key="search.everywhere.popup" timestamp="1600150532916">
+    <state x="625" y="245" width="670" height="676" key="search.everywhere.popup" timestamp="1600161951719">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="625" y="245" width="670" height="676" key="search.everywhere.popup/0.23.1920.1006@0.23.1920.1006" timestamp="1600150532916" />
+    <state x="625" y="245" width="670" height="676" key="search.everywhere.popup/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600161951719" />
   </component>
 </project>
