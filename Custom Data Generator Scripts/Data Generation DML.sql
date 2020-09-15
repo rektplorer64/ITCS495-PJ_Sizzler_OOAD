@@ -33,4 +33,37 @@ SET "pointExpirationTime" = '1 year'::interval,
                                        limit 1)
         LIMIT 1
         )
-    WHERE "timePaid" IS NOT NULL AND random() < 0.2
+    WHERE "timePaid" IS NOT NULL AND random() < 0.2;
+
+
+/**
+  Check for member who has involvedMemberCustomerId
+ */
+SELECT *
+FROM "Billing"
+WHERE "involvedMemberCustomerId" IS NOT NULL;
+
+-- Update involvedMemberCustomerId with random MemberCustomerId
+UPDATE "Billing" A
+SET
+    "involvedMemberCustomerId" = (
+        SELECT "memberCustomerId"
+        FROM "MemberCustomer"
+        WHERE A."billingId" = A."billingId"
+        ORDER BY (SELECT (SELECT random() WHERE g = g AND "memberCustomerId" = "memberCustomerId")
+                                       FROM generate_series(1, 10) g
+                                       limit 1)
+        LIMIT 1
+        )
+     WHERE "involvedMemberCustomerId" IS NOT NULL;
+
+-- This WILL NOT WORK. ALL ROWS WILL HAVE a randomly identical "involvedMemberCustomerId" value!!
+UPDATE "Billing" A
+SET
+    "involvedMemberCustomerId" = (
+        SELECT "memberCustomerId"
+        FROM "MemberCustomer"
+        ORDER BY random()
+        LIMIT 1
+        )
+     WHERE "involvedMemberCustomerId" IS NOT NULL;
