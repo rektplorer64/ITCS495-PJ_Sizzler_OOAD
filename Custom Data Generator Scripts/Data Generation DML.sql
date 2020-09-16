@@ -428,3 +428,75 @@ WHERE C."employeeId" IS NULL
   AND BM."employeeId" IS NULL
   AND C2."employeeId" IS NULL
   AND DM."employeeId" IS NULL;
+
+
+-- UPDATE "ClockInClockOut"
+-- SET ("employeeId", "clockInTimestamp", "computerMachineId", "workTimeId") = (
+--     SELECT (
+--                SELECT E."employeeId"
+--                FROM "Employee" E
+--                ORDER BY (SELECT (SELECT random() WHERE g = g AND E."employeeId" = E."employeeId")
+--                          FROM generate_series(1, 10) g
+--                          limit 1)
+--                LIMIT 1
+--            ),
+--            (
+--                SELECT
+--            ),
+--            (),
+--            ()
+-- );
+--
+-- SELECT E."employeeId", WT.*
+-- FROM "Employee" E JOIN "WorkTime" WT ON E."employeeId" = WT."employeeId"
+-- ORDER BY (SELECT (SELECT random() WHERE g = g AND E."employeeId" = E."employeeId")
+--           FROM generate_series(1, 10) g
+--           limit 1)
+
+do
+$$
+    declare
+        employee         "Employee";
+        isPartTime       bool;
+        timeOffset       char(2);
+        branchOps        Record;
+        insertedWorkTime Record;
+        timeOpen         time;
+        timeClose        time;
+    begin
+
+        FOR employee IN (SELECT * FROM "Employee")
+            LOOP
+                raise notice 'Counter %', employee;
+
+                FOR branchOps IN (SELECT "dayOfWeek", "timeOpening", "timeClosing"
+                                  FROM "Branch"
+                                           JOIN "BranchOpenTime" BOT on "Branch"."branchId" = BOT."branchId"
+                                  WHERE "Branch"."branchId" = employee."branchId")
+                    LOOP
+
+                        SELECT (("employee".age < 20) AND (branchOps."dayOfWeek" not in ('sunday', 'saturday')))
+                        INTO isPartTime;
+                        raise notice '%', branchOps;
+
+                        select (array ['10', '15', '30'])[floor(random() * 3 + 1)] INTO timeOffset;
+
+                        timeOpen := branchOps."timeOpening";
+                        timeClose := branchOps."timeClosing";
+                        IF isPartTime = TRUE THEN
+                            timeOpen := '16:00'::time;
+                            timeClose := timeClose;
+                        END IF;
+
+
+                        INSERT INTO "WorkTime"
+                        VALUES (DEFAULT, branchOps."dayOfWeek", timeOpen - (timeOffset || ' minute')::interval,
+                                timeClose + (timeOffset || ' minute')::interval,
+                                isPartTime, employee."employeeId")
+                        returning * INTO insertedWorkTime;
+
+                        raise notice 'Work Time => %', branchOps;
+                    end loop;
+            end loop;
+    end
+$$;
