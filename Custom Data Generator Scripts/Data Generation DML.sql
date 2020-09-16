@@ -395,7 +395,7 @@ SET "branchId" = (
                    (
                        SELECT "branchId"
                        FROM "Branch" X
-                            WHERE E."employeeId" = E."employeeId"
+                       WHERE E."employeeId" = E."employeeId"
                        ORDER BY (SELECT (
                                             SELECT random()
                                             WHERE g = g
@@ -409,16 +409,22 @@ SET "branchId" = (
 );
 
 --Random time range between 15 - 100 minutes
-UPDATE "InventoryInboundOrder" SET "deliveryIn" = (
-    SELECT (random_between(25,235) || ' min')::interval
+UPDATE "InventoryInboundOrder"
+SET "deliveryIn" = (
+    SELECT (random_between(25, 235) || ' min')::interval
     WHERE "inboundOrderId" = "inboundOrderId"
-) WHERE 1 = 1;
+)
+WHERE 1 = 1;
 
 
 -- List employees who has no positions at all!
 SELECT E."employeeId", BM."employeeId", C."employeeId", C2."employeeId", DM."employeeId"
-FROM "Employee" E LEFT JOIN "BranchManager" BM on E."employeeId" = BM."employeeId"
-    LEFT OUTER JOIN "Cashier" C on E."employeeId" = C."employeeId"
-LEFT OUTER JOIN "Chef" C2 on E."employeeId" = C2."employeeId"
-LEFT JOIN "DeliveryMan" DM on E."employeeId" = DM."employeeId"
-WHERE C."employeeId" IS NULL AND BM."employeeId" IS NULL AND C2."employeeId" IS NULL AND DM."employeeId" IS NULL;
+FROM "Employee" E
+         LEFT JOIN "BranchManager" BM on E."employeeId" = BM."employeeId"
+         LEFT JOIN "Cashier" C on E."employeeId" = C."employeeId"
+         LEFT JOIN "Chef" C2 on E."employeeId" = C2."employeeId"
+         LEFT JOIN "DeliveryMan" DM on E."employeeId" = DM."employeeId"
+WHERE C."employeeId" IS NULL
+  AND BM."employeeId" IS NULL
+  AND C2."employeeId" IS NULL
+  AND DM."employeeId" IS NULL;
