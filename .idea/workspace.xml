@@ -22,9 +22,12 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="baa524ee-a230-4bb2-8b43-c12d0d5e96ab" name="Default Changelist" comment="">
+    <list default="true" id="baa524ee-a230-4bb2-8b43-c12d0d5e96ab" name="Default Changelist" comment="[Data Generation] Added SQL script to insert work time for each employee automatically.">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Custom Data Generator Scripts/Data Generation DML.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Custom Data Generator Scripts/Data Generation DML.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Postgresql Implementation/sizzler-ddl.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Postgresql Implementation/sizzler-ddl.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +86,8 @@
     <MESSAGE value="[Data Generation] Fixed the delivery time range" />
     <MESSAGE value="Added a script to List employees who has no positions at all" />
     <MESSAGE value="Reformatted the query" />
-    <option name="LAST_COMMIT_MESSAGE" value="Reformatted the query" />
+    <MESSAGE value="[Data Generation] Added SQL script to insert work time for each employee automatically." />
+    <option name="LAST_COMMIT_MESSAGE" value="[Data Generation] Added SQL script to insert work time for each employee automatically." />
   </component>
   <component name="WindowStateProjectService">
     <state x="560" y="192" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1600215521747">
@@ -95,39 +99,39 @@
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="662" y="208" key="#com.intellij.openapi.keymap.impl.ui.EditKeymapsDialog/0.23.1920.1006@0.23.1920.1006" timestamp="1600214726252" />
-    <state x="454" y="37" width="1251" height="850" key="CommitChangelistDialog2" timestamp="1600215839283">
+    <state x="393" y="178" width="1251" height="850" key="CommitChangelistDialog2" timestamp="1600223391906">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="454" y="37" key="CommitChangelistDialog2/0.23.1920.1006@0.23.1920.1006" timestamp="1600215839283" />
-    <state x="454" y="37" width="1251" height="850" key="CommitChangelistDialog2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600176726457" />
+    <state x="393" y="178" width="1251" height="850" key="CommitChangelistDialog2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223391906" />
     <state x="100" y="123" width="1720" height="806" key="DiffContextDialog" timestamp="1600162225938">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="100" y="123" width="1720" height="806" key="DiffContextDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162225938" />
-    <state width="1659" height="158" key="GridCell.Tab.0.bottom" timestamp="1600223194001">
+    <state width="1625" height="158" key="GridCell.Tab.0.bottom" timestamp="1600223348858">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state width="1659" height="209" key="GridCell.Tab.0.bottom/0.23.1920.1006@0.23.1920.1006" timestamp="1600218407872" />
     <state width="1294" height="273" key="GridCell.Tab.0.bottom/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600151184486" />
-    <state width="1659" height="158" key="GridCell.Tab.0.bottom/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223194001" />
-    <state width="1659" height="158" key="GridCell.Tab.0.center" timestamp="1600223194000">
+    <state width="1625" height="158" key="GridCell.Tab.0.bottom/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223348858" />
+    <state width="1625" height="158" key="GridCell.Tab.0.center" timestamp="1600223348857">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state width="1659" height="209" key="GridCell.Tab.0.center/0.23.1920.1006@0.23.1920.1006" timestamp="1600218407871" />
     <state width="1294" height="273" key="GridCell.Tab.0.center/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600151184484" />
-    <state width="1659" height="158" key="GridCell.Tab.0.center/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223194000" />
-    <state width="1659" height="158" key="GridCell.Tab.0.left" timestamp="1600223193999">
+    <state width="1625" height="158" key="GridCell.Tab.0.center/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223348857" />
+    <state width="1625" height="158" key="GridCell.Tab.0.left" timestamp="1600223348856">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state width="1659" height="209" key="GridCell.Tab.0.left/0.23.1920.1006@0.23.1920.1006" timestamp="1600218407870" />
     <state width="1294" height="273" key="GridCell.Tab.0.left/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600151184483" />
-    <state width="1659" height="158" key="GridCell.Tab.0.left/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223193999" />
-    <state width="1659" height="158" key="GridCell.Tab.0.right" timestamp="1600223194001">
+    <state width="1625" height="158" key="GridCell.Tab.0.left/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223348856" />
+    <state width="1625" height="158" key="GridCell.Tab.0.right" timestamp="1600223348858">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state width="1659" height="209" key="GridCell.Tab.0.right/0.23.1920.1006@0.23.1920.1006" timestamp="1600218407871" />
     <state width="1294" height="273" key="GridCell.Tab.0.right/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600151184485" />
-    <state width="1659" height="158" key="GridCell.Tab.0.right/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223194001" />
+    <state width="1625" height="158" key="GridCell.Tab.0.right/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223348858" />
     <state width="232" height="471" key="HiddenNamespacesPopup" timestamp="1600150324439">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
@@ -146,10 +150,10 @@
     <state x="469" y="165" key="SettingsEditor/0.23.1920.1006@0.23.1920.1006" timestamp="1600215784417" />
     <state x="469" y="165" key="SettingsEditor/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600150964801" />
     <state x="469" y="165" key="SettingsEditor/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600160382319" />
-    <state x="560" y="266" key="Vcs.Push.Dialog.v2" timestamp="1600176727934">
+    <state x="560" y="266" key="Vcs.Push.Dialog.v2" timestamp="1600223394217">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
-    <state x="560" y="266" key="Vcs.Push.Dialog.v2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600176727934" />
+    <state x="560" y="266" key="Vcs.Push.Dialog.v2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223394217" />
     <state x="809" y="306" width="754" height="594" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog" timestamp="1600165330515">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>

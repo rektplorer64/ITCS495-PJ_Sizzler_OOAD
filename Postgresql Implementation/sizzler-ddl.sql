@@ -574,8 +574,8 @@ CREATE TABLE IF NOT EXISTS "OrderItem"
     "timeServed"         TIMESTAMP      NOT NULL
         CONSTRAINT "Check_ServeTimeLaterStartingTime" CHECK ( "timeServed" > "timeStarted" ),
     "perUnitPrice"       DECIMAL(12, 2) NOT NULL,
-    "perUnitDiscount"    DECIMAL(12, 2) NOT NULL,
-    "perUnitTakeHomeFee" DECIMAL(12, 2) NOT NULL,
+    "perUnitDiscount"    DECIMAL(12, 2),
+    "perUnitTakeHomeFee" DECIMAL(12, 2),
     "isRefunded"         BOOL           NOT NULL DEFAULT FALSE,
     "price"              DECIMAL(12, 2) GENERATED ALWAYS AS ( ("perUnitPrice" + "perUnitTakeHomeFee" - "perUnitDiscount") * "quantity") STORED
 );
