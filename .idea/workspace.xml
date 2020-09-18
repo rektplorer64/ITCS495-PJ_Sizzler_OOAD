@@ -22,12 +22,8 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="baa524ee-a230-4bb2-8b43-c12d0d5e96ab" name="Default Changelist" comment="[Data Generation] Added SQL script to insert work time for each employee automatically.">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.zip" afterDir="false" />
+    <list default="true" id="baa524ee-a230-4bb2-8b43-c12d0d5e96ab" name="Default Changelist" comment="[Data Generation] Removed NOT-NULL constraints from perUnitDiscount and perUnitTakeHomeFee">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Postgresql Implementation/sizzler-ddl.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Postgresql Implementation/sizzler-ddl.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,22 +83,26 @@
     <MESSAGE value="Added a script to List employees who has no positions at all" />
     <MESSAGE value="Reformatted the query" />
     <MESSAGE value="[Data Generation] Added SQL script to insert work time for each employee automatically." />
-    <option name="LAST_COMMIT_MESSAGE" value="[Data Generation] Added SQL script to insert work time for each employee automatically." />
+    <MESSAGE value="[Data Generation] Removed NOT-NULL constraints from perUnitDiscount and perUnitTakeHomeFee" />
+    <option name="LAST_COMMIT_MESSAGE" value="[Data Generation] Removed NOT-NULL constraints from perUnitDiscount and perUnitTakeHomeFee" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="560" y="192" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1600215521747">
-      <screen x="0" y="23" width="1920" height="1006" />
+    <state x="560" y="191" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1600247397600">
+      <screen x="0" y="23" width="1920" height="1001" />
     </state>
     <state x="560" y="192" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.1006@0.23.1920.1006" timestamp="1600215521747" />
     <state x="560" y="192" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1920.1007@0.23.1920.1007" timestamp="1599971793227" />
+    <state x="560" y="191" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.347.1194.733/0.23.1920.1001@0.23.1920.1001" timestamp="1600247397600" />
     <state x="662" y="208" key="#com.intellij.openapi.keymap.impl.ui.EditKeymapsDialog" timestamp="1600214726252">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="662" y="208" key="#com.intellij.openapi.keymap.impl.ui.EditKeymapsDialog/0.23.1920.1006@0.23.1920.1006" timestamp="1600214726252" />
-    <state x="393" y="178" width="1251" height="850" key="CommitChangelistDialog2" timestamp="1600223391906">
-      <screen x="0" y="23" width="1920" height="1006" />
+    <state x="393" y="174" width="1251" height="850" key="CommitChangelistDialog2" timestamp="1600392104983">
+      <screen x="0" y="23" width="1920" height="1001" />
     </state>
+    <state x="393" y="174" key="CommitChangelistDialog2/0.23.1920.1001@0.23.1920.1001" timestamp="1600392104983" />
     <state x="454" y="37" key="CommitChangelistDialog2/0.23.1920.1006@0.23.1920.1006" timestamp="1600215839283" />
+    <state x="393" y="174" key="CommitChangelistDialog2/1920.347.1194.733/0.23.1920.1001@0.23.1920.1001" timestamp="1600260992800" />
     <state x="393" y="178" width="1251" height="850" key="CommitChangelistDialog2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223391906" />
     <state x="100" y="123" width="1720" height="806" key="DiffContextDialog" timestamp="1600162225938">
       <screen x="0" y="23" width="1920" height="1006" />
@@ -144,19 +144,26 @@
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="601" y="294" key="MultipleFileMergeDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162124069" />
-    <state x="469" y="165" key="SettingsEditor" timestamp="1600215784417">
-      <screen x="0" y="23" width="1920" height="1006" />
+    <state x="469" y="164" key="SettingsEditor" timestamp="1600247388604">
+      <screen x="0" y="23" width="1920" height="1001" />
     </state>
     <state x="469" y="165" key="SettingsEditor/0.23.1920.1006@0.23.1920.1006" timestamp="1600215784417" />
     <state x="469" y="165" key="SettingsEditor/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600150964801" />
+    <state x="469" y="164" key="SettingsEditor/1920.347.1194.733/0.23.1920.1001@0.23.1920.1001" timestamp="1600247388604" />
     <state x="469" y="165" key="SettingsEditor/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600160382319" />
-    <state x="560" y="266" key="Vcs.Push.Dialog.v2" timestamp="1600223394217">
-      <screen x="0" y="23" width="1920" height="1006" />
+    <state x="560" y="265" key="Vcs.Push.Dialog.v2" timestamp="1600247655422">
+      <screen x="0" y="23" width="1920" height="1001" />
     </state>
+    <state x="560" y="265" key="Vcs.Push.Dialog.v2/1920.347.1194.733/0.23.1920.1001@0.23.1920.1001" timestamp="1600247655422" />
     <state x="560" y="266" key="Vcs.Push.Dialog.v2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223394217" />
-    <state x="809" y="306" width="754" height="594" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog" timestamp="1600165330515">
-      <screen x="0" y="23" width="1920" height="1006" />
+    <state x="724" y="355" width="434" height="344" key="com.intellij.database.psi.DbRenamePsiElementProcessor.DbRenameDialog" timestamp="1600247516552">
+      <screen x="0" y="23" width="1920" height="1001" />
     </state>
+    <state x="724" y="355" width="434" height="344" key="com.intellij.database.psi.DbRenamePsiElementProcessor.DbRenameDialog/1920.347.1194.733/0.23.1920.1001@0.23.1920.1001" timestamp="1600247516552" />
+    <state x="809" y="305" width="738" height="576" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog" timestamp="1600247480067">
+      <screen x="0" y="23" width="1920" height="1001" />
+    </state>
+    <state x="809" y="305" width="738" height="576" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog/1920.347.1194.733/0.23.1920.1001@0.23.1920.1001" timestamp="1600247480067" />
     <state x="809" y="306" width="754" height="594" key="com.intellij.database.view.ui.AbstractDbRefactoringDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600165330515" />
     <state x="773" y="447" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1600161840522">
       <screen x="0" y="23" width="1920" height="1006" />
