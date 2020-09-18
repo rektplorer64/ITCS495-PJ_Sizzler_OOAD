@@ -18,3 +18,4 @@ FROM
         GROUP BY "memberCustomerId"
     ) AS MemberSpendingSummary
 GROUP BY "memberCustomerId"
+-- bjb --
