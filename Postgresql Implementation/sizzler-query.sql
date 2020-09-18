@@ -57,6 +57,7 @@ FROM (
          FROM "EmployeeView" "EV"
                   LEFT JOIN "ClockInClockOut" "CICO"
                             ON "EV"."employeeId" = "CICO"."employeeId"
+         WHERE ("clockInTimestamp" <= (now()::DATE))  and  ("clockOutTimestamp" >= (now() - '1 month'::interval)::DATE)
          GROUP BY "EV"."employeeId", "firstname", "surname", "nickname", "phoneNumbers", "birthdate", "age", "email"
      ) "A"
 
