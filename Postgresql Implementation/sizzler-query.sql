@@ -38,6 +38,17 @@ SELECT "ServingFoodItemRef"."servingRefId", "ServingRef"."nameEng", "FoodItemRef
     JOIN "FoodItemRef" ON "FoodItemRef"."foodItemRefId" = "ServingFoodItemRef"."foodItemRefId"
     ORDER BY "servingRefId";
 
+--Show all number of customers in a day
 SELECT "timeAdded"::DATE, SUM("totalCustomers") AS TotalInDay FROM "CustomerPax"
 WHERE "timeAdded" BETWEEN '2020-02-08 00:00:00' AND '2020-02-08 23:59:59'
 GROUP BY "timeAdded"::DATE;
+
+--Show computer in each address
+SELECT "macAddress", "Branch"."name" FROM "ComputerMachine"
+    JOIN "Branch" ON "Branch"."branchId" = "ComputerMachine"."branchId";
+
+--Show billing that has the highest total price in this month
+SELECT MAX(amount) FROM "CashTransaction";
+
+--Show count of time delivered InventoryInboundOrder
+SELECT COUNT("inboundOrderId") FROM "InventoryInboundOrder";
