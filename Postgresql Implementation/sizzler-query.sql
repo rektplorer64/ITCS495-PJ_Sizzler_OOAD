@@ -52,3 +52,13 @@ SELECT MAX(amount) FROM "CashTransaction";
 
 --Show count of time delivered InventoryInboundOrder
 SELECT COUNT("inboundOrderId") FROM "InventoryInboundOrder";
+
+--Show total distance that a delivery man delivered
+SELECT "BillingDelivery"."deliveryManId", SUM("timeUsed") FROM "BillingDelivery"
+    JOIN "DeliveryMan" ON "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
+WHERE "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
+GROUP BY "BillingDelivery"."deliveryManId";
+
+--Show salary of all Kitchen Managers
+SELECT "wagePaymentAmount" FROM "EmployeeWagePayment"
+    JOIN "KitchenManager" ON "EmployeeWagePayment"."employeeId" = "KitchenManager"."employeeId"
