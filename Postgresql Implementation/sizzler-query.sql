@@ -61,5 +61,17 @@ FROM (
      ) "A"
 
          LEFT JOIN "EmployeeWagePayment" "EWP" ON "A"."employeeId" = "EWP"."employeeId"
-GROUP BY "A"."employeeId", "firstname", "surname", "nickname", "email", "phoneNumbers", "totalWorkTimeInThePastMonth", "birthdate",
-                "age";
+GROUP BY "A"."employeeId", "firstname", "surname", "nickname", "email", "phoneNumbers", "totalWorkTimeInThePastMonth",
+         "birthdate",
+         "age";
+
+-- 17: Show work time of every employee
+SELECT "EV"."employeeId",
+       "firstname",
+       "surname",
+       "age",
+       "workAtBranch",
+       array_agg(ROW ("WT"."timeStart", "WT"."timeEnd", "dayOfWeek", ("timeEnd" - "timeStart"))) "workTime"
+FROM "EmployeeView" "EV"
+         JOIN "WorkTime" "WT" ON "EV"."employeeId" = "WT"."employeeId"
+GROUP BY "EV"."employeeId", "firstname", "surname", "age", "workAtBranch";
