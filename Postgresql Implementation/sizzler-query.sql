@@ -57,7 +57,8 @@ FROM (
          FROM "EmployeeView" "EV"
                   LEFT JOIN "ClockInClockOut" "CICO"
                             ON "EV"."employeeId" = "CICO"."employeeId"
-         WHERE ("clockInTimestamp" <= (now()::DATE))  and  ("clockOutTimestamp" >= (now() - '1 month'::interval)::DATE)
+         WHERE ("clockInTimestamp" <= (now()::DATE))
+           AND ("clockOutTimestamp" >= (now() - '1 month'::INTERVAL)::DATE)
          GROUP BY "EV"."employeeId", "firstname", "surname", "nickname", "phoneNumbers", "birthdate", "age", "email"
      ) "A"
 
@@ -76,3 +77,11 @@ SELECT "EV"."employeeId",
 FROM "EmployeeView" "EV"
          JOIN "WorkTime" "WT" ON "EV"."employeeId" = "WT"."employeeId"
 GROUP BY "EV"."employeeId", "firstname", "surname", "age", "workAtBranch";
+
+-- 11: List the delivery time and distance take to finish each delivery
+SELECT "DM".*, "BD"."timeUsed", "BD"."distanceKM"
+FROM (
+         SELECT "E"."employeeId" AS "deliveryManId", "firstname" "deliveryManFirstName", "surname" "deliveryManSurname"
+         FROM "DeliveryMan" "DM" JOIN "Employee" "E" ON "DM"."employeeId" = "E"."employeeId"
+     ) "DM"
+         JOIN "BillingDelivery" "BD" ON "DM"."deliveryManId" = "BD"."deliveryManId";
