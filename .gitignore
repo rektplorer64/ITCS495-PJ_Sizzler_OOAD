@@ -1,0 +1,6 @@
+# Created by .ignore support plugin (hsz.mobi)
+./.idea/dataSources
+./.idea/workspace.xml
+/.idea/workspace.xml
+./.idea/*
+.DS_Store
