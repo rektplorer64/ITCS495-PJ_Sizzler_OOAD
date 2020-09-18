@@ -23,15 +23,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="baa524ee-a230-4bb2-8b43-c12d0d5e96ab" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Postgresql Implementation/sizzler-view.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/472003bb-ce6f-41ea-b162-1126b7ec9699/storage_v2/_src_/database/MainSizzlerDb.SPCoag/schema/public.abK9xQ.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Postgresql Implementation/.idea/sizzler-helper-functions.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Postgresql Implementation/.idea/sizzler-helper-functions.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Postgresql Implementation/sizzler-ddl.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Postgresql Implementation/sizzler-ddl.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Postgresql Implementation/sizzler-query.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Postgresql Implementation/sizzler-query.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Postgresql Implementation/.idea/sizzler-helper-functions.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Postgresql Implementation/sizzler-helper-functions.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +57,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$" />
-    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.PostgreSQL" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/sizzler-OODL.kts" />
   </component>
   <component name="RecentsManager">
@@ -104,7 +98,8 @@
     <MESSAGE value="Added a function to calculate price of an individual order item." />
     <MESSAGE value="Implemented the query #3." />
     <MESSAGE value="Removed unused queries." />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed unused queries." />
+    <MESSAGE value="Implemented query #5 along with EmployeeView." />
+    <option name="LAST_COMMIT_MESSAGE" value="Implemented query #5 along with EmployeeView." />
   </component>
   <component name="WindowStateProjectService">
     <state x="560" y="191" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1600247397600">
@@ -117,49 +112,50 @@
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="662" y="208" key="#com.intellij.openapi.keymap.impl.ui.EditKeymapsDialog/0.23.1920.1006@0.23.1920.1006" timestamp="1600214726252" />
-    <state x="393" y="162" width="1251" height="850" key="CommitChangelistDialog2" timestamp="1600415096196">
+    <state x="393" y="162" width="1251" height="850" key="CommitChangelistDialog2" timestamp="1600420598310">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="393" y="162" key="CommitChangelistDialog2/0.0.1920.1080@0.0.1920.1080" timestamp="1600415096196" />
     <state x="393" y="174" key="CommitChangelistDialog2/0.23.1920.1001@0.23.1920.1001" timestamp="1600407909751" />
     <state x="454" y="37" key="CommitChangelistDialog2/0.23.1920.1006@0.23.1920.1006" timestamp="1600215839283" />
+    <state x="393" y="162" key="CommitChangelistDialog2/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600420598310" />
     <state x="393" y="174" key="CommitChangelistDialog2/1920.347.1194.733/0.23.1920.1001@0.23.1920.1001" timestamp="1600260992800" />
     <state x="393" y="178" width="1251" height="850" key="CommitChangelistDialog2/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223391906" />
     <state x="100" y="123" width="1720" height="806" key="DiffContextDialog" timestamp="1600162225938">
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="100" y="123" width="1720" height="806" key="DiffContextDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162225938" />
-    <state width="1659" height="275" key="GridCell.Tab.0.bottom" timestamp="1600419985906">
+    <state width="0" height="0" key="GridCell.Tab.0.bottom" timestamp="1600420740906">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1659" height="275" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1600419221018" />
     <state width="1659" height="209" key="GridCell.Tab.0.bottom/0.23.1920.1006@0.23.1920.1006" timestamp="1600218407872" />
     <state width="1294" height="273" key="GridCell.Tab.0.bottom/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600151184486" />
-    <state width="1659" height="275" key="GridCell.Tab.0.bottom/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600419985906" />
+    <state width="0" height="0" key="GridCell.Tab.0.bottom/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600420740906" />
     <state width="1625" height="158" key="GridCell.Tab.0.bottom/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223348858" />
-    <state width="1659" height="275" key="GridCell.Tab.0.center" timestamp="1600419985905">
+    <state width="0" height="0" key="GridCell.Tab.0.center" timestamp="1600420740903">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1659" height="275" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1600419221017" />
     <state width="1659" height="209" key="GridCell.Tab.0.center/0.23.1920.1006@0.23.1920.1006" timestamp="1600218407871" />
     <state width="1294" height="273" key="GridCell.Tab.0.center/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600151184484" />
-    <state width="1659" height="275" key="GridCell.Tab.0.center/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600419985905" />
+    <state width="0" height="0" key="GridCell.Tab.0.center/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600420740903" />
     <state width="1625" height="158" key="GridCell.Tab.0.center/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223348857" />
-    <state width="1659" height="275" key="GridCell.Tab.0.left" timestamp="1600419985902">
+    <state width="0" height="0" key="GridCell.Tab.0.left" timestamp="1600420740902">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1659" height="275" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1600419221016" />
     <state width="1659" height="209" key="GridCell.Tab.0.left/0.23.1920.1006@0.23.1920.1006" timestamp="1600218407870" />
     <state width="1294" height="273" key="GridCell.Tab.0.left/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600151184483" />
-    <state width="1659" height="275" key="GridCell.Tab.0.left/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600419985902" />
+    <state width="0" height="0" key="GridCell.Tab.0.left/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600420740902" />
     <state width="1625" height="158" key="GridCell.Tab.0.left/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223348856" />
-    <state width="1659" height="275" key="GridCell.Tab.0.right" timestamp="1600419985905">
+    <state width="0" height="0" key="GridCell.Tab.0.right" timestamp="1600420740905">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state width="1659" height="275" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1600419221017" />
     <state width="1659" height="209" key="GridCell.Tab.0.right/0.23.1920.1006@0.23.1920.1006" timestamp="1600218407871" />
     <state width="1294" height="273" key="GridCell.Tab.0.right/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600151184485" />
-    <state width="1659" height="275" key="GridCell.Tab.0.right/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600419985905" />
+    <state width="0" height="0" key="GridCell.Tab.0.right/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600420740905" />
     <state width="1625" height="158" key="GridCell.Tab.0.right/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600223348858" />
     <state width="232" height="471" key="HiddenNamespacesPopup" timestamp="1600150324439">
       <screen x="0" y="23" width="1920" height="1006" />
@@ -173,12 +169,13 @@
       <screen x="0" y="23" width="1920" height="1006" />
     </state>
     <state x="601" y="294" key="MultipleFileMergeDialog/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600162124069" />
-    <state x="403" y="212" width="1346" height="722" key="SettingsEditor" timestamp="1600411988039">
+    <state x="403" y="212" width="1346" height="722" key="SettingsEditor" timestamp="1600420863986">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="403" y="212" width="1346" height="722" key="SettingsEditor/0.0.1920.1080@0.0.1920.1080" timestamp="1600411988039" />
     <state x="469" y="165" key="SettingsEditor/0.23.1920.1006@0.23.1920.1006" timestamp="1600215784417" />
     <state x="469" y="165" key="SettingsEditor/1920.23.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600150964801" />
+    <state x="403" y="212" key="SettingsEditor/1920.324.1194.756/0.0.1920.1080@0.0.1920.1080" timestamp="1600420863986" />
     <state x="469" y="164" key="SettingsEditor/1920.347.1194.733/0.23.1920.1001@0.23.1920.1001" timestamp="1600247388604" />
     <state x="469" y="165" key="SettingsEditor/1920.347.1194.733/0.23.1920.1006@0.23.1920.1006" timestamp="1600160382319" />
     <state width="306" height="441" key="SqlResolveConfigurable" timestamp="1600409857923">
