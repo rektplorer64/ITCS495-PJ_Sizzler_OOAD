@@ -1413,7 +1413,7 @@ true posixrules
     <database id="2" parent="1" name="MainSizzlerDb">
       <ObjectId>16384</ObjectId>
       <Owner>SizzlerAdmin</Owner>
-      <IntrospectionStateNumber>1246</IntrospectionStateNumber>
+      <IntrospectionStateNumber>1248</IntrospectionStateNumber>
       <Relations>sequence|table|16501|16503|1
 sequence|table|16638|16640|1
 sequence|table|16696|16698|1
@@ -1489,7 +1489,7 @@ sequence|table|17428|17430|1
       <Comment>standard public schema</Comment>
       <StateNumber>276</StateNumber>
       <Owner>SizzlerAdmin</Owner>
-      <IntrospectionStateNumber>1247</IntrospectionStateNumber>
+      <IntrospectionStateNumber>1249</IntrospectionStateNumber>
       <Current>1</Current>
     </schema>
     <access-method id="16" parent="2" name="heap">

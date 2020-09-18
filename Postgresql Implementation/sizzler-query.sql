@@ -82,6 +82,43 @@ GROUP BY "EV"."employeeId", "firstname", "surname", "age", "workAtBranch";
 SELECT "DM".*, "BD"."timeUsed", "BD"."distanceKM"
 FROM (
          SELECT "E"."employeeId" AS "deliveryManId", "firstname" "deliveryManFirstName", "surname" "deliveryManSurname"
-         FROM "DeliveryMan" "DM" JOIN "Employee" "E" ON "DM"."employeeId" = "E"."employeeId"
+         FROM "DeliveryMan" "DM"
+                  JOIN "Employee" "E" ON "DM"."employeeId" = "E"."employeeId"
      ) "DM"
          JOIN "BillingDelivery" "BD" ON "DM"."deliveryManId" = "BD"."deliveryManId";
+
+-- 30: List the details of each billing in details in terms of its type, timestamp and other related information.
+CREATE VIEW BillingView AS
+SELECT "00".*,
+       CASE
+           WHEN "AA"."billingId" IS NOT NULL THEN 'delivery'
+           WHEN "BB"."billingId" IS NOT NULL THEN 'on-site' END             "type",
+       CASE
+           WHEN "AA"."billingId" IS NOT NULL THEN ROW ("deliveryManId", "AA"."firstname", "AA"."surname")
+           WHEN "BB"."billingId" IS NOT NULL
+               THEN ROW ("cashierId", "BB"."firstname", "BB"."surname") END "handlerEmployee"
+FROM (
+         SELECT "billingId",
+                "taxInvoiceId",
+                "timeCreated",
+                COALESCE("timePaid", "timeCanceled")                    "timeStatusModified",
+                CASE
+                    WHEN "timePaid" IS NOT NULL THEN 'paid'
+                    WHEN "timeCanceled" IS NOT NULL THEN 'canceled' END "status",
+                CASE
+                    WHEN "involvedMemberCustomerId" IS NOT NULL THEN ROW ("involvedMemberCustomerId",
+                        "pointReceived",
+                        "pointExpirationTime") END                      "membershipBillCoupling"
+         FROM "Billing"
+     ) "00"
+         LEFT JOIN (
+    SELECT "BD"."billingId", "deliveryManId", "EV"."firstname", "EV"."surname"
+    FROM "BillingDelivery" "BD"
+             JOIN "EmployeeView" "EV" ON "deliveryManId" = "employeeId"
+) "AA" ON "00"."billingId" = "AA"."billingId"
+         LEFT JOIN (
+    SELECT "BS"."billingId", "cashierId", "EV"."firstname", "EV"."surname"
+    FROM "BillingOnSite" "BS"
+             JOIN "CashierBillingHandling" "CBH" ON "BS"."billingId" = "CBH"."billingId"
+             JOIN "EmployeeView" "EV" ON "CBH"."cashierId" = "employeeId"
+) "BB" ON "00"."billingId" = "BB"."billingId"
