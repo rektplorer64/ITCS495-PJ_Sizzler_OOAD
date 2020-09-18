@@ -31,7 +31,7 @@ FROM (
 ) "B" ON "A"."billingId" = "B"."billingId"
 GROUP BY "A"."memberCustomerId", "firstname", "surname", "telephoneNo", "email";
 
---
+-- 5: Summarize each employee's the total amount of working time as well as the wage payments
 SELECT "A"."employeeId",
        "firstname",
        "surname",
