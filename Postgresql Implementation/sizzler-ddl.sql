@@ -577,7 +577,7 @@ CREATE TABLE IF NOT EXISTS "OrderItem"
     "perUnitDiscount"    DECIMAL(12, 2),
     "perUnitTakeHomeFee" DECIMAL(12, 2),
     "isRefunded"         BOOL           NOT NULL DEFAULT FALSE,
-    "price"              DECIMAL(12, 2) GENERATED ALWAYS AS ( ("perUnitPrice" + "perUnitTakeHomeFee" - "perUnitDiscount") * "quantity") STORED
+    "price"              DECIMAL(12, 2) GENERATED ALWAYS AS ("calculateOrderItemPrice"("perUnitPrice", "perUnitTakeHomeFee", "perUnitDiscount", "quantity")) STORED
 );
 
 -- SECTION 3-ary relationship "MenuServingCustomization"

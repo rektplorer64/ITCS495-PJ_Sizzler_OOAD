@@ -1,4 +1,4 @@
--- List all customers with the level of membership, point gained, as well as the amount of money he/she spent.
+-- 3: List all customers with the level of membership, point gained, as well as the amount of money he/she spent.
 SELECT "A"."memberCustomerId",
        "firstname",
        "surname",
@@ -31,3 +31,35 @@ FROM (
 ) "B" ON "A"."billingId" = "B"."billingId"
 GROUP BY "A"."memberCustomerId", "firstname", "surname", "telephoneNo", "email";
 
+--
+SELECT "A"."employeeId",
+       "firstname",
+       "surname",
+       "nickname",
+       "birthdate",
+       "age",
+       "email",
+       "phoneNumbers",
+       "totalWorkTimeInThePastMonth",
+       sum(coalesce("EWP"."wagePaymentAmount", 0)) "totalWagePaid",
+       sum(coalesce("EWP"."wageBonusAmount", 0))   "totalBonusPaid"
+FROM (
+         SELECT "EV"."employeeId",
+                "firstname",
+                "surname",
+                "nickname",
+                "phoneNumbers",
+                "birthdate",
+                "age",
+                "email",
+                sum((coalesce("CICO"."clockOutTimestamp" - "CICO"."clockInTimestamp",
+                              '0 min'))::INTERVAL) "totalWorkTimeInThePastMonth"
+         FROM "EmployeeView" "EV"
+                  LEFT JOIN "ClockInClockOut" "CICO"
+                            ON "EV"."employeeId" = "CICO"."employeeId"
+         GROUP BY "EV"."employeeId", "firstname", "surname", "nickname", "phoneNumbers", "birthdate", "age", "email"
+     ) "A"
+
+         LEFT JOIN "EmployeeWagePayment" "EWP" ON "A"."employeeId" = "EWP"."employeeId"
+GROUP BY "A"."employeeId", "firstname", "surname", "nickname", "email", "phoneNumbers", "totalWorkTimeInThePastMonth", "birthdate",
+                "age";
