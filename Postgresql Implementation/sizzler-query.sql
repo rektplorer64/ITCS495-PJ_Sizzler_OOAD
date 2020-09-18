@@ -31,3 +31,13 @@ SELECT "SaladBarRefill"."employeeId", "FoodItemRef"."nameTha", "SaladBarRefill".
 --Show time start and time end of all MenuAvailability
 SELECT "MenuRef"."nameTha", "MenuAvailability"."dayOfWeek", "MenuAvailability"."timeRangeStart", "MenuAvailability"."timeRangeEnd" FROM "MenuAvailability"
     JOIN "MenuRef" ON "MenuAvailability"."menuRefId" = "MenuRef"."menuRefId";
+
+--Show all food items from a serving
+SELECT "ServingFoodItemRef"."servingRefId", "ServingRef"."nameEng", "FoodItemRef"."nameEng" FROM "ServingRef"
+    JOIN "ServingFoodItemRef" ON "ServingRef"."servingRefId" = "ServingFoodItemRef"."servingRefId"
+    JOIN "FoodItemRef" ON "FoodItemRef"."foodItemRefId" = "ServingFoodItemRef"."foodItemRefId"
+    ORDER BY "servingRefId";
+
+SELECT "timeAdded"::DATE, SUM("totalCustomers") AS TotalInDay FROM "CustomerPax"
+WHERE "timeAdded" BETWEEN '2020-02-08 00:00:00' AND '2020-02-08 23:59:59'
+GROUP BY "timeAdded"::DATE;
