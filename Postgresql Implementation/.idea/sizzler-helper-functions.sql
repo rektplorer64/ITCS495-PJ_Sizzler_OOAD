@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION "calculateOrderItemPrice"(
     "perUnitDiscount"    NUMERIC(12, 2),
     "quantity"           INT
 )
-    RETURNS INTEGER AS
+    RETURNS INTEGER IMMUTABLE AS
 $body$
 BEGIN
     RETURN sum(("perUnitPrice" + coalesce("perUnitTakeHomeFee", 0) - coalesce("perUnitDiscount", 0)) * "quantity");
