@@ -18,4 +18,6 @@ FROM
         GROUP BY "memberCustomerId"
     ) AS MemberSpendingSummary
 GROUP BY "memberCustomerId"
--- bjb --
+-- 19: Identify rewards customer redeem it recently --
+SELECT concat("firstname",' ', "surname") AS "fullname", name FROM "MemberCustomer" INNER JOIN "MembershipRewardRedemption" MRR on "MemberCustomer"."memberCustomerId" = MRR."memberCustomerRefId" INNER JOIN "RedeemableRewardRef" RRR on RRR."redeemableRewardRefId" = MRR."redeemableRewardRefId"
+WHERE "memberCustomerId" = 'b7a57961-b4ae-46f3-bf63-e20960e9a16b' ORDER BY "timestamp" DESC LIMIT 1
