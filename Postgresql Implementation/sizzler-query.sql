@@ -26,3 +26,8 @@ SELECT "servingRefId", "nameEng", "nameTha", "basePrice" FROM "ServingRef" WHERE
 -- 12: Show the amount of table in each branch --
 SELECT TB."branchId", name, COUNT("tableId") FROM "Table" TB INNER JOIN "Branch" B on B."branchId" = TB."branchId"
 GROUP BY TB."branchId", name
+-- 20: Identify member customer who order food within 7 days --
+SELECT "memberCustomerId", concat("firstname",' ', "surname") AS "fullname" FROM "MemberCustomer" INNER JOIN "Billing" B on "MemberCustomer"."memberCustomerId" = B."involvedMemberCustomerId"
+WHERE B."timePaid"> now() - interval '1 week'
+-- 21: Show detail of order of each billing --
+SELECT "Order"."orderId", "nameEng", "nameTha", "realPrice", "Order"."timeCreated" FROM "Order" INNER JOIN "Billing" B on B."billingId" = "Order"."billingId" INNER JOIN "OrderItem" OI on "Order"."orderId" = OI."orderId" INNER JOIN "MenuRef" MR on MR."menuRefId" = OI."menuRefId" INNER JOIN "MenuServingRef" MSR on MR."menuRefId" = MSR."menuRefId"
