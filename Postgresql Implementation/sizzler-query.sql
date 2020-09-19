@@ -48,7 +48,7 @@ SELECT "macAddress", "Branch"."name" FROM "ComputerMachine"
     JOIN "Branch" ON "Branch"."branchId" = "ComputerMachine"."branchId";
 
 --Show billing that has the highest total price in this month
-SELECT MAX(amount) FROM "CashTransaction";
+SELECT MAX("amount") FROM "CashTransaction";
 
 --Show count of time delivered InventoryInboundOrder
 SELECT COUNT("inboundOrderId") FROM "InventoryInboundOrder";
@@ -63,10 +63,23 @@ GROUP BY "BillingDelivery"."deliveryManId";
 SELECT "wagePaymentAmount" * 30 AS "salary", "wageBonusAmount", "wagePaymentAmount" * 30 + "wageBonusAmount" AS total FROM "EmployeeWagePayment"
     JOIN "KitchenManager" ON "EmployeeWagePayment"."employeeId" = "KitchenManager"."employeeId";
 
+--Show all employee address that is located in Chonburi
 SELECT "fullAddress" FROM "Employee"
     JOIN "Province" ON "Employee"."provinceId" = "Province"."provinceId"
     WHERE "nameEnglish" = 'Chonburi Province';
 
+--List all employee full name that age is more than 40 or equal
 SELECT CONCAT("firstname", ' ', "surname") AS "fullName", age FROM "Employee"
-    WHERE age >= 40;
+    WHERE "age" >= 40;
 
+--Identify creditTransaction that has the highest amount
+SELECT * FROM "CreditTransaction"
+    ORDER BY "amount" DESC
+    LIMIT 1;
+
+--Show cashTransaction that has the highest total price
+SELECT * FROM "CashTransaction"
+    ORDER BY "amount" DESC
+    LIMIT 1;
+
+--
