@@ -22,7 +22,7 @@ class Branch(extent branches key branchId){
     attribute   enum BranchStatus{
         'normally operational',
         'under maintenance',
-        'out-of-business' }             establishingDate;
+        'out-of-business' }             status;
     attribute   set<BranchOpenTime>     openTime;
     attribute   set<Table>              tables;     // FIXME: Investigate whether this works.
 
@@ -77,11 +77,11 @@ class Employee(extent employees key employeeId){
     attribute   struct      Address {
         string      province,
         string      fullAddress}    address;
-    attribute   enum Gender {
+    attribute   enum        Gender {
         'male', 'female'}           gender;
     attribute   string              citizenId;
     attribute   date                joinDate;
-    attribute   data                birthdate;
+    attribute   date                birthdate;
     attribute   float               wage;
     attribute   set<WorkTime>       workTimes;
 
@@ -500,7 +500,7 @@ class ServingFoodItemRef(extent servingFoodItemRef){
     relationship    set<MenuServingCustomization>    relates         inverse     MenuServingCustomization::relatesTo;
 };
 
-class FoodItemIngredientRef(extent foodIngredientRefs){
+class FoodItemIngredientRef(extent foodItemIngredientRefs){
     attribute       float           quantity;
     attribute       string          quantityUnit
 
