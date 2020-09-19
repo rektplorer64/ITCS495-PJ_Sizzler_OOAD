@@ -23,3 +23,6 @@ SELECT concat("firstname",' ', "surname") AS "fullname", name FROM "MemberCustom
 WHERE "memberCustomerId" = 'b7a57961-b4ae-46f3-bf63-e20960e9a16b' ORDER BY "timestamp" DESC LIMIT 1
 -- 9: Show all of "western" serving menu --
 SELECT "servingRefId", "nameEng", "nameTha", "basePrice" FROM "ServingRef" WHERE genre = 'western'
+-- 12: Show the amount of table in each branch --
+SELECT TB."branchId", name, COUNT("tableId") FROM "Table" TB INNER JOIN "Branch" B on B."branchId" = TB."branchId"
+GROUP BY TB."branchId", name
