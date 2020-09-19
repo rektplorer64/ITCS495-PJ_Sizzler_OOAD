@@ -82,4 +82,14 @@ SELECT * FROM "CashTransaction"
     ORDER BY "amount" DESC
     LIMIT 1;
 
---
+--Count employee category by age
+SELECT "age", COUNT("employeeId") FROM "Employee"
+    GROUP BY "age"
+    ORDER BY "age";
+
+--Identify age that has the hightest number of employee
+SELECT "age", COUNT("employeeId") FROM "Employee"
+    GROUP BY "age"
+    ORDER BY COUNT("employeeId") DESC
+    LIMIT 1;
+
