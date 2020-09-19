@@ -49,14 +49,11 @@ GROUP BY "timeAdded"::DATE;
 SELECT "macAddress", "Branch"."name" FROM "ComputerMachine"
     JOIN "Branch" ON "Branch"."branchId" = "ComputerMachine"."branchId";
 
---Show billing that has the highest total price in this month
-SELECT MAX("amount") FROM "CashTransaction";
-
 --8Show count of time delivered InventoryInboundOrder
-SELECT COUNT("inboundOrderId") FROM "InventoryInboundOrder";
+SELECT COUNT("inboundOrderId") AS TotalInboundDeliveryCount FROM "InventoryInboundOrder";
 
 --26Show total distance that a delivery man delivered
-SELECT "BillingDelivery"."deliveryManId", SUM("distanceKM") FROM "BillingDelivery"
+SELECT "BillingDelivery"."deliveryManId", SUM("distanceKM") AS TotalDistance FROM "BillingDelivery"
     JOIN "DeliveryMan" ON "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
 WHERE "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
 GROUP BY "BillingDelivery"."deliveryManId";
@@ -85,24 +82,24 @@ SELECT * FROM "CashTransaction"
     LIMIT 1;
 
 --33Count employee category by age
-SELECT "age", COUNT("employeeId") FROM "Employee"
+SELECT "age", COUNT("employeeId") AS NumberOfEmployee FROM "Employee"
     GROUP BY "age"
     ORDER BY "age";
 
 --34Identify age that has the hightest number of employee
-SELECT "age", COUNT("employeeId") FROM "Employee"
+SELECT "age", COUNT("employeeId") AS NumberOfEmployee FROM "Employee"
     GROUP BY "age"
     ORDER BY COUNT("employeeId") DESC
     LIMIT 1;
 
 --37Show all menu sell count
-SELECT "nameEng", COUNT("quantity") FROM "MenuRef"
+SELECT "nameEng", COUNT("quantity") AS "sellCount" FROM "MenuRef"
     JOIN "OrderItem" ON "MenuRef"."menuRefId" = "OrderItem"."menuRefId"
     GROUP BY "nameEng"
     ORDER BY COUNT("quantity") DESC;
 
 --35Count all member customer that group by member level
-SELECT "MemberLevelRef"."name", COUNT("memberCustomerId") FROM "MemberCustomer"
+SELECT "MemberLevelRef"."name", COUNT("memberCustomerId") AS "NumberOfMember" FROM "MemberCustomer"
     JOIN "MembershipRewardRedemption" ON "MemberCustomer"."memberCustomerId" = "MembershipRewardRedemption"."memberCustomerRefId"
     JOIN "MemberLevelRewardOffering" ON "MemberLevelRewardOffering"."redeemableRewardRefId" = "MembershipRewardRedemption"."redeemableRewardRefId"
     JOIN "MemberLevelRef" ON "MemberLevelRewardOffering"."memberLevelRefId" = "MemberLevelRef"."memberLevelRefId"
