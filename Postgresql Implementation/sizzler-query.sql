@@ -93,3 +93,22 @@ SELECT "age", COUNT("employeeId") FROM "Employee"
     ORDER BY COUNT("employeeId") DESC
     LIMIT 1;
 
+--Show the best seller menu
+SELECT "nameEng", COUNT("quantity") FROM "MenuRef"
+    JOIN "OrderItem" ON "MenuRef"."menuRefId" = "OrderItem"."menuRefId"
+    GROUP BY "nameEng"
+    ORDER BY COUNT("quantity") DESC;
+
+--Count member customer group by member level
+SELECT "MemberLevelRef"."name", COUNT("memberCustomerId") FROM "MemberCustomer"
+    JOIN "MembershipRewardRedemption" ON "MemberCustomer"."memberCustomerId" = "MembershipRewardRedemption"."memberCustomerRefId"
+    JOIN "MemberLevelRewardOffering" ON "MemberLevelRewardOffering"."redeemableRewardRefId" = "MembershipRewardRedemption"."redeemableRewardRefId"
+    JOIN "MemberLevelRef" ON "MemberLevelRewardOffering"."memberLevelRefId" = "MemberLevelRef"."memberLevelRefId"
+    GROUP BY "MemberLevelRef"."name";
+
+--Show customer firstname, surname, and member level
+SELECT "MemberCustomer"."firstname", "MemberCustomer"."surname", "MemberLevelRef"."name" FROM "MemberLevelRef"
+    JOIN "MemberLevelRewardOffering" ON "MemberLevelRef"."memberLevelRefId" = "MemberLevelRewardOffering"."memberLevelRefId"
+    JOIN "MembershipRewardRedemption" ON "MemberLevelRewardOffering"."redeemableRewardRefId" = "MembershipRewardRedemption"."redeemableRewardRefId"
+    JOIN "MemberCustomer" ON "MemberCustomer"."memberCustomerId" = "MembershipRewardRedemption"."memberCustomerRefId";
+
