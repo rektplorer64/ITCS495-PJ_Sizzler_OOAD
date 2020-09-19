@@ -308,12 +308,13 @@ class CashierBillingHandling(extent cashierBillingHandlings){
 };
 
 class InventoryInboundOrder(extent inventoryInboundOrders key inboundOrderId){
-    attribute       long            inboundOrderId;
-    attribute       timestamp       timeCreated;
-    attribute       timestamp       timeDelivered;
-    attribute       timestamp       timeCanceled;
-    attribute       string          note;
-    attribute       string          deliverIn;
+    attribute       long                                inboundOrderId;
+    attribute       timestamp                           timeCreated;
+    attribute       timestamp                           timeDelivered;
+    attribute       timestamp                           timeCanceled;
+    attribute       string                              note;
+    attribute       string                              deliverIn;
+    attribute       set<InventoryInboundOrderItem>      items;
 
     relationship    KitchenManager  managedBy   inverse     KitchenManager::manages;
 
@@ -329,7 +330,7 @@ class InventoryInboundOrderItem(key inboundOrderItemId){
     attribute       short           pricePerUnit;
 
     relationship Branch                     managedBy       inverse     Branch::managesTable;
-    relationship FoodItemIngredientRef      involves        inverse     FoodItemIngredientRef::involvedWith;
+    relationship FoodIngredientRef          involves        inverse     FoodIngredientRef::involvedWith;
 };
 
 interface PaymentTransaction{
