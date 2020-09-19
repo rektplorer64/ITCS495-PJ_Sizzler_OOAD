@@ -8,7 +8,6 @@ SELECT TB."branchId", name, COUNT("tableId") FROM "Table" TB INNER JOIN "Branch"
 SELECT "nameEng",COUNT("OrderItem"."menuRefId") FROM "OrderItem" INNER JOIN "MenuRef" MR on MR."menuRefId" = "OrderItem"."menuRefId"
 GROUP BY "nameEng"
 -- 16: Identify a member customer who spend most in this month --
--- run ได้ แต่ไม่มีข้อมูล เพราะใน order ไม่มี order อันไหนเลยที่คนสั่งเป็นคนที่มีบัตรสมาชิก --
 SELECT "memberCustomerId", fullname,MAX(OverallPrice) AS "MaxSpendPrice"
 FROM
     (
