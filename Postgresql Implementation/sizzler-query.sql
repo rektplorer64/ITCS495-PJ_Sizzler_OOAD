@@ -60,5 +60,13 @@ WHERE "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
 GROUP BY "BillingDelivery"."deliveryManId";
 
 --Show salary of all Kitchen Managers
-SELECT "wagePaymentAmount" FROM "EmployeeWagePayment"
-    JOIN "KitchenManager" ON "EmployeeWagePayment"."employeeId" = "KitchenManager"."employeeId"
+SELECT "wagePaymentAmount" * 30 AS "salary", "wageBonusAmount", "wagePaymentAmount" * 30 + "wageBonusAmount" AS total FROM "EmployeeWagePayment"
+    JOIN "KitchenManager" ON "EmployeeWagePayment"."employeeId" = "KitchenManager"."employeeId";
+
+SELECT "fullAddress" FROM "Employee"
+    JOIN "Province" ON "Employee"."provinceId" = "Province"."provinceId"
+    WHERE "nameEnglish" = 'Chonburi Province';
+
+SELECT CONCAT("firstname", ' ', "surname") AS "fullName", age FROM "Employee"
+    WHERE age >= 40;
+
