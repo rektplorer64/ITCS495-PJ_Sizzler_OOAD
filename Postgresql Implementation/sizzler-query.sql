@@ -79,13 +79,19 @@ FROM "EmployeeView" "EV"
 GROUP BY "EV"."employeeId", "firstname", "surname", "age", "workAtBranch";
 
 -- 11: List the delivery time and distance take to finish each delivery
-SELECT "DM".*, "BD"."timeUsed", "BD"."distanceKM"
+SELECT "DM".*,
+       "BD"."timeUsed",
+       "BD"."distanceKM",
+       "CD"."fullAddress",
+       "CD"."handlingBranchId",
+       ROUND(("distanceKM" / (EXTRACT(EPOCH FROM "timeUsed") / 3600))::NUMERIC , 4) "averageSpeed"
 FROM (
          SELECT "E"."employeeId" AS "deliveryManId", "firstname" "deliveryManFirstName", "surname" "deliveryManSurname"
          FROM "DeliveryMan" "DM"
                   JOIN "Employee" "E" ON "DM"."employeeId" = "E"."employeeId"
      ) "DM"
-         JOIN "BillingDelivery" "BD" ON "DM"."deliveryManId" = "BD"."deliveryManId";
+         JOIN "BillingDelivery" "BD" ON "DM"."deliveryManId" = "BD"."deliveryManId"
+         JOIN "CustomerDelivery" "CD" ON "BD"."billingId" = "CD"."deliveryBillingId";
 
 -- 30: List the details of each billing in details in terms of its type, timestamp and other related information.
 CREATE OR REPLACE VIEW "BillingView" AS
