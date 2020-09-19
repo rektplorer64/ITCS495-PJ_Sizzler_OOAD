@@ -11,9 +11,11 @@ SELECT "firstname", "surname", "name" FROM "Employee"
     JOIN "Branch" B on B."branchId" = "Employee"."branchId";
 
 --Show detail of seasonal menu
-SELECT * FROM "SeasonRef";
+SELECT "SeasonRef"."name", "nameTha", "descriptionTha" FROM "MenuRef"
+    JOIN "MenuSeasonRef" ON "MenuRef"."menuRefId" = "MenuSeasonRef"."menuRefId"
+    JOIN "SeasonRef" ON "MenuSeasonRef"."seasonRefId" = "SeasonRef"."seasonRefId";
 
---Show ingredient in each food item
+--Show food ingredient in each food item
 SELECT "FoodItemRef"."nameTha", "FoodIngredientRef"."nameTha", "quantity", "QuantityUnitRef"."name" FROM "FoodItemRef"
     JOIN "FoodItemIngredientRef" ON "FoodItemRef"."foodItemRefId" = "FoodItemIngredientRef"."foodItemRefId"
     JOIN "FoodIngredientRef" ON "FoodItemIngredientRef"."foodIngredientRef" = "FoodIngredientRef"."foodIngredientRefId"
@@ -28,7 +30,7 @@ SELECT "SaladBarRefill"."employeeId", "FoodItemRef"."nameTha", "SaladBarRefill".
     JOIN "SaladBarRefill" ON "FoodItemRef"."foodItemRefId" = "SaladBarRefill"."foodItemRefId"
     JOIN "QuantityUnitRef" ON "SaladBarRefill"."quantityUnit" = "QuantityUnitRef"."quantityUnitRefId";
 
---Show time start and time end of all MenuAvailability
+--Show menu, time start, and time end of all MenuAvailability
 SELECT "MenuRef"."nameTha", "MenuAvailability"."dayOfWeek", "MenuAvailability"."timeRangeStart", "MenuAvailability"."timeRangeEnd" FROM "MenuAvailability"
     JOIN "MenuRef" ON "MenuAvailability"."menuRefId" = "MenuRef"."menuRefId";
 
@@ -43,7 +45,7 @@ SELECT "timeAdded"::DATE, SUM("totalCustomers") AS TotalInDay FROM "CustomerPax"
 WHERE "timeAdded" BETWEEN '2020-02-08 00:00:00' AND '2020-02-08 23:59:59'
 GROUP BY "timeAdded"::DATE;
 
---Show computer in each address
+--Show computer MAC ADDRESS in each branch
 SELECT "macAddress", "Branch"."name" FROM "ComputerMachine"
     JOIN "Branch" ON "Branch"."branchId" = "ComputerMachine"."branchId";
 
@@ -54,7 +56,7 @@ SELECT MAX("amount") FROM "CashTransaction";
 SELECT COUNT("inboundOrderId") FROM "InventoryInboundOrder";
 
 --Show total distance that a delivery man delivered
-SELECT "BillingDelivery"."deliveryManId", SUM("timeUsed") FROM "BillingDelivery"
+SELECT "BillingDelivery"."deliveryManId", SUM("distanceKM") FROM "BillingDelivery"
     JOIN "DeliveryMan" ON "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
 WHERE "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
 GROUP BY "BillingDelivery"."deliveryManId";
@@ -99,7 +101,7 @@ SELECT "nameEng", COUNT("quantity") FROM "MenuRef"
     GROUP BY "nameEng"
     ORDER BY COUNT("quantity") DESC;
 
---Count member customer group by member level
+--Count all member customer that group by member level
 SELECT "MemberLevelRef"."name", COUNT("memberCustomerId") FROM "MemberCustomer"
     JOIN "MembershipRewardRedemption" ON "MemberCustomer"."memberCustomerId" = "MembershipRewardRedemption"."memberCustomerRefId"
     JOIN "MemberLevelRewardOffering" ON "MemberLevelRewardOffering"."redeemableRewardRefId" = "MembershipRewardRedemption"."redeemableRewardRefId"
