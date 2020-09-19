@@ -1,114 +1,114 @@
---Show all GiftVoucher that is already used
+--13Show all GiftVoucher that is already used
 SELECT "giftVoucherNo" FROM "GiftVoucherTransaction";
 
---Show a GiftVoucher Value in each GiftVoucherTransaction
+--4Show a GiftVoucher Value in each GiftVoucherTransaction
 SELECT "GiftVoucherTransaction"."paymentTransactionId", "GiftVoucherTransaction"."giftVoucherNo", "valueAmount" FROM "GiftVoucherTransaction"
     JOIN "GiftVoucher" ON "GiftVoucherTransaction"."giftVoucherNo" = "GiftVoucher"."giftVoucherNo"
     JOIN "GiftVoucherRef" ON "GiftVoucher"."giftVoucherRefId" = "GiftVoucherRef"."giftVoucherRefId";
 
---Show employee in each branch
+--25Show employee in each branch
 SELECT "firstname", "surname", "name" FROM "Employee"
     JOIN "Branch" B on B."branchId" = "Employee"."branchId";
 
---Show detail of seasonal menu
+--24Show detail of seasonal menu
 SELECT "SeasonRef"."name", "nameTha", "descriptionTha" FROM "MenuRef"
     JOIN "MenuSeasonRef" ON "MenuRef"."menuRefId" = "MenuSeasonRef"."menuRefId"
     JOIN "SeasonRef" ON "MenuSeasonRef"."seasonRefId" = "SeasonRef"."seasonRefId";
 
---Show food ingredient in each food item
+--22Show food ingredient in each food item
 SELECT "FoodItemRef"."nameTha", "FoodIngredientRef"."nameTha", "quantity", "QuantityUnitRef"."name" FROM "FoodItemRef"
     JOIN "FoodItemIngredientRef" ON "FoodItemRef"."foodItemRefId" = "FoodItemIngredientRef"."foodItemRefId"
     JOIN "FoodIngredientRef" ON "FoodItemIngredientRef"."foodIngredientRef" = "FoodIngredientRef"."foodIngredientRefId"
     JOIN "QuantityUnitRef" ON "FoodItemIngredientRef"."quantityUnitRefId" = "QuantityUnitRef"."quantityUnitRefId";
 
---Show menu detail in each order
+--23Show menu detail in each order
 SELECT "OrderItem"."orderId", "MenuRef"."nameTha", "MenuRef"."descriptionTha", "OrderItem"."perUnitPrice" FROM "MenuRef"
     JOIN "OrderItem" ON "MenuRef"."menuRefId" = "OrderItem"."menuRefId";
 
---Show food items in salad bar that is refilled
+--2Show food items in salad bar that is refilled
 SELECT "SaladBarRefill"."employeeId", "FoodItemRef"."nameTha", "SaladBarRefill".quantity, "QuantityUnitRef".name FROM "FoodItemRef"
     JOIN "SaladBarRefill" ON "FoodItemRef"."foodItemRefId" = "SaladBarRefill"."foodItemRefId"
     JOIN "QuantityUnitRef" ON "SaladBarRefill"."quantityUnit" = "QuantityUnitRef"."quantityUnitRefId";
 
---Show menu, time start, and time end of all MenuAvailability
+--7Show menu, time start, and time end of all MenuAvailability
 SELECT "MenuRef"."nameTha", "MenuAvailability"."dayOfWeek", "MenuAvailability"."timeRangeStart", "MenuAvailability"."timeRangeEnd" FROM "MenuAvailability"
     JOIN "MenuRef" ON "MenuAvailability"."menuRefId" = "MenuRef"."menuRefId";
 
---Show all food items from a serving
+--10Show all food items from a serving
 SELECT "ServingFoodItemRef"."servingRefId", "ServingRef"."nameEng", "FoodItemRef"."nameEng" FROM "ServingRef"
     JOIN "ServingFoodItemRef" ON "ServingRef"."servingRefId" = "ServingFoodItemRef"."servingRefId"
     JOIN "FoodItemRef" ON "FoodItemRef"."foodItemRefId" = "ServingFoodItemRef"."foodItemRefId"
     ORDER BY "servingRefId";
 
---Show all number of customers in a day
+--14Show all number of customers in a day
 SELECT "timeAdded"::DATE, SUM("totalCustomers") AS TotalInDay FROM "CustomerPax"
 WHERE "timeAdded" BETWEEN '2020-02-08 00:00:00' AND '2020-02-08 23:59:59'
 GROUP BY "timeAdded"::DATE;
 
---Show computer MAC ADDRESS in each branch
+--18Show computer MAC ADDRESS in each branch
 SELECT "macAddress", "Branch"."name" FROM "ComputerMachine"
     JOIN "Branch" ON "Branch"."branchId" = "ComputerMachine"."branchId";
 
 --Show billing that has the highest total price in this month
 SELECT MAX("amount") FROM "CashTransaction";
 
---Show count of time delivered InventoryInboundOrder
+--8Show count of time delivered InventoryInboundOrder
 SELECT COUNT("inboundOrderId") FROM "InventoryInboundOrder";
 
---Show total distance that a delivery man delivered
+--26Show total distance that a delivery man delivered
 SELECT "BillingDelivery"."deliveryManId", SUM("distanceKM") FROM "BillingDelivery"
     JOIN "DeliveryMan" ON "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
 WHERE "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
 GROUP BY "BillingDelivery"."deliveryManId";
 
---Show salary of all Kitchen Managers
+--27Show salary of all Kitchen Managers
 SELECT "wagePaymentAmount" * 30 AS "salary", "wageBonusAmount", "wagePaymentAmount" * 30 + "wageBonusAmount" AS total FROM "EmployeeWagePayment"
     JOIN "KitchenManager" ON "EmployeeWagePayment"."employeeId" = "KitchenManager"."employeeId";
 
---Show all employee address that is located in Chonburi
+--28Show all employee address that is located in Chonburi
 SELECT "fullAddress" FROM "Employee"
     JOIN "Province" ON "Employee"."provinceId" = "Province"."provinceId"
     WHERE "nameEnglish" = 'Chonburi Province';
 
---List all employee full name that age is more than 40 or equal
+--29List all employee full name that age is more than 40 or equal
 SELECT CONCAT("firstname", ' ', "surname") AS "fullName", age FROM "Employee"
     WHERE "age" >= 40;
 
---Identify creditTransaction that has the highest amount
+--31Identify creditTransaction that has the highest amount
 SELECT * FROM "CreditTransaction"
     ORDER BY "amount" DESC
     LIMIT 1;
 
---Show cashTransaction that has the highest total price
+--1 Show cashTransaction that has the highest total price
 SELECT * FROM "CashTransaction"
     ORDER BY "amount" DESC
     LIMIT 1;
 
---Count employee category by age
+--33Count employee category by age
 SELECT "age", COUNT("employeeId") FROM "Employee"
     GROUP BY "age"
     ORDER BY "age";
 
---Identify age that has the hightest number of employee
+--34Identify age that has the hightest number of employee
 SELECT "age", COUNT("employeeId") FROM "Employee"
     GROUP BY "age"
     ORDER BY COUNT("employeeId") DESC
     LIMIT 1;
 
---Show the best seller menu
+--37Show all menu sell count
 SELECT "nameEng", COUNT("quantity") FROM "MenuRef"
     JOIN "OrderItem" ON "MenuRef"."menuRefId" = "OrderItem"."menuRefId"
     GROUP BY "nameEng"
     ORDER BY COUNT("quantity") DESC;
 
---Count all member customer that group by member level
+--35Count all member customer that group by member level
 SELECT "MemberLevelRef"."name", COUNT("memberCustomerId") FROM "MemberCustomer"
     JOIN "MembershipRewardRedemption" ON "MemberCustomer"."memberCustomerId" = "MembershipRewardRedemption"."memberCustomerRefId"
     JOIN "MemberLevelRewardOffering" ON "MemberLevelRewardOffering"."redeemableRewardRefId" = "MembershipRewardRedemption"."redeemableRewardRefId"
     JOIN "MemberLevelRef" ON "MemberLevelRewardOffering"."memberLevelRefId" = "MemberLevelRef"."memberLevelRefId"
     GROUP BY "MemberLevelRef"."name";
 
---Show customer firstname, surname, and member level
+--36Show customer firstname, surname, and member level
 SELECT "MemberCustomer"."firstname", "MemberCustomer"."surname", "MemberLevelRef"."name" FROM "MemberLevelRef"
     JOIN "MemberLevelRewardOffering" ON "MemberLevelRef"."memberLevelRefId" = "MemberLevelRewardOffering"."memberLevelRefId"
     JOIN "MembershipRewardRedemption" ON "MemberLevelRewardOffering"."redeemableRewardRefId" = "MembershipRewardRedemption"."redeemableRewardRefId"
