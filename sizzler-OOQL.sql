@@ -1,4 +1,4 @@
--- Bare extents
+-- Bare extents --
 branches
 saladBars
 computerMachines
@@ -155,7 +155,7 @@ GROUP BY giftVoucherRefId: g.refersTo.giftVoucherRefId;
 
 -- 16: For each Order, count the number of order items as well as the price of each
 SELECT orderId,
-        totalPrice: SUM(SELECT (oi.perUnitPrice + oi.perUnitTakeHomeFee - oi.perUnitDiscount) * oi.quantity FROM p IN partition),
+        totalPrice: SUM(SELECT (p.oi.perUnitPrice + p.oi.perUnitTakeHomeFee - p.oi.perUnitDiscount) * p.oi.quantity FROM p IN partition),
         totalItemsInOrder: COUNT(partition)
 FROM oi IN orderItems
 GROUP BY orderId: oi.includedIn.orderId;
@@ -175,3 +175,37 @@ WHERE m.isActive IS TRUE AND
         FROM sr IN n.dependsOnSeason
         WHERE givenTime IS BETWEEN sr.dateStart AND sr.dateEnd
     );
+
+-- 18: For each menu, identify the quantity and the price that are in each order item.
+SELECT m.referredBy,
+       totalSaleWorth: SUM(SELECT (p.oi.perUnitPrice + p.oi.perUnitTakeHomeFee - p.oi.perUnitDiscount) * p.oi.quantity FROM p IN partition),
+       totalSaleQuantity: SUM(SELECT p.oi.quantity FROM p IN partition)
+FROM oi in orderItems
+GROUP BY menuRefId: oi.refersTo.menuRefId;
+
+-- 19: From all inventory inbound orders, identify the number of orders and total price of each food ingredient.
+SELECT foodIngredientRefId, totalOrders: COUNT(partition), totalPrices: SUM(iioi.quantity * iioi.pricePerUnit)
+FROM iioi IN (
+    SELECT iio.items
+    FROM iio IN inventoryInboundOrders
+)
+GROUP BY foodIngredientRefId: iioi.involves.long;
+
+-- 20: List billings that belong each branch along with handling employee as well
+SELECT branchId: cbh.involves.deployedBy.branchId, cbh.needed, cbh.participatedBy
+FROM cbh IN cashierBillingHandlings;
+
+-- 21: Select
+
+
+-- 22: Select
+
+
+-- 23: Select
+
+
+-- 24: Select
+
+
+-- 25: Select
+
