@@ -88,7 +88,7 @@ FROM (
          JOIN "BillingDelivery" "BD" ON "DM"."deliveryManId" = "BD"."deliveryManId";
 
 -- 30: List the details of each billing in details in terms of its type, timestamp and other related information.
-CREATE VIEW BillingView AS
+CREATE OR REPLACE VIEW "BillingView" AS
 SELECT "00".*,
        CASE
            WHEN "AA"."billingId" IS NOT NULL THEN 'delivery'
@@ -121,4 +121,26 @@ FROM (
     FROM "BillingOnSite" "BS"
              JOIN "CashierBillingHandling" "CBH" ON "BS"."billingId" = "CBH"."billingId"
              JOIN "EmployeeView" "EV" ON "CBH"."cashierId" = "employeeId"
-) "BB" ON "00"."billingId" = "BB"."billingId"
+) "BB" ON "00"."billingId" = "BB"."billingId";
+
+-- 31: List all payment transaction that are ever made by any customer in any billing.
+CREATE OR REPLACE VIEW "PaymentTransactionView" AS
+SELECT "PT"."paymentTransactionId",
+       "timestamp",
+       "billingId",
+       CASE
+           WHEN "CT"."paymentTransactionId" IS NOT NULL THEN 'cash'
+           WHEN "CT2"."paymentTransactionId" IS NOT NULL THEN 'credit'
+           WHEN "GVT"."paymentTransactionId" IS NOT NULL THEN 'gift voucher' END                                      "type",
+       CASE
+           WHEN "CT"."paymentTransactionId" IS NOT NULL THEN "CT"."amount"
+           WHEN "CT2"."paymentTransactionId" IS NOT NULL THEN "CT2"."amount"
+           WHEN "GVT"."paymentTransactionId" IS NOT NULL THEN (SELECT "valueAmount"
+                                                               FROM "GiftVoucherRef" "GVR"
+                                                               WHERE "GVR"."valueAmount" = "GVT"."giftVoucherNo") END "value"
+FROM "PaymentTransaction" "PT"
+         LEFT JOIN "CashTransaction" "CT" ON "PT"."paymentTransactionId" = "CT"."paymentTransactionId"
+         LEFT JOIN "CreditTransaction" "CT2" ON "PT"."paymentTransactionId" = "CT2"."paymentTransactionId"
+         LEFT JOIN "GiftVoucherTransaction" "GVT" ON "PT"."paymentTransactionId" = "GVT"."paymentTransactionId";
+
+
