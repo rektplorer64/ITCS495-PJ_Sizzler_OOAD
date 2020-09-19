@@ -234,6 +234,7 @@ class MemberCustomer(extent memberCustomers key memberCustomerId){
 
     relationship    Branch                              livesNear   inverse     Branch::locatedNear;
     relationship    set<CustomerRewardRedemption>       creates     inverse     CustomerRewardRedemption::createdBy;
+    relationship    set<Billing>                        involves    inverse     Billing::involvedWith;
 
     boolean updatePassword(in string password) raises(MalformedPasswordException,
                         TooShortPasswordException, TooLongPasswordException,
@@ -280,7 +281,8 @@ class Billing(extent billings key billingId){
     attribute   timestamp       pointExpirationTime;
     attribute   set<Order>      orders;
 
-    relationship    PaymentTransaction     involves      inverse     PaymentTransaction::involvedBy;
+    relationship    MemberCustomer              involvedWith  inverse     MemberCustomer::involves;
+    relationship    set<PaymentTransaction>     involves      inverse     PaymentTransaction::involvedBy;
 
     void summarize();
     boolean cancelBilling() raises(CannotCancelBillException);
