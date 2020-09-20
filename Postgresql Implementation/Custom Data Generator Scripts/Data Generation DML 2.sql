@@ -212,13 +212,16 @@ $$
 
                     INSERT INTO "BillingDelivery"
                     VALUES ("itBillingId", "randomEmployeeId", ("random_between"(10, 45) || ' min')::"interval",
-                            (random() * 20 + 1)::numeric(10,4))
+                            (random() * 20 + 1)::NUMERIC(10, 4))
                     ON CONFLICT DO NOTHING;
 
                     RAISE NOTICE 'date %', "tempBranch"."establishingDate";
                     INSERT INTO "CustomerDelivery"
                     VALUES (DEFAULT, "tempBranch"."establishingDate" +
-                                     ("random_between"(0, least((EXTRACT(YEAR FROM "tempBranch"."establishingDate") + 15)::int, (EXTRACT(YEAR FROM now()))::int)) || ' years ' || "random_between"(1, 365) || ' days ' ||
+                                     ("random_between"(0, least(
+                                             (EXTRACT(YEAR FROM "tempBranch"."establishingDate") + 15)::INT,
+                                             (EXTRACT(YEAR FROM now()))::INT)) || ' years ' ||
+                                      "random_between"(1, 365) || ' days ' ||
                                       "random_between"(1, 129600) || ' seconds')::INTERVAL,
                             LPAD("random_between"(130, 13430430)::TEXT, 13, '0'), 'a', "tempBranch"."provinceId",
                             "itBillingId",
@@ -237,8 +240,12 @@ $$
 
                     INSERT INTO "CustomerPax"
                     VALUES (DEFAULT, "tempBranch"."establishingDate" +
-                                     ("random_between"(0, least((EXTRACT(YEAR FROM "tempBranch"."establishingDate") + 15)::int, (EXTRACT(YEAR FROM now()))::int)) || ' years ' || "random_between"(1, 365) || ' days ' ||
-                                      "random_between"(1, 129600) || ' seconds')::INTERVAL, random_between(1, 10), "itTableId", "tempBranch"."branchId",
+                                     ("random_between"(0, least(
+                                             (EXTRACT(YEAR FROM "tempBranch"."establishingDate") + 15)::INT,
+                                             (EXTRACT(YEAR FROM now()))::INT)) || ' years ' ||
+                                      "random_between"(1, 365) || ' days ' ||
+                                      "random_between"(1, 129600) || ' seconds')::INTERVAL, "random_between"(1, 10),
+                            "itTableId", "tempBranch"."branchId",
                             "itBillingId")
                     ON CONFLICT DO NOTHING;
 
@@ -262,8 +269,104 @@ $$
     END ;
 $$;
 
-BEGIN TRANSACTION;
-ROLLBACK;
-SELECT ("date"(now()) + ('23:12'::INTERVAL + ("random_between"(34, 467) || ' min')::INTERVAL))::TIMESTAMP;
-SELECT least((EXTRACT(YEAR FROM now()))::int, 2);
--- Generate CustomerDelivery and CustomerPax
+
+-- Order and OrderItems
+DO
+$$
+    DECLARE
+        "iterationCount"   INT := 0;
+        "iterationCount2"  INT := 0;
+        "orderTime"        TIMESTAMP;
+        "billing"          "Billing";
+        "isDelivery"       BOOL;
+        "orderCount"       INT;
+        "paxInstance"      INT;
+        "deliveryInstance" INT;
+        "branchId"         UUID;
+        "waiter"           "EmployeeView";
+        "itOrderId"        INT;
+        "itTimeCreated"    TIMESTAMP;
+        "itMenuRef"        "MenuRef";
+        "itMenuPrice"      "numeric"(16, 2);
+        "itTakeHome"       BOOL;
+    BEGIN
+
+        FOR "billing" IN (SELECT * FROM "Billing")
+            LOOP
+
+                "isDelivery" := EXISTS(SELECT * FROM "BillingDelivery" WHERE "billing"."billingId" = "billingId");
+
+                IF "isDelivery" THEN
+                    "orderCount" := 1;
+                    SELECT "customerInstanceId"
+                    INTO "deliveryInstance"
+                    FROM "CustomerDelivery"
+                    WHERE "deliveryBillingId" = "billing"."billingId";
+
+                    SELECT "handlingBranchId"
+                    INTO "branchId"
+                    FROM "CustomerDelivery" "CD";
+
+                    "paxInstance" := NULL;
+                ELSE
+                    SELECT "random_between"(1, 10) INTO "orderCount";
+                    SELECT "customerInstanceId"
+                    INTO "paxInstance"
+                    FROM "CustomerPax"
+                    WHERE "onSiteBillingId" = "billing"."billingId";
+
+                    SELECT "tableBranchId"
+                    INTO "branchId"
+                    FROM "CustomerPax";
+                    "deliveryInstance" := NULL;
+                END IF;
+
+                FOR "iterationCount" IN 1.."orderCount"
+                    LOOP
+                        SELECT *
+                        INTO "waiter"
+                        FROM "EmployeeView" "EV"
+                        WHERE "branchId" = "EV"."workAtBranch"
+                          AND 'Waiter' = ANY ("position");
+
+                        INSERT INTO "Order"
+                        VALUES (DEFAULT, "billing"."timeCreated", NULL, "paxInstance", "deliveryInstance",
+                                "waiter"."employeeId", "billing"."billingId")
+                        ON CONFLICT("orderId") DO UPDATE SET "orderId" = (SELECT max("orderId") + 1 FROM "Order")
+                        RETURNING "orderId", "timeCreated" INTO "itOrderId", "itTimeCreated";
+
+                        RAISE NOTICE 'orderId => %, timeCreate => %', "itOrderId", "itTimeCreated";
+                        FOR "iterationCount2" IN 1.."random_between"(1, 5)
+                            LOOP
+                                "itTimeCreated" = "itTimeCreated" +
+                                                  ("random_between"("iterationCount2" * 20, ("iterationCount2" + 1) * 20) ||
+                                                   ' min')::INTERVAL;
+
+                                SELECT * INTO "itMenuRef" FROM "MenuRef" ORDER BY random() LIMIT 1;
+
+                                SELECT sum("realPrice")::NUMERIC(16, 2)
+                                INTO "itMenuPrice"
+                                FROM "MenuRef"
+                                         JOIN "MenuServingRef" ON "MenuRef"."menuRefId" = "MenuServingRef"."menuRefId"
+                                WHERE "MenuRef"."menuRefId" = "itMenuRef"."menuRefId";
+
+                                "itTakeHome" = NOT "isDelivery" AND random() < 0.02;
+
+                                INSERT INTO "OrderItem"
+                                VALUES (DEFAULT,
+                                        "itOrderId",
+                                        "itMenuRef"."menuRefId",
+                                        "random_between"(1, 3),
+                                        "itTimeCreated",
+                                        "itTimeCreated" + ("random_between"(4, 8) || ' min')::"interval",
+                                        "itMenuPrice",
+                                        "random_between"(50, 100),
+                                        CASE WHEN "itTakeHome" THEN 50 END,
+                                        DEFAULT) ON CONFLICT ("orderItemId") DO UPDATE SET "orderItemId" = (SELECT MAX("orderItemId") + 1 FROM "OrderItem");
+                            END LOOP;
+                    END LOOP;
+            END LOOP;
+
+
+    END;
+$$;
