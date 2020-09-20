@@ -12,13 +12,12 @@ FROM "OrderItem"
          WHERE "timeStarted"> now() - interval '1 month - 1 day'
 GROUP BY "nameEng"
 ORDER BY "saleAmount" DESC LIMIT 3
--- 16: Identify the top 3 member customer who spend most in this month --
+-- 16: Identify the top 3 member customer who spend most --
 SELECT "memberCustomerId", concat("firstname",' ', "surname") AS "fullname", SUM("price") AS OverallPrice
 FROM "MemberCustomer"
          INNER JOIN "Billing" B on "MemberCustomer"."memberCustomerId" = B."involvedMemberCustomerId"
          INNER JOIN "Order" O on B."billingId" = O."billingId"
          INNER JOIN "OrderItem" OI on O."orderId" = OI."orderId"
-         WHERE B."timeCreated"> now() - interval '1 month - 1 day'
 GROUP BY "memberCustomerId",fullname
 ORDER BY OverallPrice DESC LIMIT 3
 -- 19: Identify rewards customer redeem it recently --
