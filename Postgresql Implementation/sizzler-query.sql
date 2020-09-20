@@ -13,7 +13,7 @@ FROM "OrderItem"
 GROUP BY "nameEng"
 ORDER BY "saleAmount" DESC LIMIT 3
 -- 16: Identify the top 3 member customer who spend most --
-SELECT "memberCustomerId", concat("firstname",' ', "surname") AS "fullname", SUM("price") AS OverallPrice
+SELECT "memberCustomerId", concat("firstname",' ', "surname") AS "fullname", SUM("price") AS overallPrice
 FROM "MemberCustomer"
          INNER JOIN "Billing" B on "MemberCustomer"."memberCustomerId" = B."involvedMemberCustomerId"
          INNER JOIN "Order" O on B."billingId" = O."billingId"
