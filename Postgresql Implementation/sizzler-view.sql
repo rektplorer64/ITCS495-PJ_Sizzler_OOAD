@@ -1,4 +1,4 @@
-CREATE VIEW "EmployeeView"
+CREATE OR REPLACE VIEW "EmployeeView"
 AS
 SELECT "E"."employeeId",
        "firstname",
@@ -8,13 +8,15 @@ SELECT "E"."employeeId",
        "age",
        "phoneNumbers",
        "email",
-       CASE
-           WHEN "C"."employeeId" IS NOT NULL THEN 'Chef'
-           WHEN "BM"."employeeId" IS NOT NULL THEN 'Branch Manager'
-           WHEN "C2"."employeeId" IS NOT NULL THEN 'Cashier'
-           WHEN "KM"."employeeId" IS NOT NULL THEN 'Kitchen Manager'
-           WHEN "DM"."employeeId" IS NOT NULL THEN 'Delivery Man'
-           WHEN "KP"."employeeId" IS NOT NULL THEN 'Kitchen Porter' END "position",
+       replace('{' ||
+            CASE WHEN "C"."employeeId" IS NOT NULL THEN 'Chef,' ELSE '' END ||
+            CASE WHEN "BM"."employeeId" IS NOT NULL THEN 'Branch Manager,' ELSE '' END ||
+            CASE WHEN "C2"."employeeId" IS NOT NULL THEN 'Cashier,' ELSE '' END ||
+            CASE WHEN "KM"."employeeId" IS NOT NULL THEN 'Kitchen Manager,' ELSE '' END ||
+            CASE WHEN "DM"."employeeId" IS NOT NULL THEN 'Delivery Man,' ELSE '' END ||
+            CASE WHEN "W"."employeeId" IS NOT NULL THEN 'Waiter,' ELSE ''  END ||
+            CASE WHEN "KP"."employeeId" IS NOT NULL THEN 'Kitchen Porter' ELSE '' END ||
+       '}', ',}', '}')::text[] "position",
        "educationLevel",
        "branchId"                                                       "workAtBranch"
 FROM (
@@ -39,4 +41,11 @@ FROM (
          LEFT JOIN "Cashier" "C2" ON "E"."employeeId" = "C2"."employeeId"
          LEFT JOIN "KitchenManager" "KM" ON "E"."employeeId" = "KM"."employeeId"
          LEFT JOIN "DeliveryMan" "DM" ON "E"."employeeId" = "DM"."employeeId"
-         LEFT JOIN "KitchenPorter" "KP" ON "E"."employeeId" = "KP"."employeeId";
+         LEFT JOIN "KitchenPorter" "KP" ON "E"."employeeId" = "KP"."employeeId"
+         LEFT JOIN "Waiter" "W" ON "E"."employeeId" = "W"."employeeId";
+
+
+SELECT ('{' ||
+        CASE WHEN "W"."employeeId" IS NOT NULL THEN 'A,' ELSE '' END ||
+        CASE WHEN "W"."employeeId" IS NOT NULL THEN 'asdsa' ELSE '' END
+            || '}')::text[] FROM "Waiter" "W"
