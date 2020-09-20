@@ -100,9 +100,17 @@ SELECT "00".*,
            WHEN "AA"."billingId" IS NOT NULL THEN 'delivery'
            WHEN "BB"."billingId" IS NOT NULL THEN 'on-site' END             "type",
        CASE
-           WHEN "AA"."billingId" IS NOT NULL THEN ROW ("deliveryManId", "AA"."firstname", "AA"."surname")
+           WHEN "AA"."billingId" IS NOT NULL THEN "deliveryManId"
            WHEN "BB"."billingId" IS NOT NULL
-               THEN ROW ("cashierId", "BB"."firstname", "BB"."surname") END "handlerEmployee"
+               THEN "cashierId" END "handlerEmployeeId",
+       CASE
+           WHEN "AA"."billingId" IS NOT NULL THEN "AA"."firstname"
+           WHEN "BB"."billingId" IS NOT NULL
+               THEN "BB"."firstname" END "handlerEmployeeFirstname",
+       CASE
+           WHEN "AA"."billingId" IS NOT NULL THEN "AA"."surname"
+           WHEN "BB"."billingId" IS NOT NULL
+               THEN "BB"."surname" END "handlerEmployeeSurname"
 FROM (
          SELECT "billingId",
                 "taxInvoiceId",
@@ -111,10 +119,7 @@ FROM (
                 CASE
                     WHEN "timePaid" IS NOT NULL THEN 'paid'
                     WHEN "timeCanceled" IS NOT NULL THEN 'canceled' END "status",
-                CASE
-                    WHEN "involvedMemberCustomerId" IS NOT NULL THEN ROW ("involvedMemberCustomerId",
-                        "pointReceived",
-                        "pointExpirationTime") END                      "membershipBillCoupling"
+                "involvedMemberCustomerId", "pointReceived", "pointExpirationTime"
          FROM "Billing"
      ) "00"
          LEFT JOIN (
