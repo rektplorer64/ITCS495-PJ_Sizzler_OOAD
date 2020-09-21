@@ -3,7 +3,7 @@ SELECT * FROM "SeasonRef"
 -- 9: Show all of "western" serving menu --
 SELECT "servingRefId", "nameEng", "nameTha", "basePrice" FROM "ServingRef" WHERE genre = 'western'
 -- 12: Show the amount of table in each branch --
-SELECT TB."branchId", name, COUNT("tableId") FROM "Table" TB INNER JOIN "Branch" B on B."branchId" = TB."branchId"
+SELECT TB."branchId", name, COUNT("tableId") AS tableAmount FROM "Table" TB INNER JOIN "Branch" B on B."branchId" = TB."branchId"
 GROUP BY TB."branchId", name
 -- 15: Identify the top 3 best seller menu in this month --
 SELECT "nameEng", COUNT("OrderItem"."menuRefId") AS "saleAmount"
