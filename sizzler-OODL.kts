@@ -231,14 +231,25 @@ class MemberCustomer(extent memberCustomers key memberCustomerId){
     attribute   string          hashedPwd;
     attribute   string          salt;
     attribute   string          email;
+    attribute   timestamp       registrationTimestamp;
+    attribute   enum            Gender {
+        'male', 'female'}       gender;
 
-    relationship    Branch                              livesNear   inverse     Branch::locatedNear;
-    relationship    set<CustomerRewardRedemption>       creates     inverse     CustomerRewardRedemption::createdBy;
-    relationship    set<Billing>                        involves    inverse     Billing::involvedWith;
+    relationship    Branch                              livesNear       inverse     Branch::locatedNear;
+    relationship    set<CustomerRewardRedemption>       creates         inverse     CustomerRewardRedemption::createdBy;
+    relationship    set<Billing>                        involves        inverse     Billing::involvedWith;
+    relationship    set<MemberLevelGrant>               involvedWith    inverse     MemberCustomer::grantedTo;
 
     boolean updatePassword(in string password) raises(MalformedPasswordException,
                         TooShortPasswordException, TooLongPasswordException,
                         WeakPasswordException);
+};
+
+class MemberLevelGrant(extend memberLevelGrants){
+    attribute   timestamp       timestamp;
+
+    relationship    MemberCustomer      grantedTo       inverse     MemberCustomer::involvedWith;
+    relationship    MemberLevelRef      refers          inverse     MemberLevelRef::referredBy;
 };
 
 class CustomerRewardRedemption(extent customerRewardRedemptions){
@@ -256,6 +267,7 @@ class MemberLevelRef(extent memberLevelRefs key memberLevelRefId){
     attribute   short           pointThreshold;
 
     relationship    set<RedeemableRewardRef>    offers      inverse     RedeemableRewardRef::offeredBy;
+    relationship    set<MemberLevelGrant>       referredBy  inverse     MemberLevelRef::refers;
 }
 
 class RedeemableRewardRef(extent redeemableRewards key redeemableRewardRefId){

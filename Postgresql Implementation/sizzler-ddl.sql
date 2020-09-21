@@ -294,6 +294,13 @@ CREATE TABLE IF NOT EXISTS "MemberLevelRef"
     "pointThreshold"   INT         NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS "MemberLevelGrant"(
+    "memberLevelRefId"      UUID            NOT NULL REFERENCES "MemberLevelRef"("memberLevelRefId"),
+    "memberCustomerId"      UUID            NOT NULL REFERENCES "MemberCustomer"("memberCustomerId"),
+    "timestamp"             TIMESTAMP       NOT NULL DEFAULT now(),
+    PRIMARY KEY ("memberCustomerId", "memberLevelRefId", "timestamp")
+);
+
 CREATE TABLE IF NOT EXISTS "MemberLevelRewardOffering"
 (
     "memberLevelRefId"      UUID NOT NULL REFERENCES "MemberLevelRef" ("memberLevelRefId"),
