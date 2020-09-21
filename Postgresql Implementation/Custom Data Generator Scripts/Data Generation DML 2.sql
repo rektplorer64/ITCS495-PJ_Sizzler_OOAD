@@ -370,3 +370,23 @@ $$
 
     END;
 $$;
+
+-- Fill registration time by inferring from the birthday of each customer
+DO
+$$
+    DECLARE
+        "itMemberCustomer" "MemberCustomer";
+    BEGIN
+        FOR "itMemberCustomer" IN (SELECT * FROM "MemberCustomer")
+            LOOP
+                UPDATE "MemberCustomer"
+                SET "registrationTimestamp" = "birthdate" + ("random_between"(14,
+                                                                              (extract(YEAR FROM age(now(), "itMemberCustomer"."birthdate")) - 1)::int) ||
+                                                             ' year ' || "random_between"(1, 12) || ' month ' ||
+                                                             "random_between"(1, 30) || ' day ' ||
+                                                             "random_between"(1, 24) || ' hour ' ||
+                                                             "random_between"(1, 60) || ' second ')::"interval"
+                WHERE "memberCustomerId" = "itMemberCustomer"."memberCustomerId";
+            END LOOP;
+    END;
+$$;
