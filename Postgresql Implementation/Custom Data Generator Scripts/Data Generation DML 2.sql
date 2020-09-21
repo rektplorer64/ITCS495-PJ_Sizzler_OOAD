@@ -390,3 +390,75 @@ $$
             END LOOP;
     END;
 $$;
+
+
+BEGIN TRANSACTION;
+ROLLBACK;
+COMMIT;
+-- Add linkage between MemberCustomer and MemberLevelRef
+DO
+$$
+    DECLARE
+        "itMember"            "MemberCustomer";
+        "membershipCount"     INT := 1;
+        "i"                   INT;
+        "lastMembershipLevel" "MemberLevelRef";
+        "lastMembershipTime"  "timestamp";
+        "duration"              interval;
+    BEGIN
+        FOR "itMember" IN (SELECT * FROM "MemberCustomer")
+            LOOP
+                -- Grant everyone with a green level member
+                INSERT INTO "MemberLevelGrant"
+                VALUES ((SELECT "MemberLevelRef"."memberLevelRefId" FROM "MemberLevelRef" WHERE "name" = 'Green'),
+                        "itMember"."memberCustomerId",
+                        "itMember"."registrationTimestamp" + ("random_between"(1, 120000) || ' second')::INTERVAL)
+                RETURNING "timestamp" INTO "lastMembershipTime";
+
+                "membershipCount" := 0;
+                FOR "i" IN 1.."random_between"(1, 20)
+                    LOOP
+                        "membershipCount" = "membershipCount" + 1;
+
+                        IF "membershipCount" > 3 THEN
+                            "membershipCount" = 3;
+                        END IF;
+
+                        IF "membershipCount" = 1 THEN
+                            SELECT *
+                            INTO "lastMembershipLevel"
+                            FROM "MemberLevelRef"
+                            WHERE "name" = 'Green';
+                        ELSIF "membershipCount" = 2 THEN
+                            SELECT *
+                            INTO "lastMembershipLevel"
+                            FROM "MemberLevelRef"
+                            WHERE "name" = 'Gold';
+                        ELSE
+                            SELECT *
+                            INTO "lastMembershipLevel"
+                            FROM "MemberLevelRef"
+                            WHERE "name" = 'Diamond';
+                        END IF;
+
+                        IF random() < 0.5 THEN
+                            "membershipCount" = "membershipCount" - 1;
+                            IF "membershipCount" < 1 OR "membershipCount" = 1 THEN
+                                "membershipCount" = 1;
+
+                                "duration" := '1 year'::interval + ("random_between"(1, 70) || ' week')::INTERVAL;
+                            ELSE
+                                "duration" := ("random_between"(1, 20) || ' week')::INTERVAL;
+                            END IF;
+                        ELSE
+                            "duration" := ("random_between"(1, 10) || ' week')::INTERVAL;
+                        END IF;
+
+                        INSERT INTO "MemberLevelGrant"
+                        VALUES ("lastMembershipLevel"."memberLevelRefId",
+                                "itMember"."memberCustomerId",
+                                ("lastMembershipTime" + "duration")::timestamp) RETURNING "timestamp" INTO "lastMembershipTime";
+                    END LOOP;
+            END LOOP;
+    END;
+$$
