@@ -1,30 +1,36 @@
-SELECT "MC"."memberCustomerId", sum(COALESCE("B"."pointReceived", 0)), sum(COALESCE("MRR"."pointSpent", 0))
-FROM "MemberCustomer" "MC" LEFT JOIN "Billing" "B" ON "MC"."memberCustomerId" = "B"."involvedMemberCustomerId"
-LEFT JOIN "MembershipRewardRedemption" "MRR" ON "MC"."memberCustomerId" = "MRR"."memberCustomerRefId"
-GROUP BY "MC"."memberCustomerId";
-
 -- 3: List all customers with the level of membership, point gained, as well as the amount of money he/she spent.
+CREATE OR REPLACE VIEW "MemberCustomerView" AS
 SELECT "A"."memberCustomerId",
        "firstname",
        "surname",
        "telephoneNo",
        "email",
+       "membershipLevel",
        sum("pointGained") "totalPointGained",
        sum("price")       "moneySpent",
        avg("orderCount")  "averageOrderPerBill"
 FROM (
-         SELECT "memberCustomerId",
+         SELECT "MC"."memberCustomerId",
                 "firstname",
                 "surname",
                 "telephoneNo",
                 "email",
                 sum("pointReceived") "pointGained",
-                sum("pointSpent")   "pointUsed",
-                "billingId"
+                sum("pointSpent")    "pointUsed",
+                "billingId",
+                "membershipLevel"
          FROM "MemberCustomer" "MC"
+                  LEFT JOIN (SELECT "name" "membershipLevel", "A1"."memberCustomerId",
+                                    rank() OVER (PARTITION BY "memberCustomerId" ORDER BY "timestamp" DESC)
+                             FROM (
+                                      SELECT "MLG"."memberCustomerId", "name", "timestamp"
+                                      FROM "MemberLevelGrant" "MLG"
+                                               JOIN "MemberLevelRef" "MLR"
+                                                    ON "MLG"."memberLevelRefId" = "MLR"."memberLevelRefId"
+                                  ) "A1") "X" ON "X"."memberCustomerId" = "MC"."memberCustomerId"
                   JOIN "Billing" "B" ON "MC"."memberCustomerId" = "B"."involvedMemberCustomerId"
                   JOIN "MembershipRewardRedemption" "MRR" ON "MC"."memberCustomerId" = "MRR"."memberCustomerRefId"
-         GROUP BY "memberCustomerId", "billingId"
+         GROUP BY "MC"."memberCustomerId", "billingId", "membershipLevel"
      ) "A"
          JOIN (
     SELECT "O"."billingId",
@@ -36,7 +42,7 @@ FROM (
              JOIN "OrderItem" "O2" ON "O"."orderId" = "O2"."orderId"
     GROUP BY "O"."billingId", "O"."orderId"
 ) "B" ON "A"."billingId" = "B"."billingId"
-GROUP BY "A"."memberCustomerId", "firstname", "surname", "telephoneNo", "email";
+GROUP BY "A"."memberCustomerId", "firstname", "surname", "telephoneNo", "email", "membershipLevel";
 
 -- 5: Summarize each employee's the total amount of working time as well as the wage payments
 SELECT "A"."employeeId",
