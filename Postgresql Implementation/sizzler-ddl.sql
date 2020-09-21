@@ -252,15 +252,18 @@ CREATE TABLE IF NOT EXISTS "EmployeeWagePayment"
 -- SECTION: Member Customer
 CREATE TABLE IF NOT EXISTS "MemberCustomer"
 (
-    "memberCustomerId" UUID PRIMARY KEY DEFAULT "uuid_generate_v4"(),
-    "firstname"        VARCHAR(50) NOT NULL,
-    "surname"          VARCHAR(50) NOT NULL,
-    "telephoneNo"      VARCHAR(15) NOT NULL UNIQUE,
-    "birthdate"        DATE        NOT NULL,
-    "hashPwd"          TEXT        NOT NULL,
-    "salt"             TEXT        NOT NULL,
-    "email"            CITEXT      NOT NULL UNIQUE,
-    "liveNearBranchId" UUID        NOT NULL REFERENCES "Branch" ("branchId")
+    "memberCustomerId"      UUID PRIMARY KEY     DEFAULT "uuid_generate_v4"(),
+    "firstname"             VARCHAR(50) NOT NULL,
+    "surname"               VARCHAR(50) NOT NULL,
+    "telephoneNo"           VARCHAR(15) NOT NULL UNIQUE,
+    "birthdate"             DATE        NOT NULL,
+    "hashPwd"               TEXT        NOT NULL,
+    "salt"                  TEXT        NOT NULL,
+    "email"                 CITEXT      NOT NULL UNIQUE,
+    "liveNearBranchId"      UUID        NOT NULL REFERENCES "Branch" ("branchId"),
+    "registrationTimestamp" TIMESTAMP   NOT NULL DEFAULT now(),
+    "gender"                gender      NOT NULL,
+    CONSTRAINT "Check_MembershipRegistrationComeAfterBirthdate" CHECK ( "registrationTimestamp" > "birthdate")
 );
 
 -- SECTION: Member Customer -> Redeemable Reward

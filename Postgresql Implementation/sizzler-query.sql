@@ -1,3 +1,8 @@
+SELECT "MC"."memberCustomerId", sum(COALESCE("B"."pointReceived", 0)), sum(COALESCE("MRR"."pointSpent", 0))
+FROM "MemberCustomer" "MC" LEFT JOIN "Billing" "B" ON "MC"."memberCustomerId" = "B"."involvedMemberCustomerId"
+LEFT JOIN "MembershipRewardRedemption" "MRR" ON "MC"."memberCustomerId" = "MRR"."memberCustomerRefId"
+GROUP BY "MC"."memberCustomerId";
+
 -- 3: List all customers with the level of membership, point gained, as well as the amount of money he/she spent.
 SELECT "A"."memberCustomerId",
        "firstname",
@@ -14,9 +19,11 @@ FROM (
                 "telephoneNo",
                 "email",
                 sum("pointReceived") "pointGained",
+                sum("pointSpent")   "pointUsed",
                 "billingId"
          FROM "MemberCustomer" "MC"
                   JOIN "Billing" "B" ON "MC"."memberCustomerId" = "B"."involvedMemberCustomerId"
+                  JOIN "MembershipRewardRedemption" "MRR" ON "MC"."memberCustomerId" = "MRR"."memberCustomerRefId"
          GROUP BY "memberCustomerId", "billingId"
      ) "A"
          JOIN (
