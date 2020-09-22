@@ -1,4 +1,4 @@
--- B1 <33>: Count employees group by age
+-- B1 <33>: Count employees group by age.
 SELECT "age", COUNT("employeeId") AS "numberOfEmployees"
 FROM "Employee"
 GROUP BY "age"
@@ -101,7 +101,7 @@ SELECT "OrderItem"."orderId", "MenuRef"."nameTha", "MenuRef"."descriptionTha", "
 FROM "MenuRef"
          JOIN "OrderItem" ON "MenuRef"."menuRefId" = "OrderItem"."menuRefId";
 
--- B17 <27>: Show the salary of all Kitchen Managers
+-- B17 <27>: Show the salary of all Kitchen Managers.
 SELECT "wagePaymentAmount" * 30 AS "salary", "wageBonusAmount", "wagePaymentAmount" * 30 + "wageBonusAmount" AS "total"
 FROM "EmployeeWagePayment"
          JOIN "KitchenManager" ON "EmployeeWagePayment"."employeeId" = "KitchenManager"."employeeId";
