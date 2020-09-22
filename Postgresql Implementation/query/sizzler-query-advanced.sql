@@ -1,4 +1,4 @@
--- A0: Identify every information regarding each employees.
+-- A0: Identify every information regarding each employee.
 CREATE OR REPLACE VIEW "EmployeeView"
 AS
 SELECT "E"."employeeId",
@@ -10,16 +10,16 @@ SELECT "E"."employeeId",
        "phoneNumbers",
        "email",
        replace('{' ||
-            CASE WHEN "C"."employeeId" IS NOT NULL THEN 'Chef,' ELSE '' END ||
-            CASE WHEN "BM"."employeeId" IS NOT NULL THEN 'Branch Manager,' ELSE '' END ||
-            CASE WHEN "C2"."employeeId" IS NOT NULL THEN 'Cashier,' ELSE '' END ||
-            CASE WHEN "KM"."employeeId" IS NOT NULL THEN 'Kitchen Manager,' ELSE '' END ||
-            CASE WHEN "DM"."employeeId" IS NOT NULL THEN 'Delivery Man,' ELSE '' END ||
-            CASE WHEN "W"."employeeId" IS NOT NULL THEN 'Waiter,' ELSE ''  END ||
-            CASE WHEN "KP"."employeeId" IS NOT NULL THEN 'Kitchen Porter' ELSE '' END ||
-       '}', ',}', '}')::text[] "position",
+               CASE WHEN "C"."employeeId" IS NOT NULL THEN 'Chef,' ELSE '' END ||
+               CASE WHEN "BM"."employeeId" IS NOT NULL THEN 'Branch Manager,' ELSE '' END ||
+               CASE WHEN "C2"."employeeId" IS NOT NULL THEN 'Cashier,' ELSE '' END ||
+               CASE WHEN "KM"."employeeId" IS NOT NULL THEN 'Kitchen Manager,' ELSE '' END ||
+               CASE WHEN "DM"."employeeId" IS NOT NULL THEN 'Delivery Man,' ELSE '' END ||
+               CASE WHEN "W"."employeeId" IS NOT NULL THEN 'Waiter,' ELSE '' END ||
+               CASE WHEN "KP"."employeeId" IS NOT NULL THEN 'Kitchen Porter' ELSE '' END ||
+               '}', ',}', '}')::TEXT[] "position",
        "educationLevel",
-       "branchId"                                                       "workAtBranch"
+       "branchId"                      "workAtBranch"
 FROM (
          SELECT "E"."employeeId",
                 "firstname",
@@ -79,7 +79,7 @@ FROM "MemberCustomer"
 WHERE "B"."timePaid" > now() - INTERVAL '1 week';
 
 -- A4 <19>: Identify redeemable rewards that a customer recently redeem.
-SELECT concat("firstname", ' ', "surname") AS "fullname", "name"
+SELECT concat("firstname", ' ', "surname") AS "fullname", "name" "rewardName"
 FROM "MemberCustomer"
          INNER JOIN "MembershipRewardRedemption" "MRR"
                     ON "MemberCustomer"."memberCustomerId" = "MRR"."memberCustomerRefId"
@@ -88,12 +88,30 @@ WHERE "memberCustomerId" = 'b7a57961-b4ae-46f3-bf63-e20960e9a16b'
 ORDER BY "timestamp" DESC
 LIMIT 1;
 
--- A5 <34>: Identify the age that has the highest number of employees.
-SELECT "age", COUNT("employeeId") "numberOfEmployees"
-FROM "Employee"
-GROUP BY "age"
-ORDER BY COUNT("employeeId") DESC
-LIMIT 1;
+-- A5 <34>: Identify the count of each possible age of member customers and employees in each province.
+SELECT COALESCE("EMP"."province", "CUS"."province") "province",
+       COALESCE("EMP"."age", "CUS"."age")           "age",
+       COALESCE("numberOfEmployees", 0)             "numberOfEmployees",
+       COALESCE("totalMemberCustomersInArea", 0)    "totalMemberCustomersInArea"
+FROM (
+         SELECT "P"."nameThai" "province", "age", COUNT("employeeId") "numberOfEmployees"
+         FROM "Province" "P"
+                  JOIN "Branch" "B" ON "P"."provinceId" = "B"."provinceId"
+                  JOIN "Employee" "E" ON "B"."branchId" = "E"."branchId"
+         GROUP BY "P"."nameThai", "age"
+         ORDER BY COUNT("employeeId")
+     ) "EMP"
+         FULL OUTER JOIN (
+    SELECT "P"."nameThai"                         "province",
+           "calculatePersonAge"("MC"."birthdate") "age",
+           count("memberCustomerId")              "totalMemberCustomersInArea"
+    FROM "Province" "P"
+             JOIN "Branch" "B" ON "P"."provinceId" = "B"."provinceId"
+             JOIN "MemberCustomer" "MC" ON "B"."branchId" = "MC"."liveNearBranchId"
+    GROUP BY "P"."nameThai", "age"
+    ORDER BY count("memberCustomerId"
+                 )
+) "CUS" ON "EMP"."province" = "CUS"."province" AND "EMP"."age" = "CUS"."age";
 
 -- A6 <0.5>: Identify the amount of each food item that needed to be refilled for the salad bar.
 SELECT "branchId", "SB"."saladBarId", "nameEng", "maxQuantity" || ' ' || "name" || 's' "maxQuantity", "descriptionTha"
@@ -102,16 +120,40 @@ FROM "SaladBar" "SB"
          JOIN "FoodItemRef" "FIR" ON "SBS"."foodItemRefId" = "FIR"."foodItemRefId"
          JOIN "QuantityUnitRef" "QUR" ON "SBS"."maxQuantityUnit" = "QUR"."quantityUnitRefId";
 
--- A7 <1>: Identify the cash transaction that has the highest amount.
-SELECT "PT".*, "CT"."amount"
-FROM "PaymentTransaction" "PT"
-         JOIN "CashTransaction" "CT" ON "PT"."paymentTransactionId" = "CT"."paymentTransactionId"
-ORDER BY "amount" DESC
-LIMIT 1;
+-- A7 <1>: Identify the cash transaction that are one of the top-3 of the highest amount in each type of billing.
+SELECT *
+FROM (
+         SELECT "PT".*,
+                "CT"."amount",
+                "status",
+                "pointReceived",
+                "type",
+                rank() OVER (PARTITION BY "type" ORDER BY "amount" DESC) "ranking"
+         FROM "PaymentTransaction" "PT"
+                  JOIN "CashTransaction" "CT" ON "PT"."paymentTransactionId" = "CT"."paymentTransactionId"
+                  JOIN "BillingView" "BV" ON "BV"."billingId" = "PT"."billingId"
+     ) "X"
+WHERE "ranking" <= 3;
 
--- A8 <12>: Identify the number of available tables in each branch.
+-- A8 <12>: Identify the number of available tables in each branch. (Take occupied tables into account)
 SELECT "TB"."branchId", "name", COUNT("tableId") AS "tableAmount"
-FROM "Table" "TB"
+FROM ((SELECT * FROM "Table")
+      EXCEPT
+      (SELECT "T"."branchId", "T"."tableId"
+       FROM "Table" "T"
+                JOIN "CustomerPax" "CP" ON "T"."tableId" = "CP"."tableId" AND "T"."branchId" = "CP"."tableBranchId"
+                JOIN (SELECT "B"."billingId",
+                             "taxInvoiceId",
+                             "timeCreated",
+                             "timePaid",
+                             "timeCanceled",
+                             "involvedMemberCustomerId",
+                             "pointReceived",
+                             "pointExpirationTime"
+                      FROM "BillingOnSite"
+                               JOIN "Billing" "B" ON "BillingOnSite"."billingId" = "B"."billingId"
+                      WHERE '2019-11-03 15:40:24' BETWEEN "timeCreated" AND "timePaid") "BOS"
+                     ON "CP"."onSiteBillingId" = "BOS"."billingId")) "TB"
          INNER JOIN "Branch" "B" ON "B"."branchId" = "TB"."branchId"
 GROUP BY "TB"."branchId", "name";
 
@@ -248,13 +290,14 @@ SELECT "PT"."paymentTransactionId",
        CASE
            WHEN "CT"."paymentTransactionId" IS NOT NULL THEN 'cash'
            WHEN "CT2"."paymentTransactionId" IS NOT NULL THEN 'credit'
-           WHEN "GVT"."paymentTransactionId" IS NOT NULL THEN 'gift voucher' END                                      "type",
+           WHEN "GVT"."paymentTransactionId" IS NOT NULL THEN 'gift voucher' END                                       "type",
        CASE
            WHEN "CT"."paymentTransactionId" IS NOT NULL THEN "CT"."amount"
            WHEN "CT2"."paymentTransactionId" IS NOT NULL THEN "CT2"."amount"
            WHEN "GVT"."paymentTransactionId" IS NOT NULL THEN (SELECT "valueAmount"
                                                                FROM "GiftVoucherRef" "GVR"
-                                                               WHERE "GVR"."valueAmount" = "GVT"."giftVoucherNo") END "value"
+                                                                        JOIN "GiftVoucher" "GV" ON "GVR"."giftVoucherRefId" = "GV"."giftVoucherRefId"
+                                                               WHERE "GV"."giftVoucherNo" = "GVT"."giftVoucherNo") END "value"
 FROM "PaymentTransaction" "PT"
          LEFT JOIN "CashTransaction" "CT" ON "PT"."paymentTransactionId" = "CT"."paymentTransactionId"
          LEFT JOIN "CreditTransaction" "CT2" ON "PT"."paymentTransactionId" = "CT2"."paymentTransactionId"
@@ -352,21 +395,49 @@ SELECT "MCV"."memberCustomerId", "MCV"."firstname", "MCV"."surname", "MCV"."memb
 FROM "MemberCustomerView" "MCV";
 
 -- A21 <22>: Show food ingredients in each food item.
-SELECT "FoodItemRef"."nameTha", "FoodIngredientRef"."nameTha", "quantity", "QuantityUnitRef"."name"
+SELECT "FoodItemRef"."nameTha"       "foodItemName",
+       "FoodIngredientRef"."nameTha" "ingredientName",
+       "quantity",
+       "QuantityUnitRef"."name"
 FROM "FoodItemRef"
          JOIN "FoodItemIngredientRef" ON "FoodItemRef"."foodItemRefId" = "FoodItemIngredientRef"."foodItemRefId"
          JOIN "FoodIngredientRef"
               ON "FoodItemIngredientRef"."foodIngredientRef" = "FoodIngredientRef"."foodIngredientRefId"
          JOIN "QuantityUnitRef" ON "FoodItemIngredientRef"."quantityUnitRefId" = "QuantityUnitRef"."quantityUnitRefId";
 
--- A22 <14>: Show the number of customers within a day.
-SELECT "timeAdded"::DATE, SUM("totalCustomers") AS "TotalInDay"
-FROM "CustomerPax"
-WHERE "timeAdded" BETWEEN '2020-02-08 00:00:00' AND '2020-02-08 23:59:59'
-GROUP BY "timeAdded"::DATE;
+-- A22 <14>: Show the number of customers in each month in each year along with the accumulating number of branches.
+SELECT coalesce("A"."year", "B"."year")                      "year",
+       coalesce("A"."month", "B"."month")                    "month",
+       sum("totalBranches")
+       OVER (ORDER BY (coalesce("A"."year", "B"."year"),
+                       coalesce("A"."month", "B"."month"))
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) "accumBranches",
+       COALESCE("totalPaxCustomers", 0)                      "totalPaxCustomers",
+       COALESCE("averagePaxCustomers", 0)                    "averagePaxCustomers"
+FROM (
+         SELECT "month",
+                "year",
+                "totalBranches"
+         FROM (SELECT EXTRACT(MONTH FROM "establishingDate"::DATE) "month",
+                      EXTRACT(YEAR FROM "establishingDate"::DATE)  "year",
+                      count("branchId")                            "totalBranches"
+               FROM "Branch"
+               GROUP BY EXTRACT(MONTH FROM "establishingDate"::DATE),
+                        EXTRACT(YEAR FROM "establishingDate"::DATE)) "X"
+         ORDER BY "year", "month"
+     ) "A"
+         FULL OUTER JOIN (SELECT EXTRACT(MONTH FROM "timeAdded"::DATE)   "month",
+                                 EXTRACT(YEAR FROM "timeAdded"::DATE)    "year",
+                                 SUM("totalCustomers")                   "totalPaxCustomers",
+                                 (avg("totalCustomers"))::DECIMAL(16, 2) "averagePaxCustomers"
+                          FROM "CustomerPax"
+                          GROUP BY EXTRACT(MONTH FROM "timeAdded"::DATE), EXTRACT(YEAR FROM "timeAdded"::DATE)
+                          ORDER BY "year", "month"
+) "B" ON "A"."month" = "B"."month" AND "A"."year" = "B"."year"
+ORDER BY coalesce("A"."year", "B"."year"), coalesce("A"."month", "B"."month");
 
 -- A23 <26>: Show the total distance in kilometers that a delivery man has ever delivered.
-SELECT "BillingDelivery"."deliveryManId", SUM("distanceKM") AS "TotalDistance"
+SELECT "BillingDelivery"."deliveryManId", SUM("distanceKM") AS "totalDistanceKM"
 FROM "BillingDelivery"
          JOIN "DeliveryMan" ON "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"
 WHERE "BillingDelivery"."deliveryManId" = "DeliveryMan"."employeeId"

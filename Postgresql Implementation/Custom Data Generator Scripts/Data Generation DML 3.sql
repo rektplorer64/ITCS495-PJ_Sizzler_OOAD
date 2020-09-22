@@ -105,7 +105,7 @@ $$
                         ON CONFLICT DO NOTHING;
                     END LOOP;
 
-                "itTimestamp" := ("branch"."establishingDate")::timestamp;
+                "itTimestamp" := ("branch"."establishingDate")::TIMESTAMP;
                 -- raise NOTICE '%', "itTimestamp";
                 FOR "i" IN 1.."random_between"(4000, 6000)
                     LOOP
@@ -127,11 +127,60 @@ $$
                                  LIMIT 1),
                                 "itSaladBar"."saladBarId",
                                 "itServing"."foodItemRefId",
-                                abs("itServing"."maxQuantity" - "random_between"(1, ("itServing"."maxQuantity" - 1)::INT)),
+                                abs("itServing"."maxQuantity" -
+                                    "random_between"(1, ("itServing"."maxQuantity" - 1)::INT)),
                                 "itServing"."maxQuantityUnit", "itTimestamp");
 
                         "itTimestamp" := "itTimestamp" + ("random_between"(3200, 5600) || ' sec')::INTERVAL;
                     END LOOP;
             END LOOP;
     END;
+$$;
+
+-- Populate Subclass of Payment Transactions
+DO
 $$
+    DECLARE
+        "itPaymentTransactionId" UUID;
+        "randomInt"              INT;
+        "itAmount"               "numeric"(16, 2);
+        "voucher"                "GiftVoucher";
+        "pt"                     "PaymentTransaction";
+    BEGIN
+        FOR "itPaymentTransactionId" IN (SELECT "paymentTransactionId"
+                                         FROM "PaymentTransaction"
+                                             EXCEPT (SELECT "paymentTransactionId"
+                                                     FROM "CashTransaction"
+                                                     UNION
+                                                     SELECT "paymentTransactionId"
+                                                     FROM "GiftVoucherTransaction"
+                                                     UNION
+                                                     SELECT "paymentTransactionId"
+                                                     FROM "CreditTransaction"))
+            LOOP
+                "randomInt" = "random_between"(1, 3);
+
+                SELECT "value"
+                INTO "itAmount"
+                FROM "PaymentTransactionView";
+
+                SELECT *
+                INTO "pt"
+                FROM "PaymentTransaction"
+                WHERE "PaymentTransaction"."paymentTransactionId" = "itPaymentTransactionId";
+
+                IF "randomInt" = 1 THEN
+                    INSERT INTO "CashTransaction" VALUES ("itPaymentTransactionId", "itAmount");
+                ELSIF "randomInt" = 2 THEN
+                    INSERT INTO "GiftVoucher" VALUES (DEFAULT,
+                                                      "pt"."timestamp" - (random_between(10, 30000) || ' min')::interval,
+                                                      (SELECT "giftVoucherRefId" FROM "GiftVoucherRef" ORDER BY random() LIMIT 1)) RETURNING * INTO "voucher";
+                    INSERT INTO "GiftVoucherTransaction"
+                    VALUES ("itPaymentTransactionId",
+                            "voucher"."giftVoucherNo");
+                ELSE
+                    INSERT INTO "CreditTransaction" VALUES ("itPaymentTransactionId", trunc(random() * 1000000000)::text, "itAmount");
+                END IF;
+            END LOOP;
+    END ;
+$$;
