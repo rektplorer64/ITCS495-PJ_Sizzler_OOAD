@@ -8,17 +8,20 @@ SELECT "B"."branchId",
        "fullAddress",
        ARRAY ["coordinateLatitude", "coordinateLongitude"] "coordinate",
        "email",
-       "telephoneNo",
+       "telephoneNoList",
        "establishingDate",
        "status"
 FROM "Branch" "B"
          JOIN "Province" "P" ON "B"."provinceId" = "P"."provinceId"
          JOIN (
-    SELECT "BT"."branchId", array_agg("telephoneNo") "telephoneNo", count("tableId") "totatAvailableTables"
-    FROM "BranchTelephone" "BT"
-             LEFT JOIN "Table" "T" ON "T"."branchId" = "BT"."branchId"
-    GROUP BY "BT"."branchId"
-) "TEL" ON "TEL"."branchId" = "B"."branchId"
+    SELECT "TAB"."branchId", "telephoneNoList", "totatAvailableTables"
+    FROM (
+             SELECT "branchId", array_agg("telephoneNo") "telephoneNoList" FROM "BranchTelephone" GROUP BY "branchId"
+         ) "TEL"
+             JOIN (
+        SELECT "branchId", COUNT("tableId") "totatAvailableTables" FROM "Table" GROUP BY "branchId"
+    ) "TAB" ON "TEL"."branchId" = "TAB"."branchId"
+) "XYZ" ON "XYZ"."branchId" = "B"."branchId"
          JOIN (
     SELECT "branchId", count("employeeId") "totalEmployees"
     FROM "Employee" "E"

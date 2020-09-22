@@ -10,7 +10,7 @@ $$
         "itIngredient"       "FoodIngredientRef";
         "isCanceled"         "bool";
         "unit"               INT;
-        "itTimestamp"       "timestamp";
+        "itTimestamp"        "timestamp";
     BEGIN
 
         FOR "itBranch" IN (SELECT * FROM "Branch")
@@ -18,7 +18,8 @@ $$
                 SELECT "employeeId"
                 INTO "itKitchenManagerId"
                 FROM "EmployeeView"
-                WHERE "workAtBranch" = "itBranch"."branchId" AND 'Kitchen Manager' = ANY("position")
+                WHERE "workAtBranch" = "itBranch"."branchId"
+                  AND 'Kitchen Manager' = ANY ("position")
                 ORDER BY random()
                 LIMIT 1;
 
@@ -73,3 +74,64 @@ $$
             END LOOP;
     END;
 $$;
+
+-- Generates SaladBarServing and SaladBarRefill
+DO
+$$
+    DECLARE
+        "itSaladBar"      "SaladBar";
+        "i"               INT;
+        "itFoodItemRefId" INT;
+        "itServing"       "SaladBarServing";
+        "branch"          "Branch";
+        "itTimestamp"     TIMESTAMP;
+    BEGIN
+
+        FOR "itSaladBar" IN (SELECT * FROM "SaladBar")
+            LOOP
+
+                SELECT * INTO "branch" FROM "Branch" WHERE "branchId" = "itSaladBar"."branchId";
+
+                FOR "itFoodItemRefId" IN (SELECT DISTINCT "foodItemRefId" FROM "SaladBarServing")
+                    LOOP
+                        SELECT *
+                        INTO "itServing"
+                        FROM "SaladBarServing"
+                        WHERE "foodItemRefId" = "itFoodItemRefId"
+                        LIMIT 1;
+                        INSERT INTO "SaladBarServing"
+                        VALUES ("itSaladBar"."saladBarId", "itFoodItemRefId",
+                                "itServing"."maxQuantity" + "random_between"(45, 100), "itServing"."maxQuantityUnit")
+                        ON CONFLICT DO NOTHING;
+                    END LOOP;
+
+                "itTimestamp" := ("branch"."establishingDate")::timestamp;
+                -- raise NOTICE '%', "itTimestamp";
+                FOR "i" IN 1.."random_between"(4000, 6000)
+                    LOOP
+                        SELECT *
+                        INTO "itServing"
+                        FROM "SaladBarServing"
+                        WHERE "saladBarId" = "itSaladBar"."saladBarId"
+                        ORDER BY random()
+                        LIMIT 1;
+
+                        INSERT INTO "SaladBarRefill"
+                        VALUES ((SELECT "employeeId"
+                                 FROM "EmployeeView"
+                                 WHERE "workAtBranch" = "itSaladBar"."branchId"
+                                   AND 'Chef' != ANY ("position")
+                                   AND 'Branch Manager' != ANY ("position")
+                                   AND 'Delivery Man' != ANY ("position")
+                                 ORDER BY random()
+                                 LIMIT 1),
+                                "itSaladBar"."saladBarId",
+                                "itServing"."foodItemRefId",
+                                abs("itServing"."maxQuantity" - "random_between"(1, ("itServing"."maxQuantity" - 1)::INT)),
+                                "itServing"."maxQuantityUnit", "itTimestamp");
+
+                        "itTimestamp" := "itTimestamp" + ("random_between"(3200, 5600) || ' sec')::INTERVAL;
+                    END LOOP;
+            END LOOP;
+    END;
+$$
