@@ -124,7 +124,8 @@ CREATE OR REPLACE FUNCTION "calculateOrderItemPrice"(
     "perUnitDiscount"    NUMERIC(12, 2),
     "quantity"           INT
 )
-    RETURNS INTEGER IMMUTABLE AS
+    RETURNS INTEGER
+    IMMUTABLE AS
 $body$
 BEGIN
     RETURN sum(("perUnitPrice" + coalesce("perUnitTakeHomeFee", 0) - coalesce("perUnitDiscount", 0)) * "quantity");
@@ -660,13 +661,15 @@ CREATE TABLE IF NOT EXISTS "SaladBarServing"
 
 CREATE TABLE IF NOT EXISTS "SaladBarRefill"
 (
-    "employeeId"    UUID  NOT NULL REFERENCES "Employee" ("employeeId"),
-    "saladBarId"    UUID  NOT NULL,
-    "foodItemRefId" INT   NOT NULL,
-    "quantity"      FLOAT NOT NULL,
+    "employeeId"    UUID      NOT NULL REFERENCES "Employee" ("employeeId"),
+    "saladBarId"    UUID      NOT NULL,
+    "foodItemRefId" INT       NOT NULL,
+    "quantity"      FLOAT     NOT NULL,
     "quantityUnit"  INT REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
+    "timeRefilled"  TIMESTAMP NOT NULL DEFAULT now(),
     FOREIGN KEY ("saladBarId", "foodItemRefId")
-        REFERENCES "SaladBarServing" ("saladBarId", "foodItemRefId")
+        REFERENCES "SaladBarServing" ("saladBarId", "foodItemRefId"),
+    PRIMARY KEY ("saladBarId", "foodItemRefId", "employeeId", "timeRefilled")
 );
 
 CREATE TABLE IF NOT EXISTS "BranchMenuAvailability"
