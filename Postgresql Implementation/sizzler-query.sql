@@ -15,7 +15,8 @@ FROM "Branch" "B"
          JOIN "Province" "P" ON "B"."provinceId" = "P"."provinceId"
          JOIN (
     SELECT "BT"."branchId", array_agg("telephoneNo") "telephoneNo", count("tableId") "totatAvailableTables"
-    FROM "BranchTelephone" "BT" LEFT JOIN "Table" "T"  ON "T"."branchId" = "BT"."branchId"
+    FROM "BranchTelephone" "BT"
+             LEFT JOIN "Table" "T" ON "T"."branchId" = "BT"."branchId"
     GROUP BY "BT"."branchId"
 ) "TEL" ON "TEL"."branchId" = "B"."branchId"
          JOIN (
@@ -61,11 +62,43 @@ FROM (SELECT * FROM "MenuRef" WHERE "isActive") "MR"
                     GROUP BY "menuRefId") "AvailableBranch" ON "AvailableBranch"."menuRefId" = "MR"."menuRefId";
 
 -- 0.3: List all Inventory Inbound Order details grouped by branch.
+SELECT "IIO"."inboundOrderId",
+       "IIO"."branchId",
+       "IIO"."timeCreated",
+       "IIO"."deliveryIn",
+       "IIO"."note",
+       "nameTha"                          "ingredientName",
+       "quantity" || ' ' || "name" || 's' "amount",
+       "quantity" * "pricePerUnit"        "totalPrice"
+FROM "InventoryInboundOrder" "IIO"
+         JOIN "InventoryInboundOrderItem" "IIOI" ON "IIO"."inboundOrderId" = "IIOI"."inboundOrderId"
+         JOIN "FoodIngredientRef" "FIR" ON "FIR"."foodIngredientRefId" = "IIOI"."foodIngredientRefId"
+         JOIN "QuantityUnitRef" "QUR" ON "IIOI"."quantityUnitRefId" = "QUR"."quantityUnitRefId";
+
+-- 0.4: Given a menu, identify one or more servings that are included as well as the price of each serving and the percentage it made up to the menu price.
+SELECT "MR"."menuRefId",
+       "MR"."nameEng"                                      "menuName",
+       "MXR"."menuPrice",
+       "MSR"."servingRefId",
+       "SR"."nameEng"                                      "servingName",
+       "realPrice"                                         "servingPrice",
+       (("realPrice" / "menuPrice") * 100)::DECIMAL(16, 2) "servingPricePercentage"
+FROM "MenuRef" "MR"
+         JOIN "MenuServingRef" "MSR" ON "MR"."menuRefId" = "MSR"."menuRefId"
+         JOIN "ServingRef" "SR" ON "MSR"."servingRefId" = "SR"."servingRefId"
+         JOIN (SELECT "MenuRef"."menuRefId", sum("realPrice") "menuPrice"
+               FROM "MenuRef"
+                        JOIN "MenuServingRef" ON "MenuRef"."menuRefId" = "MenuServingRef"."menuRefId"
+               GROUP BY "MenuRef"."menuRefId") "MXR" ON "MR"."menuRefId" = "MXR"."menuRefId"
+ORDER BY "menuRefId";
 
 
--- 0.4: Given a menu, identify one or more servings that are included.
-
--- 0.6: Identify the amount of each food item that needed to be refilled.
+-- 0.5: Identify the amount of each food item that needed to be refilled for the salad bar.
+SELECT "branchId", "SB"."saladBarId", "nameEng", "maxQuantity" || ' ' || "name" || 's' "maxQuantity", "descriptionTha"
+FROM "SaladBar" "SB"
+         JOIN "SaladBarServing" "SBS" ON "SB"."saladBarId" = "SBS"."saladBarId"
+         JOIN "FoodItemRef" "FIR" ON "SBS"."foodItemRefId" = "FIR"."foodItemRefId"
+         JOIN "QuantityUnitRef" "QUR" ON "SBS"."maxQuantityUnit" = "QUR"."quantityUnitRefId";
 
 -- 1: Identify the cash transaction that has the highest amount.
 SELECT "PT".*, "CT"."amount"
@@ -172,7 +205,8 @@ GROUP BY "A"."employeeId", "firstname", "surname", "nickname", "email", "phoneNu
 SELECT "MR"."menuRefId",
        "MR"."nameEng",
        "SR"."name" "seasonName",
-       "SR"."dateStart", "SR"."dateEnd"
+       "SR"."dateStart",
+       "SR"."dateEnd"
 FROM "SeasonRef" "SR"
          JOIN "MenuSeasonRef" "MSR" ON "SR"."seasonRefId" = "MSR"."seasonRefId"
          JOIN "MenuRef" "MR" ON "MR"."menuRefId" = "MSR"."menuRefId";
@@ -189,7 +223,7 @@ FROM "MenuAvailability" "MA"
 -- 8: Identify the duration it takes to complete each inventory supply inbound order.
 SELECT *
 FROM "InventoryInboundOrder" "IIO"
-    JOIN "InventoryInboundOrderItem" "IIOI" ON "IIO"."inboundOrderId" = "IIOI"."inboundOrderId";
+         JOIN "InventoryInboundOrderItem" "IIOI" ON "IIO"."inboundOrderId" = "IIOI"."inboundOrderId";
 
 -- 9: List the details of all "western" food servings.
 SELECT "servingRefId", "nameEng", "nameTha", "basePrice"
@@ -330,7 +364,7 @@ FROM "EmployeeWagePayment"
          JOIN "KitchenManager" ON "EmployeeWagePayment"."employeeId" = "KitchenManager"."employeeId";
 
 -- 28: Show all employees' address that are located in Chonburi
-SELECT  "E".*
+SELECT "E".*
 FROM "Employee" "E"
          JOIN "Province" ON "E"."provinceId" = "Province"."provinceId"
 WHERE "nameEnglish" = 'Chonburi Province';
@@ -385,8 +419,9 @@ FROM (
 
 -- 31: Identify the top-10 credit transactions that have the highest amount.
 SELECT "CT"."paymentTransactionId", "amount", "taxInvoiceId", "timeCreated", "status", "pointReceived"
-FROM "CreditTransaction" "CT" JOIN "PaymentTransaction" "PT" ON "CT"."paymentTransactionId" = "PT"."paymentTransactionId"
-JOIN "BillingView" "BV" ON "BV"."billingId" = "PT"."billingId"
+FROM "CreditTransaction" "CT"
+         JOIN "PaymentTransaction" "PT" ON "CT"."paymentTransactionId" = "PT"."paymentTransactionId"
+         JOIN "BillingView" "BV" ON "BV"."billingId" = "PT"."billingId"
 ORDER BY "amount" DESC
 LIMIT 10;
 
