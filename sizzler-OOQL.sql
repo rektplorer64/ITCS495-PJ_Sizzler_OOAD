@@ -195,17 +195,4 @@ GROUP BY foodIngredientRefId: iioi.involves.long;
 SELECT branchId: cbh.involves.deployedBy.branchId, cbh.needed, cbh.participatedBy
 FROM cbh IN cashierBillingHandlings;
 
--- 21: Select
-
-
--- 22: Select
-
-
--- 23: Select
-
-
--- 24: Select
-
-
--- 25: Select
 
