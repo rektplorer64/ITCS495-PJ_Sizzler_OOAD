@@ -1,13 +1,14 @@
 -- 1: Identify the cash transaction that has the highest amount.
-SELECT *
-FROM "CashTransaction"
+SELECT "PT".*, "CT"."amount"
+FROM "PaymentTransaction" "PT"
+         JOIN "CashTransaction" "CT" ON "PT"."paymentTransactionId" = "CT"."paymentTransactionId"
 ORDER BY "amount" DESC
 LIMIT 1;
 
 -- 2: List food items in salad bar that are needed to be refilled.
-SELECT "SBR"."employeeId", "FoodItemRef"."nameTha", "SBR"."quantity", "QUR"."name"
-FROM "FoodItemRef"
-         JOIN "SaladBarRefill" "SBR" ON "FoodItemRef"."foodItemRefId" = "SBR"."foodItemRefId"
+SELECT "SBR"."foodItemRefId", "FIR"."nameTha" "name", ("SBR"."quantity" || ' ' || "QUR"."name") "amount"
+FROM "FoodItemRef" "FIR"
+         JOIN "SaladBarRefill" "SBR" ON "FIR"."foodItemRefId" = "SBR"."foodItemRefId"
          JOIN "QuantityUnitRef" "QUR" ON "SBR"."quantityUnit" = "QUR"."quantityUnitRefId";
 
 -- 3: List all customers with the level of membership, point gained, as well as the amount of money he/she spent.
@@ -19,8 +20,8 @@ SELECT "A"."memberCustomerId",
        "email",
        "membershipLevel",
        sum("pointGained") "totalPointGained",
-       sum("price")       "moneySpent",
-       avg("orderCount")  "averageOrderPerBill"
+       sum("price")       "totalSpending",
+       avg("orderCount")  "averageOrdersPerBill"
 FROM (
          SELECT "MC"."memberCustomerId",
                 "firstname",
@@ -58,10 +59,10 @@ FROM (
 GROUP BY "A"."memberCustomerId", "firstname", "surname", "telephoneNo", "email", "membershipLevel";
 
 -- 4: List the worth of each gift voucher in each gift voucher transaction.
-SELECT "GiftVoucherTransaction"."paymentTransactionId", "GiftVoucherTransaction"."giftVoucherNo", "valueAmount"
-FROM "GiftVoucherTransaction"
-         JOIN "GiftVoucher" ON "GiftVoucherTransaction"."giftVoucherNo" = "GiftVoucher"."giftVoucherNo"
-         JOIN "GiftVoucherRef" ON "GiftVoucher"."giftVoucherRefId" = "GiftVoucherRef"."giftVoucherRefId";
+SELECT "GVT"."paymentTransactionId", "GVT"."giftVoucherNo", "name", "valueAmount"
+FROM "GiftVoucherTransaction" "GVT"
+         JOIN "GiftVoucher" "GV" ON "GVT"."giftVoucherNo" = "GV"."giftVoucherNo"
+         JOIN "GiftVoucherRef" "GVR" ON "GV"."giftVoucherRefId" = "GVR"."giftVoucherRefId";
 
 -- 5: Summarize each employee's the total amount of working time as well as the wage payments.
 SELECT "A"."employeeId",
@@ -90,30 +91,36 @@ FROM (
                   LEFT JOIN "ClockInClockOut" "CICO"
                             ON "EV"."employeeId" = "CICO"."employeeId"
          WHERE ("clockInTimestamp" <= (now()::DATE))
-           AND ("clockOutTimestamp" >= (now() - '1 month'::INTERVAL)::DATE)
+           AND ("clockOutTimestamp" >= (now() - '10 month'::INTERVAL)::DATE)
          GROUP BY "EV"."employeeId", "firstname", "surname", "nickname", "phoneNumbers", "birthdate", "age", "email"
      ) "A"
-
          LEFT JOIN "EmployeeWagePayment" "EWP" ON "A"."employeeId" = "EWP"."employeeId"
 GROUP BY "A"."employeeId", "firstname", "surname", "nickname", "email", "phoneNumbers", "totalWorkTimeInThePastMonth",
          "birthdate",
          "age";
 
 -- 6: Show the availability time range of all seasonal menu.
-SELECT *
-FROM "SeasonRef";
+SELECT "MR"."menuRefId",
+       "MR"."nameEng",
+       "SR"."name" "seasonName",
+       "SR"."dateStart", "SR"."dateEnd"
+FROM "SeasonRef" "SR"
+         JOIN "MenuSeasonRef" "MSR" ON "SR"."seasonRefId" = "MSR"."seasonRefId"
+         JOIN "MenuRef" "MR" ON "MR"."menuRefId" = "MSR"."menuRefId";
 
 -- 7: Identify the common availability of each menu. For example, a menu can only specifically available from anytime except 3 PM to 10 PM on Wednesday to Sunday.
-SELECT "MenuRef"."nameTha",
-       "MenuAvailability"."dayOfWeek",
-       "MenuAvailability"."timeRangeStart",
-       "MenuAvailability"."timeRangeEnd"
-FROM "MenuAvailability"
-         JOIN "MenuRef" ON "MenuAvailability"."menuRefId" = "MenuRef"."menuRefId";
+SELECT "MR"."menuRefId",
+       "MR"."nameTha",
+       "MA"."dayOfWeek",
+       "MA"."timeRangeStart",
+       "MA"."timeRangeEnd"
+FROM "MenuAvailability" "MA"
+         JOIN "MenuRef" "MR" ON "MA"."menuRefId" = "MR"."menuRefId";
 
 -- 8: Identify the duration it takes to complete each inventory supply inbound order.
-SELECT COUNT("inboundOrderId") AS "TotalInboundDeliveryCount"
-FROM "InventoryInboundOrder";
+SELECT *
+FROM "InventoryInboundOrder" "IIO"
+    JOIN "InventoryInboundOrderItem" "IIOI" ON "IIO"."inboundOrderId" = "IIOI"."inboundOrderId";
 
 -- 9: List the details of all "western" food servings.
 SELECT "servingRefId", "nameEng", "nameTha", "basePrice"
@@ -254,13 +261,13 @@ FROM "EmployeeWagePayment"
          JOIN "KitchenManager" ON "EmployeeWagePayment"."employeeId" = "KitchenManager"."employeeId";
 
 -- 28: Show all employees' address that are located in Chonburi
-SELECT "fullAddress"
-FROM "Employee"
-         JOIN "Province" ON "Employee"."provinceId" = "Province"."provinceId"
+SELECT  "E".*
+FROM "Employee" "E"
+         JOIN "Province" ON "E"."provinceId" = "Province"."provinceId"
 WHERE "nameEnglish" = 'Chonburi Province';
 
 -- 29: List all employees' full name that has the age greater than or equal 40 years old.
-SELECT CONCAT("firstname", ' ', "surname") AS "fullName", "age"
+SELECT "employeeId", CONCAT("firstname", ' ', "surname") AS "fullName", "age"
 FROM "Employee"
 WHERE "age" >= 40;
 
@@ -307,11 +314,12 @@ FROM (
              JOIN "EmployeeView" "EV" ON "CBH"."cashierId" = "employeeId"
 ) "BB" ON "00"."billingId" = "BB"."billingId";
 
--- 31: Identify the credit transaction that has the highest amount.
-SELECT *
-FROM "CreditTransaction"
+-- 31: Identify the top-10 credit transactions that have the highest amount.
+SELECT "CT"."paymentTransactionId", "amount", "taxInvoiceId", "timeCreated", "status", "pointReceived"
+FROM "CreditTransaction" "CT" JOIN "PaymentTransaction" "PT" ON "CT"."paymentTransactionId" = "PT"."paymentTransactionId"
+JOIN "BillingView" "BV" ON "BV"."billingId" = "PT"."billingId"
 ORDER BY "amount" DESC
-LIMIT 1;
+LIMIT 10;
 
 -- 32: List all payment transactions that are ever made by any customer in any billing.
 CREATE OR REPLACE VIEW "PaymentTransactionView" AS
@@ -334,41 +342,35 @@ FROM "PaymentTransaction" "PT"
          LEFT JOIN "GiftVoucherTransaction" "GVT" ON "PT"."paymentTransactionId" = "GVT"."paymentTransactionId";
 
 -- 33: Count employees group by age
-SELECT "age", COUNT("employeeId") AS "NumberOfEmployee"
+SELECT "age", COUNT("employeeId") AS "numberOfEmployees"
 FROM "Employee"
 GROUP BY "age"
 ORDER BY "age";
 
 -- 34: Identify the age that has the highest number of employees
-SELECT "age", COUNT("employeeId") AS "NumberOfEmployee"
+SELECT "age", COUNT("employeeId") "numberOfEmployees"
 FROM "Employee"
 GROUP BY "age"
 ORDER BY COUNT("employeeId") DESC
 LIMIT 1;
 
 -- 35: Count all member customers that are grouped by each membership level.
-SELECT "MemberLevelRef"."name", COUNT("memberCustomerId") AS "NumberOfMember"
-FROM "MemberCustomer"
-         JOIN "MembershipRewardRedemption"
-              ON "MemberCustomer"."memberCustomerId" = "MembershipRewardRedemption"."memberCustomerRefId"
-         JOIN "MemberLevelRewardOffering" ON "MemberLevelRewardOffering"."redeemableRewardRefId" =
-                                             "MembershipRewardRedemption"."redeemableRewardRefId"
-         JOIN "MemberLevelRef" ON "MemberLevelRewardOffering"."memberLevelRefId" = "MemberLevelRef"."memberLevelRefId"
-GROUP BY "MemberLevelRef"."name";
+SELECT "MLR"."name", COUNT("memberCustomerId") "numberOfMembers"
+FROM "MemberCustomer" "MC"
+         JOIN "MembershipRewardRedemption" "MRR"
+              ON "MC"."memberCustomerId" = "MRR"."memberCustomerRefId"
+         JOIN "MemberLevelRewardOffering" "MLRO" ON "MLRO"."redeemableRewardRefId" =
+                                                    "MRR"."redeemableRewardRefId"
+         JOIN "MemberLevelRef" "MLR" ON "MLRO"."memberLevelRefId" = "MLR"."memberLevelRefId"
+GROUP BY "MLR"."name";
 
 -- 36: Show customer first name, surname, and member level.
-SELECT "MemberCustomer"."firstname", "MemberCustomer"."surname", "MemberLevelRef"."name"
-FROM "MemberLevelRef"
-         JOIN "MemberLevelRewardOffering"
-              ON "MemberLevelRef"."memberLevelRefId" = "MemberLevelRewardOffering"."memberLevelRefId"
-         JOIN "MembershipRewardRedemption" ON "MemberLevelRewardOffering"."redeemableRewardRefId" =
-                                              "MembershipRewardRedemption"."redeemableRewardRefId"
-         JOIN "MemberCustomer"
-              ON "MemberCustomer"."memberCustomerId" = "MembershipRewardRedemption"."memberCustomerRefId";
+SELECT "MCV"."memberCustomerId", "MCV"."firstname", "MCV"."surname", "MCV"."membershipLevel"
+FROM "MemberCustomerView" "MCV";
 
 -- 37: Identify the total sale frequency of each menu.
-SELECT "nameEng", COUNT("quantity") AS "sellCount"
-FROM "MenuRef"
-         JOIN "OrderItem" ON "MenuRef"."menuRefId" = "OrderItem"."menuRefId"
-GROUP BY "nameEng"
+SELECT "MR"."menuRefId", "nameEng", COUNT("quantity") "sellCount"
+FROM "MenuRef" "MR"
+         JOIN "OrderItem" "OI" ON "MR"."menuRefId" = "OI"."menuRefId"
+GROUP BY "MR"."menuRefId", "nameEng"
 ORDER BY COUNT("quantity") DESC;
