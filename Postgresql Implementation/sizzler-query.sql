@@ -62,6 +62,7 @@ FROM (SELECT * FROM "MenuRef" WHERE "isActive") "MR"
 
 -- 0.3: List all Inventory Inbound Order details grouped by branch.
 
+
 -- 0.4: Given a menu, identify one or more servings that are included.
 
 -- 0.6: Identify the amount of each food item that needed to be refilled.

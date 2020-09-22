@@ -24,14 +24,14 @@ class Branch(extent branches key branchId){
         'under maintenance',
         'out-of-business' }             status;
     attribute   set<BranchOpenTime>     openTime;
-    attribute   set<Table>              tables;     // FIXME: Investigate whether this works.
+    attribute   set<Table>              tables;
 
     relationship set<Employee>                      operatedBy                  inverse     Employee::worksAt;
     relationship SaladBar                           offersSaladBar              inverse     SaladBar::offeredBy;
     relationship set<ComputerMachine>               deploysComputerMachine      inverse     ComputerMachine::deployedBy;
     relationship set<CustomerDelivery>              handlesCustomerDelivery     inverse     CustomerDelivery::handledBy;
     relationship set<MemberCustomer>                locatedNear                 inverse     MemberCustomer::livesNear;
-    relationship set<InventoryInboundOrderItem>     manages                     inverse     InventoryInboundOrderItem::managedBy;
+    relationship set<InventoryInboundOrder>         ownsInventoryOrder          inverse     InventoryInboundOrder::ownedBy;
     relationship set<MenuRef>                       menuOffers                  inverse     MenuRef::menuOfferedBy;
 
     void updateStatus(in BranchStatus status);
@@ -328,7 +328,8 @@ class InventoryInboundOrder(extent inventoryInboundOrders key inboundOrderId){
     attribute       string                              deliverIn;
     attribute       set<InventoryInboundOrderItem>      items;
 
-    relationship    KitchenManager  managedBy   inverse     KitchenManager::manages;
+    relationship KitchenManager  managedBy   inverse     KitchenManager::manages;
+    relationship Branch          ownedBy     inverse     Branch::ownsInventoryOrder;
 
     void cancel();
     boolean markAsDelivered();
@@ -341,7 +342,6 @@ class InventoryInboundOrderItem(key inboundOrderItemId){
     attribute       string          quantityUnit;
     attribute       short           pricePerUnit;
 
-    relationship Branch                     managedBy       inverse     Branch::managesTable;
     relationship FoodIngredientRef          involves        inverse     FoodIngredientRef::involvedWith;
 };
 

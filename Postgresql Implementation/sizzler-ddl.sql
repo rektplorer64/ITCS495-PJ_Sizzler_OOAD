@@ -462,7 +462,8 @@ CREATE TABLE IF NOT EXISTS "InventoryInboundOrder"
     "timeCanceled"             TIMESTAMP,
     "note"                     TEXT,
     "deliveryIn"               INTERVAL  NOT NULL DEFAULT '12 hours',
-    "managingKitchenManagerId" UUID      NOT NULL REFERENCES "KitchenManager" ("employeeId")
+    "managingKitchenManagerId" UUID      NOT NULL REFERENCES "KitchenManager" ("employeeId"),
+    "branchId"                 UUID      NOT NULL REFERENCES "Branch" ("branchId")
 );
 
 -- Quantity (weight, volume) Unit Reference
@@ -481,7 +482,6 @@ CREATE TABLE IF NOT EXISTS "InventoryInboundOrderItem"
     "inboundOrderItemId"  SERIAL         NOT NULL,
     "verificationTime"    TIMESTAMP,
     "inboundOrderId"      INT            NOT NULL,
-    "branchId"            UUID           NOT NULL REFERENCES "Branch" ("branchId"),
     "foodIngredientRefId" INT            NOT NULL REFERENCES "FoodIngredientRef" ("foodIngredientRefId"),
     "quantity"            FLOAT          NOT NULL DEFAULT 0,
     "quantityUnitRefId"   INT            NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
