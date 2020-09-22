@@ -104,7 +104,9 @@ CREATE TABLE IF NOT EXISTS "EducationLevelRef"
 CREATE TYPE GENDER AS ENUM ('male', 'female');
 
 CREATE OR REPLACE FUNCTION
-    "calculatePersonAge"("birthday" DATE)
+    "calculatePersonAge"(
+    "birthday" DATE
+)
     RETURNS INT
 AS
 $CODE$
@@ -262,7 +264,7 @@ CREATE TABLE IF NOT EXISTS "MemberCustomer"
     "email"                 CITEXT      NOT NULL UNIQUE,
     "liveNearBranchId"      UUID        NOT NULL REFERENCES "Branch" ("branchId"),
     "registrationTimestamp" TIMESTAMP   NOT NULL DEFAULT now(),
-    "gender"                gender      NOT NULL,
+    "gender"                GENDER      NOT NULL,
     CONSTRAINT "Check_MembershipRegistrationComeAfterBirthdate" CHECK ( "registrationTimestamp" > "birthdate")
 );
 
@@ -294,10 +296,11 @@ CREATE TABLE IF NOT EXISTS "MemberLevelRef"
     "pointThreshold"   INT         NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS "MemberLevelGrant"(
-    "memberLevelRefId"      UUID            NOT NULL REFERENCES "MemberLevelRef"("memberLevelRefId"),
-    "memberCustomerId"      UUID            NOT NULL REFERENCES "MemberCustomer"("memberCustomerId"),
-    "timestamp"             TIMESTAMP       NOT NULL DEFAULT now(),
+CREATE TABLE IF NOT EXISTS "MemberLevelGrant"
+(
+    "memberLevelRefId" UUID      NOT NULL REFERENCES "MemberLevelRef" ("memberLevelRefId"),
+    "memberCustomerId" UUID      NOT NULL REFERENCES "MemberCustomer" ("memberCustomerId"),
+    "timestamp"        TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY ("memberCustomerId", "memberLevelRefId", "timestamp")
 );
 
@@ -396,7 +399,7 @@ CREATE TABLE IF NOT EXISTS "Order"
 -- SECTION: Billing -> PaymentTransaction
 CREATE TABLE IF NOT EXISTS "PaymentTransaction"
 (
-    "paymentTransactionId" UUID PRIMARY KEY   DEFAULT uuid_generate_v4(),
+    "paymentTransactionId" UUID PRIMARY KEY   DEFAULT "uuid_generate_v4"(),
     "timestamp"            TIMESTAMP NOT NULL DEFAULT now(),
     "billingId"            UUID      NOT NULL REFERENCES "Billing" ("billingId")
 );
@@ -587,7 +590,10 @@ CREATE TABLE IF NOT EXISTS "OrderItem"
     "perUnitDiscount"    DECIMAL(12, 2),
     "perUnitTakeHomeFee" DECIMAL(12, 2),
     "isRefunded"         BOOL           NOT NULL DEFAULT FALSE,
-    "price"              DECIMAL(12, 2) GENERATED ALWAYS AS ("calculateOrderItemPrice"("perUnitPrice", "perUnitTakeHomeFee", "perUnitDiscount", "quantity")) STORED
+    "price"              DECIMAL(12, 2) GENERATED ALWAYS AS ("calculateOrderItemPrice"("perUnitPrice",
+                                                                                       "perUnitTakeHomeFee",
+                                                                                       "perUnitDiscount",
+                                                                                       "quantity")) STORED
 );
 
 -- SECTION 3-ary relationship "MenuServingCustomization"
@@ -621,7 +627,7 @@ CREATE TABLE IF NOT EXISTS "MenuSeasonRef"
 
 CREATE TABLE IF NOT EXISTS "MenuAvailability"
 (
-    "menuAvailabilityId" INT         NOT NULL PRIMARY KEY,
+    "menuAvailabilityId" SERIAL      NOT NULL PRIMARY KEY,
     "dayOfWeek"          DAY_OF_WEEK NOT NULL,
     "timeRangeStart"     TIME        NOT NULL,
     "timeRangeEnd"       TIME        NOT NULL,
@@ -635,7 +641,7 @@ CREATE TABLE IF NOT EXISTS "SaladBarServing"
     "foodItemRefId"   INT       NOT NULL REFERENCES "FoodItemRef" ("foodItemRefId"),
     "maxQuantity"     FLOAT     NOT NULL,
     "maxQuantityUnit" INT       NOT NULL REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
-    "timeRefilled"    timestamp NOT NULL DEFAULT now(),
+    "timeRefilled"    TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY ("saladBarId", "foodItemRefId")
 );
 
@@ -648,4 +654,11 @@ CREATE TABLE IF NOT EXISTS "SaladBarRefill"
     "quantityUnit"  INT REFERENCES "QuantityUnitRef" ("quantityUnitRefId"),
     FOREIGN KEY ("saladBarId", "foodItemRefId")
         REFERENCES "SaladBarServing" ("saladBarId", "foodItemRefId")
+);
+
+CREATE TABLE IF NOT EXISTS "BranchMenuAvailability"
+(
+    "branchId"  UUID NOT NULL REFERENCES "Branch" ("branchId"),
+    "menuRefId" INT  NOT NULL REFERENCES "MenuRef" ("menuRefId"),
+    PRIMARY KEY ("branchId", "menuRefId")
 );

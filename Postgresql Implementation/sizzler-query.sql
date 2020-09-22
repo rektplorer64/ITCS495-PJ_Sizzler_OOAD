@@ -25,6 +25,40 @@ FROM "Branch" "B"
 ) "EMP" ON "B"."branchId" = "EMP"."branchId";
 
 -- 0.2: List the details of each menu with respects to current availability.
+SELECT "MR".*,
+       "MenuAvailability"."menuRefId" IS NOT NULL "isAvailable",
+       "MenuWitoutSeason"."menuRefId" IS NULL     "hasSeason",
+       "MenuWithCurrentSeason" IS NOT NULL        "inSeason",
+       "isActive" AND ("MenuAvailability"."menuRefId" IS NOT NULL) AND
+       (CASE
+            WHEN "MenuWitoutSeason"."menuRefId" IS NULL
+                THEN ("MenuWithCurrentSeason" IS NOT NULL)
+            ELSE TRUE END)                        "finallyNowAvailable?",
+       "availableAtBranch"
+FROM (SELECT * FROM "MenuRef" WHERE "isActive") "MR"
+         LEFT JOIN
+     (
+         SELECT "menuRefId"
+         FROM "MenuAvailability" "MA2"
+         WHERE date_part('dow', now()) = "mapToDayOfWeekInt"("dayOfWeek")
+           AND '10:00'::TIME BETWEEN "timeRangeStart" AND "timeRangeEnd") "MenuAvailability"
+     ON "MR"."menuRefId" = "MenuAvailability"."menuRefId"
+         LEFT JOIN (
+    SELECT "menuRefId"
+    FROM "MenuSeasonRef" "MSR"
+             LEFT JOIN
+         (SELECT *
+          FROM "SeasonRef"
+          WHERE now() BETWEEN "dateStart" AND "dateEnd") "SR" ON "MSR"."seasonRefId" = "SR"."seasonRefId"
+) "MenuWithCurrentSeason" ON "MR"."menuRefId" = "MenuWithCurrentSeason"."menuRefId"
+         LEFT JOIN (SELECT "MenuRef"."menuRefId"
+                    FROM "MenuRef"
+                             LEFT JOIN "MenuSeasonRef" "MSR2" ON "MenuRef"."menuRefId" = "MSR2"."menuRefId"
+                    WHERE "MSR2"."menuRefId" IS NULL) "MenuWitoutSeason"
+                   ON "MenuWitoutSeason"."menuRefId" = "MR"."menuRefId"
+         LEFT JOIN (SELECT "menuRefId", array_agg("branchId") "availableAtBranch"
+                    FROM "BranchMenuAvailability"
+                    GROUP BY "menuRefId") "AvailableBranch" ON "AvailableBranch"."menuRefId" = "MR"."menuRefId";
 
 -- 0.3: List all Inventory Inbound Order details grouped by branch.
 

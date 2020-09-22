@@ -1,14 +1,14 @@
 UPDATE "MemberCustomer"
 SET "liveNearBranchId" = (SELECT "branchId"
                           FROM "Branch"
-                          where "memberCustomerId" = "memberCustomerId"
+                          WHERE "memberCustomerId" = "memberCustomerId"
                           ORDER BY (
-                                       SELECT (SELECT random() WHERE g = g AND "branchId" = "branchId")
-                                       FROM generate_series(1, 10) g
-                                       limit 1
+                                       SELECT (SELECT random() WHERE "g" = "g" AND "branchId" = "branchId")
+                                       FROM generate_series(1, 10) "g"
+                                       LIMIT 1
                                    )
 
-                          limit 1)
+                          LIMIT 1)
 WHERE "memberCustomerId" NOT IN (
                                  '5d6ea576-5d1a-4de6-8531-f28528fd598a',
                                  '56791212-598f-4b7d-805e-5e7ac69d2f88',
@@ -21,16 +21,16 @@ WHERE "memberCustomerId" NOT IN (
     );
 
 
-UPDATE "Billing" A
-SET "pointExpirationTime"      = '1 year'::interval,
+UPDATE "Billing" "A"
+SET "pointExpirationTime"      = '1 year'::INTERVAL,
     "pointReceived"            = floor(random() * (1000 - 100 + 1) + 100),
     "involvedMemberCustomerId" = (
         SELECT "memberCustomerId"
         FROM "MemberCustomer"
-        WHERE A."billingId" = A."billingId"
-        ORDER BY (SELECT (SELECT random() WHERE g = g AND A."billingId" = A."billingId")
-                  FROM generate_series(1, 10) g
-                  limit 1)
+        WHERE "A"."billingId" = "A"."billingId"
+        ORDER BY (SELECT (SELECT random() WHERE "g" = "g" AND "A"."billingId" = "A"."billingId")
+                  FROM generate_series(1, 10) "g"
+                  LIMIT 1)
         LIMIT 1
     )
 WHERE "timePaid" IS NOT NULL
@@ -45,20 +45,20 @@ FROM "Billing"
 WHERE "involvedMemberCustomerId" IS NOT NULL;
 
 -- Update involvedMemberCustomerId with random MemberCustomerId
-UPDATE "Billing" A
+UPDATE "Billing" "A"
 SET "involvedMemberCustomerId" = (
     SELECT "memberCustomerId"
     FROM "MemberCustomer"
-    WHERE A."billingId" = A."billingId"
-    ORDER BY (SELECT (SELECT random() WHERE g = g AND "memberCustomerId" = "memberCustomerId")
-              FROM generate_series(1, 10) g
-              limit 1)
+    WHERE "A"."billingId" = "A"."billingId"
+    ORDER BY (SELECT (SELECT random() WHERE "g" = "g" AND "memberCustomerId" = "memberCustomerId")
+              FROM generate_series(1, 10) "g"
+              LIMIT 1)
     LIMIT 1
 )
 WHERE "involvedMemberCustomerId" IS NOT NULL;
 
 -- This WILL NOT WORK. ALL ROWS WILL HAVE a randomly identical "involvedMemberCustomerId" value!!
-UPDATE "Billing" A
+UPDATE "Billing" "A"
 SET "involvedMemberCustomerId" = (
     SELECT "memberCustomerId"
     FROM "MemberCustomer"
@@ -73,59 +73,59 @@ BEGIN TRANSACTION;
 ROLLBACK;
 
 
-SELECT case
-           when "rowNo" = 1 then concat(email, '@sizzler.co.th')
-           else concat(concat(email, "rowNo", '@sizzler.co.th')) end,
+SELECT CASE
+           WHEN "rowNo" = 1 THEN concat("email", '@sizzler.co.th')
+           ELSE concat(concat("email", "rowNo", '@sizzler.co.th')) END,
        "employeeId"
 FROM (
          SELECT concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3)) "email",
-                row_number() over (partition by concat(replace(lower("firstname"), ' ', '_'), '.',
+                row_number() OVER (PARTITION BY concat(replace(lower("firstname"), ' ', '_'), '.',
                                                        substr(lower("surname"), 1, 3)))            "rowNo",
                 "employeeId"
 
          FROM "Employee"
-     ) X;
+     ) "X";
 
 
 SELECT DISTINCT concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3), '@sizzler.co.th'),
                 count(*)
 FROM "Employee"
-group by concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3), '@sizzler.co.th');
+GROUP BY concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3), '@sizzler.co.th');
 
 -- Update EMPLOYEE data such as email, educationLevelId, provinceId
-UPDATE "Employee" A
+UPDATE "Employee" "A"
 SET "email"            = (
-    SELECT case
-               when "rowNo" = 1 then concat(email, '@sizzler.co.th')
-               else concat(concat(email, "rowNo", '@sizzler.co.th')) end
+    SELECT CASE
+               WHEN "rowNo" = 1 THEN concat("email", '@sizzler.co.th')
+               ELSE concat(concat("email", "rowNo", '@sizzler.co.th')) END
     FROM (
              SELECT concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3)) "email",
-                    row_number() over (partition by concat(replace(lower("firstname"), ' ', '_'), '.',
+                    row_number() OVER (PARTITION BY concat(replace(lower("firstname"), ' ', '_'), '.',
                                                            substr(lower("surname"), 1, 3)))            "rowNo",
                     "employeeId"
 
              FROM "Employee"
              WHERE concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3)) =
-                   concat(replace(lower(A."firstname"), ' ', '_'), '.', substr(lower(A."surname"), 1, 3))
-         ) X
-    WHERE A."employeeId" = X."employeeId"
+                   concat(replace(lower("A"."firstname"), ' ', '_'), '.', substr(lower("A"."surname"), 1, 3))
+         ) "X"
+    WHERE "A"."employeeId" = "X"."employeeId"
 ),
     "educationLevelId" = (
         SELECT "educationLevelId"
         FROM "EducationLevelRef"
-        WHERE A."employeeId" = A."employeeId"
-        ORDER BY (SELECT (SELECT random() WHERE g = g AND "educationLevelId" = "educationLevelId")
-                  FROM generate_series(1, 10) g
-                  limit 1)
+        WHERE "A"."employeeId" = "A"."employeeId"
+        ORDER BY (SELECT (SELECT random() WHERE "g" = "g" AND "educationLevelId" = "educationLevelId")
+                  FROM generate_series(1, 10) "g"
+                  LIMIT 1)
         LIMIT 1
     ),
     "provinceId"       = (
         SELECT "Province"."provinceId"
         FROM "Province"
-        WHERE A."employeeId" = A."employeeId"
-        ORDER BY (SELECT (SELECT random() WHERE g = g AND "provinceId" = "provinceId")
-                  FROM generate_series(1, 10) g
-                  limit 1)
+        WHERE "A"."employeeId" = "A"."employeeId"
+        ORDER BY (SELECT (SELECT random() WHERE "g" = "g" AND "provinceId" = "provinceId")
+                  FROM generate_series(1, 10) "g"
+                  LIMIT 1)
         LIMIT 1
     );
 
@@ -133,8 +133,8 @@ SET "email"            = (
 
 UPDATE "Employee"
 SET "gender" = (
-    SELECT case
-               when "firstname" IN
+    SELECT CASE
+               WHEN "firstname" IN
                     ('Aat', 'Aawut', 'Adirake', 'Akkanee', 'Akkarat', 'Alak', 'Amnuay', 'Anada', 'Ananada', 'Ananda',
                      'Annan', 'Anon', 'Anuia', 'Anuman', 'Anurak', 'Anuthat', 'Apichart', 'Aran', 'Aroon', 'Arthit',
                      'Ashwin', 'Asnee', 'Athiti', 'Atid', 'Badinton', 'Baharn', 'Bahn', 'Bandasak', 'Banjong', 'Banlop',
@@ -276,7 +276,7 @@ SET "gender" = (
                      'Yod rak',
                      'Yongchaiyudh', 'Yongchaiyuth', 'Yongyuth', 'Yubamrung', 'Yuthakon')
                    THEN 'male'
-               when "firstname" IN
+               WHEN "firstname" IN
                     ('Abhasra', 'Achara', 'Adung', 'Ampawn', 'Amphorn', 'Amporn', 'Anchali', 'Anna', 'Anon', 'Apsara',
                      'Apsorn', 'Areva', 'Arinya', 'Arom', 'Atchara', 'Ausanat', 'Baenglum', 'Ban', 'Banjit',
                      'Bannarasee',
@@ -346,17 +346,17 @@ SET "gender" = (
                      'Yaowalak', 'Yaowaman', 'Yen', 'Yindee', 'Ying', 'Yodman', 'Yodmani', 'Yong-Yut', 'Yrita',
                      'Yu-Pha',
                      'Yu-Phin', 'Yupin')
-                   then
+                   THEN
                    'female'
-               else
+               ELSE
                    "gender"
-               end
+               END
 );
 
 UPDATE "MemberCustomer"
 SET "gender" = (
-    SELECT case
-               when "firstname" IN
+    SELECT CASE
+               WHEN "firstname" IN
                     ('Aat', 'Aawut', 'Adirake', 'Akkanee', 'Akkarat', 'Alak', 'Amnuay', 'Anada', 'Ananada', 'Ananda',
                      'Annan', 'Anon', 'Anuia', 'Anuman', 'Anurak', 'Anuthat', 'Apichart', 'Aran', 'Aroon', 'Arthit',
                      'Ashwin', 'Asnee', 'Athiti', 'Atid', 'Badinton', 'Baharn', 'Bahn', 'Bandasak', 'Banjong', 'Banlop',
@@ -498,7 +498,7 @@ SET "gender" = (
                      'Yod rak',
                      'Yongchaiyudh', 'Yongchaiyuth', 'Yongyuth', 'Yubamrung', 'Yuthakon')
                    THEN 'male'
-               when "firstname" IN
+               WHEN "firstname" IN
                     ('Abhasra', 'Achara', 'Adung', 'Ampawn', 'Amphorn', 'Amporn', 'Anchali', 'Anna', 'Anon', 'Apsara',
                      'Apsorn', 'Areva', 'Arinya', 'Arom', 'Atchara', 'Ausanat', 'Baenglum', 'Ban', 'Banjit',
                      'Bannarasee',
@@ -568,157 +568,185 @@ SET "gender" = (
                      'Yaowalak', 'Yaowaman', 'Yen', 'Yindee', 'Ying', 'Yodman', 'Yodmani', 'Yong-Yut', 'Yrita',
                      'Yu-Pha',
                      'Yu-Phin', 'Yupin')
-                   then
+                   THEN
                    'female'
-               else
+               ELSE
                    'male'
-               end
-)::gender WHERE 1 = 1;
+               END
+)::GENDER
+WHERE 1 = 1;
 
-CREATE OR REPLACE FUNCTION random_between(low INT, high INT)
+CREATE OR REPLACE FUNCTION "random_between"(
+    "low" INT, "high" INT
+)
     RETURNS INT AS
 $$
 BEGIN
-    RETURN floor(random() * (high - low + 1) + low);
+    RETURN floor(random() * ("high" - "low" + 1) + "low");
 END;
-$$ language 'plpgsql' STRICT;
+$$ LANGUAGE 'plpgsql' STRICT;
 
 -- Randomize joinDate from birthdate
 UPDATE "Employee"
 SET "joinDate" = (
     SELECT "birthdate" +
-           (random_between(15, 17) || ' year ' || random_between(1, 12) || ' month ' || random_between(1, 30) ||
-            ' day ' || random_between(0, 24) || ' hour ' || random_between(0, 60) || ' min ' || random_between(0, 60) ||
-            ' seconds')::interval
+           ("random_between"(15, 17) || ' year ' || "random_between"(1, 12) || ' month ' || "random_between"(1, 30) ||
+            ' day ' || "random_between"(0, 24) || ' hour ' || "random_between"(0, 60) || ' min ' ||
+            "random_between"(0, 60) ||
+            ' seconds')::INTERVAL
 )
 WHERE "joinDate" = '2020-09-15';
 
 
 -- Randomly populate Branch to each Employee
-UPDATE "Employee" E
+UPDATE "Employee" "E"
 SET "branchId" = (
-    SELECT case
-               when exists(SELECT "branchId" FROM "Branch" WHERE "provinceId" = E."provinceId")
+    SELECT CASE
+               WHEN exists(SELECT "branchId" FROM "Branch" WHERE "provinceId" = "E"."provinceId")
                    THEN
                    (
                        SELECT "branchId"
-                       FROM "Branch" X
-                       WHERE X."provinceId" = E."provinceId"
+                       FROM "Branch" "X"
+                       WHERE "X"."provinceId" = "E"."provinceId"
                        ORDER BY (SELECT (
                                             SELECT random()
-                                            WHERE g = g
-                                              AND X."branchId" = X."branchId"
+                                            WHERE "g" = "g"
+                                              AND "X"."branchId" = "X"."branchId"
                                         )
-                                 FROM generate_series(1, 10) g
-                                 limit 1)
+                                 FROM generate_series(1, 10) "g"
+                                 LIMIT 1)
                        LIMIT 1
                    )
-               else
+               ELSE
                    (
                        SELECT "branchId"
-                       FROM "Branch" X
-                       WHERE E."employeeId" = E."employeeId"
+                       FROM "Branch" "X"
+                       WHERE "E"."employeeId" = "E"."employeeId"
                        ORDER BY (SELECT (
                                             SELECT random()
-                                            WHERE g = g
-                                              AND X."provinceId" = X."provinceId"
+                                            WHERE "g" = "g"
+                                              AND "X"."provinceId" = "X"."provinceId"
                                         )
-                                 FROM generate_series(1, 10) g
-                                 limit 1)
+                                 FROM generate_series(1, 10) "g"
+                                 LIMIT 1)
                        LIMIT 1
                    )
-               end
+               END
 );
 
 --Random time range between 15 - 100 minutes
 UPDATE "InventoryInboundOrder"
 SET "deliveryIn" = (
-    SELECT (random_between(25, 235) || ' min')::interval
+    SELECT ("random_between"(25, 235) || ' min')::INTERVAL
     WHERE "inboundOrderId" = "inboundOrderId"
 )
 WHERE 1 = 1;
 
 
 -- List employees who has no positions at all!
-SELECT E."employeeId", BM."employeeId", C."employeeId", C2."employeeId", DM."employeeId"
-FROM "Employee" E
-         LEFT JOIN "BranchManager" BM on E."employeeId" = BM."employeeId"
-         LEFT JOIN "Cashier" C on E."employeeId" = C."employeeId"
-         LEFT JOIN "Chef" C2 on E."employeeId" = C2."employeeId"
-         LEFT JOIN "DeliveryMan" DM on E."employeeId" = DM."employeeId"
-WHERE C."employeeId" IS NULL
-  AND BM."employeeId" IS NULL
-  AND C2."employeeId" IS NULL
-  AND DM."employeeId" IS NULL;
+SELECT "E"."employeeId", "BM"."employeeId", "C"."employeeId", "C2"."employeeId", "DM"."employeeId"
+FROM "Employee" "E"
+         LEFT JOIN "BranchManager" "BM" ON "E"."employeeId" = "BM"."employeeId"
+         LEFT JOIN "Cashier" "C" ON "E"."employeeId" = "C"."employeeId"
+         LEFT JOIN "Chef" "C2" ON "E"."employeeId" = "C2"."employeeId"
+         LEFT JOIN "DeliveryMan" "DM" ON "E"."employeeId" = "DM"."employeeId"
+WHERE "C"."employeeId" IS NULL
+  AND "BM"."employeeId" IS NULL
+  AND "C2"."employeeId" IS NULL
+  AND "DM"."employeeId" IS NULL;
 
-
--- UPDATE "ClockInClockOut"
--- SET ("employeeId", "clockInTimestamp", "computerMachineId", "workTimeId") = (
---     SELECT (
---                SELECT E."employeeId"
---                FROM "Employee" E
---                ORDER BY (SELECT (SELECT random() WHERE g = g AND E."employeeId" = E."employeeId")
---                          FROM generate_series(1, 10) g
---                          limit 1)
---                LIMIT 1
---            ),
---            (
---                SELECT
---            ),
---            (),
---            ()
--- );
---
--- SELECT E."employeeId", WT.*
--- FROM "Employee" E JOIN "WorkTime" WT ON E."employeeId" = WT."employeeId"
--- ORDER BY (SELECT (SELECT random() WHERE g = g AND E."employeeId" = E."employeeId")
---           FROM generate_series(1, 10) g
---           limit 1)
-
-do
+DO
 $$
-    declare
-        employee         "Employee";
-        isPartTime       bool;
-        timeOffset       char(2);
-        branchOps        Record;
-        insertedWorkTime Record;
-        timeOpen         time;
-        timeClose        time;
-    begin
+    DECLARE
+        "employee"         "Employee";
+        "isPartTime"       BOOL;
+        "timeOffset"       CHAR(2);
+        "branchOps"        RECORD;
+        "insertedWorkTime" RECORD;
+        "timeOpen"         TIME;
+        "timeClose"        TIME;
+    BEGIN
 
-        FOR employee IN (SELECT * FROM "Employee")
+        FOR "employee" IN (SELECT * FROM "Employee")
             LOOP
-                raise notice 'Counter %', employee;
+                RAISE NOTICE 'Counter %', "employee";
 
-                FOR branchOps IN (SELECT "dayOfWeek", "timeOpening", "timeClosing"
-                                  FROM "Branch"
-                                           JOIN "BranchOpenTime" BOT on "Branch"."branchId" = BOT."branchId"
-                                  WHERE "Branch"."branchId" = employee."branchId")
+                FOR "branchOps" IN (SELECT "dayOfWeek", "timeOpening", "timeClosing"
+                                    FROM "Branch"
+                                             JOIN "BranchOpenTime" "BOT" ON "Branch"."branchId" = "BOT"."branchId"
+                                    WHERE "Branch"."branchId" = "employee"."branchId")
                     LOOP
 
-                        SELECT (("employee".age < 20) AND (branchOps."dayOfWeek" not in ('sunday', 'saturday')))
-                        INTO isPartTime;
-                        raise notice '%', branchOps;
+                        SELECT (("employee"."age" < 20) AND ("branchOps"."dayOfWeek" NOT IN ('sunday', 'saturday')))
+                        INTO "isPartTime";
+                        RAISE NOTICE '%', "branchOps";
 
-                        select (array ['10', '15', '30'])[floor(random() * 3 + 1)] INTO timeOffset;
+                        SELECT (ARRAY ['10', '15', '30'])[floor(random() * 3 + 1)] INTO "timeOffset";
 
-                        timeOpen := branchOps."timeOpening";
-                        timeClose := branchOps."timeClosing";
-                        IF isPartTime = TRUE THEN
-                            timeOpen := '16:00'::time;
-                            timeClose := timeClose;
+                        "timeOpen" := "branchOps"."timeOpening";
+                        "timeClose" := "branchOps"."timeClosing";
+                        IF "isPartTime" = TRUE THEN
+                            "timeOpen" := '16:00'::TIME;
+                            "timeClose" := "timeClose";
                         END IF;
 
 
                         INSERT INTO "WorkTime"
-                        VALUES (DEFAULT, branchOps."dayOfWeek", timeOpen - (timeOffset || ' minute')::interval,
-                                timeClose + (timeOffset || ' minute')::interval,
-                                isPartTime, employee."employeeId")
-                        returning * INTO insertedWorkTime;
+                        VALUES (DEFAULT, "branchOps"."dayOfWeek", "timeOpen" - ("timeOffset" || ' minute')::INTERVAL,
+                                "timeClose" + ("timeOffset" || ' minute')::INTERVAL,
+                                "isPartTime", "employee"."employeeId")
+                        RETURNING * INTO "insertedWorkTime";
 
-                        raise notice 'Work Time => %', branchOps;
-                    end loop;
-            end loop;
-    end
+                        RAISE NOTICE 'Work Time => %', "branchOps";
+                    END LOOP;
+            END LOOP;
+    END
 $$;
+
+
+BEGIN TRANSACTION;
+ROLLBACK;
+COMMIT;
+-- Populate MenuAvailability for each menu
+DO
+$$
+    DECLARE
+        "itMenuRef"              "MenuRef";
+        "hasSpecialAvailability" BOOL;
+        "afternoonOnly"          BOOL;
+        "dayOfWeeks"             "day_of_week"[] := ARRAY ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        "itDayOfWeek"            "day_of_week";
+        "itTimeStart"            TIME;
+        "itTimeEnd"              TIME;
+        "i"                      INT;
+    BEGIN
+
+        FOR "itMenuRef" IN (SELECT * FROM "MenuRef")
+            LOOP
+                "hasSpecialAvailability" := random() < 0.2;
+                "afternoonOnly" := random() < 0.1;
+
+                FOR "i" IN array_lower("dayOfWeeks", 1)..array_upper("dayOfWeeks", 1)
+                    LOOP
+                        "itDayOfWeek" := "dayOfWeeks"["i"];
+                        IF "hasSpecialAvailability" AND "itDayOfWeek" = ANY
+                                                        (ARRAY ['monday'::"day_of_week", 'tuesday'::"day_of_week", 'wednesday'::"day_of_week"]) THEN
+                            CONTINUE;
+                        END IF;
+
+                        IF "afternoonOnly" THEN
+                            SELECT MIN("timeOpening") INTO "itTimeStart" FROM "BranchOpenTime";
+                            SELECT MIN("timeClosing") INTO "itTimeEnd" FROM "BranchOpenTime";
+                        ELSE
+                            SELECT '12:00'::TIME INTO "itTimeStart" FROM "BranchOpenTime";
+                            SELECT '15:00'::TIME INTO "itTimeEnd" FROM "BranchOpenTime";
+                        END IF;
+
+                        INSERT INTO "MenuAvailability"
+                        VALUES ((SELECT coalesce(MAX("menuAvailabilityId"), 0) + 1 FROM "MenuAvailability"),
+                                "itDayOfWeek", "itTimeStart", "itTimeEnd", "itMenuRef"."menuRefId");
+                    END LOOP;
+            END LOOP;
+
+    END;
+$$

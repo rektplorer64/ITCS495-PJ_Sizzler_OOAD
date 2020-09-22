@@ -391,10 +391,6 @@ $$
     END;
 $$;
 
-
-BEGIN TRANSACTION;
-ROLLBACK;
-COMMIT;
 -- Add linkage between MemberCustomer and MemberLevelRef
 DO
 $$
@@ -461,4 +457,77 @@ $$
                     END LOOP;
             END LOOP;
     END;
+$$;
+
+-- Populate ClockInClockOut rows to with respects to available employee records.
+DO
 $$
+    DECLARE
+        "itEmployee" "Employee";
+        "itWorkTime" "WorkTime";
+        "attendanceMachineId" uuid;
+        "itPreviousDate" date;
+        "itDay" int;
+        "maxDay" int;
+        "itPreviousDow" "day_of_week";
+        "itPreviousDowInt" int;
+    BEGIN
+        FOR "itEmployee" IN (SELECT * FROM "Employee")
+            LOOP
+
+                SELECT "TAM"."computerMachineId" INTO "attendanceMachineId"
+                FROM "ComputerMachine" "CM" JOIN "TimeAttendanceMachine" "TAM" ON "CM"."computerMachineId" = "TAM"."computerMachineId"
+                WHERE "branchId" = "itEmployee"."branchId"
+                ORDER BY random()
+                LIMIT 1;
+
+                "itPreviousDate" := "itEmployee"."joinDate";
+
+                SELECT (date_part('day', now() - "itPreviousDate") * 0.6)::int INTO "maxDay";
+                raise notice 'day => %', "maxDay";
+                FOR itDay IN 1..random_between(50, "maxDay")
+                    LOOP
+                        "itPreviousDowInt" := date_part('dow', "itPreviousDate");
+                        CASE "itPreviousDowInt"
+                            WHEN 0 THEN "itPreviousDow" := 'sunday';
+                            WHEN 1 THEN "itPreviousDow" := 'monday';
+                            WHEN 2 THEN "itPreviousDow" := 'tuesday';
+                            WHEN 3 THEN "itPreviousDow" := 'wednesday';
+                            WHEN 4 THEN "itPreviousDow" := 'thursday';
+                            WHEN 5 THEN "itPreviousDow" := 'friday';
+                            ELSE "itPreviousDow" := 'saturday'; END CASE;
+
+                            SELECT * INTO "itWorkTime" FROM "WorkTime" WHERE "employeeId" = "itEmployee"."employeeId" AND "dayOfWeek" = "itPreviousDow";
+
+                        INSERT INTO "ClockInClockOut"
+                            VALUES ("attendanceMachineId",
+                                    "itEmployee"."employeeId",
+                                    (date("itPreviousDate") || ' ' || ("itWorkTime"."timeStart" - ('5 min')::interval)::time)::timestamp,
+                                    (date("itPreviousDate") || ' ' || ("itWorkTime"."timeEnd" + ('5 min')::interval)::time)::timestamp,
+                                    "itWorkTime"."workTimeId");
+
+                        "itPreviousDate" := "itPreviousDate" + ('1 day')::interval;
+                    END LOOP;
+            END LOOP;
+    END
+$$;
+
+-- Populate the data for the Menu Availability of each branch.
+DO
+$$
+    DECLARE
+        "itMenuRef" "MenuRef";
+        "itBranch" "Branch";
+    BEGIN
+        FOR "itBranch" IN (SELECT * FROM "Branch")
+            LOOP
+                FOR "itMenuRef" IN (SELECT * FROM "MenuRef")
+                    LOOP
+                        IF random() < 0.1 THEN
+                            CONTINUE;
+                        END IF;
+                        INSERT INTO "BranchMenuAvailability" VALUES ("itBranch"."branchId", "itMenuRef"."menuRefId");
+                    END LOOP;
+            END LOOP;
+    END;
+$$;
