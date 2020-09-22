@@ -1,3 +1,37 @@
+-- 0.1: List all branches details in a given province of Thailand.
+CREATE OR REPLACE VIEW "BranchView" AS
+SELECT "B"."branchId",
+       "name",
+       "P"."nameThai"                                      "province",
+       "totalEmployees",
+       "totatAvailableTables",
+       "fullAddress",
+       ARRAY ["coordinateLatitude", "coordinateLongitude"] "coordinate",
+       "email",
+       "telephoneNo",
+       "establishingDate",
+       "status"
+FROM "Branch" "B"
+         JOIN "Province" "P" ON "B"."provinceId" = "P"."provinceId"
+         JOIN (
+    SELECT "BT"."branchId", array_agg("telephoneNo") "telephoneNo", count("tableId") "totatAvailableTables"
+    FROM "BranchTelephone" "BT" LEFT JOIN "Table" "T"  ON "T"."branchId" = "BT"."branchId"
+    GROUP BY "BT"."branchId"
+) "TEL" ON "TEL"."branchId" = "B"."branchId"
+         JOIN (
+    SELECT "branchId", count("employeeId") "totalEmployees"
+    FROM "Employee" "E"
+    GROUP BY "branchId"
+) "EMP" ON "B"."branchId" = "EMP"."branchId";
+
+-- 0.2: List the details of each menu with respects to current availability.
+
+-- 0.3: List all Inventory Inbound Order details grouped by branch.
+
+-- 0.4: Given a menu, identify one or more servings that are included.
+
+-- 0.6: Identify the amount of each food item that needed to be refilled.
+
 -- 1: Identify the cash transaction that has the highest amount.
 SELECT "PT".*, "CT"."amount"
 FROM "PaymentTransaction" "PT"
