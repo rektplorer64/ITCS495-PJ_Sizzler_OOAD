@@ -67,12 +67,7 @@ SET "involvedMemberCustomerId" = (
 )
 WHERE "involvedMemberCustomerId" IS NOT NULL;
 
-SELECT substr('abcde', 1, 3);
-
-BEGIN TRANSACTION;
-ROLLBACK;
-
-
+-- Generate employee email based on their full name. When the email is duplicate (violates unique constraint), we will count number up by 1.
 SELECT CASE
            WHEN "rowNo" = 1 THEN concat("email", '@sizzler.co.th')
            ELSE concat(concat("email", "rowNo", '@sizzler.co.th')) END,

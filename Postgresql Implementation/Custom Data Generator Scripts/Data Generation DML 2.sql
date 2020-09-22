@@ -113,19 +113,6 @@ $$
     END;
 $$;
 
-
--- Select Billing that don't belong to any type.
-SELECT "Billing"."billingId"
-FROM "Billing"
-         LEFT JOIN "BillingDelivery" "BD" ON "Billing"."billingId" = "BD"."billingId"
-         LEFT JOIN "BillingOnSite" "BOS" ON "Billing"."billingId" = "BOS"."billingId"
-WHERE "BD"."billingId" IS NULL
-  AND "BOS"."billingId" IS NULL;
-
-BEGIN TRANSACTION;
-ROLLBACK;
-COMMIT;
-
 -- Fill Billing information by its category.
 DO
 $$
