@@ -1,3 +1,4 @@
+-- Update member customers, who are not in the provided set of Id, in terms of the branch that they live nearby.
 UPDATE "MemberCustomer"
 SET "liveNearBranchId" = (SELECT "branchId"
                           FROM "Branch"
@@ -7,7 +8,6 @@ SET "liveNearBranchId" = (SELECT "branchId"
                                        FROM generate_series(1, 10) "g"
                                        LIMIT 1
                                    )
-
                           LIMIT 1)
 WHERE "memberCustomerId" NOT IN (
                                  '5d6ea576-5d1a-4de6-8531-f28528fd598a',
@@ -20,7 +20,7 @@ WHERE "memberCustomerId" NOT IN (
                                  '6367080e-ffae-48aa-9581-beb0e2b6c969'
     );
 
-
+-- Randomly Update billing information with member-customer-related information such as points, its expiration as well as the member Id.
 UPDATE "Billing" "A"
 SET "pointExpirationTime"      = '1 year'::INTERVAL,
     "pointReceived"            = floor(random() * (1000 - 100 + 1) + 100),
@@ -37,9 +37,7 @@ WHERE "timePaid" IS NOT NULL
   AND random() < 0.2;
 
 
-/**
-  Check for member who has involvedMemberCustomerId
- */
+--  Check for member who has involvedMemberCustomerId
 SELECT *
 FROM "Billing"
 WHERE "involvedMemberCustomerId" IS NOT NULL;
@@ -57,6 +55,7 @@ SET "involvedMemberCustomerId" = (
 )
 WHERE "involvedMemberCustomerId" IS NOT NULL;
 
+-- Randomly assign member customers to billings
 -- This WILL NOT WORK. ALL ROWS WILL HAVE a randomly identical "involvedMemberCustomerId" value!!
 UPDATE "Billing" "A"
 SET "involvedMemberCustomerId" = (
@@ -82,6 +81,7 @@ FROM (
      ) "X";
 
 
+-- Infer the email address of an employee from his/her first name and surname.
 SELECT DISTINCT concat(replace(lower("firstname"), ' ', '_'), '.', substr(lower("surname"), 1, 3), '@sizzler.co.th'),
                 count(*)
 FROM "Employee"
@@ -125,7 +125,7 @@ SET "email"            = (
     );
 
 
-
+-- Update Employee's gender by inspecting the his/her first name.
 UPDATE "Employee"
 SET "gender" = (
     SELECT CASE
@@ -571,17 +571,7 @@ SET "gender" = (
 )::GENDER
 WHERE 1 = 1;
 
-CREATE OR REPLACE FUNCTION "random_between"(
-    "low" INT, "high" INT
-)
-    RETURNS INT AS
-$$
-BEGIN
-    RETURN floor(random() * ("high" - "low" + 1) + "low");
-END;
-$$ LANGUAGE 'plpgsql' STRICT;
-
--- Randomize joinDate from birthdate
+-- Randomize Employee's joinDate by referencing birthdate
 UPDATE "Employee"
 SET "joinDate" = (
     SELECT "birthdate" +
@@ -699,9 +689,6 @@ $$
 $$;
 
 
-BEGIN TRANSACTION;
-ROLLBACK;
-COMMIT;
 -- Populate MenuAvailability for each menu
 DO
 $$
@@ -744,4 +731,4 @@ $$
             END LOOP;
 
     END;
-$$
+$$;
