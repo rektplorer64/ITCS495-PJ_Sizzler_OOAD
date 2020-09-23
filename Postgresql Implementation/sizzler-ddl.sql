@@ -50,7 +50,9 @@ CREATE TABLE IF NOT EXISTS "BranchTelephone"
     PRIMARY KEY ("branchId", "telephoneNo")
 );
 
-CREATE TYPE DAY_OF_WEEK AS ENUM ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');
+CREATE TYPE DAY_OF_WEEK AS ENUM ('monday', 'tuesday',
+    'wednesday', 'thursday', 'friday',
+    'saturday', 'sunday');
 
 CREATE TABLE IF NOT EXISTS "BranchOpenTime"
 (
